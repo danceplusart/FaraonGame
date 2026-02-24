@@ -1,0 +1,450 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Кальянная Фараон - Проклятие</title>
+    <style>
+        /* Стили под Древний Египет */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', 'Papyrus', 'Courier New', monospace;
+        }
+
+        body {
+            background: linear-gradient(145deg, #1a0e0b 0%, #2c1a15 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 16px;
+        }
+
+        .game-container {
+            max-width: 600px;
+            width: 100%;
+            background: #4a2e28;
+            border: 4px solid #b88a3d;
+            border-radius: 30px 30px 15px 15px;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.7), inset 0 0 20px #e6c27a;
+            padding: 25px 20px;
+            position: relative;
+        }
+
+        /* Декоративные колонны */
+        .game-container::before,
+        .game-container::after {
+            content: "𓃀";
+            font-size: 40px;
+            color: #e6c27a;
+            opacity: 0.2;
+            position: absolute;
+            top: 20px;
+        }
+        .game-container::before { left: 10px; }
+        .game-container::after { right: 10px; }
+
+        .title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: bold;
+            color: #f3d48b;
+            text-shadow: 3px 3px 0 #7a4f2e, 5px 5px 0 #00000055;
+            letter-spacing: 8px;
+            margin-bottom: 15px;
+            word-break: break-word;
+        }
+
+        .title span {
+            font-size: 1.5rem;
+            display: block;
+            color: #c2a25b;
+            text-shadow: 2px 2px 0 #3e2b1d;
+        }
+
+        /* Блок кальяна */
+        .hookah-area {
+            background: #352016;
+            border-radius: 80px 80px 40px 40px;
+            padding: 30px 20px 20px 20px;
+            border: 2px solid #b88a3d;
+            box-shadow: inset 0 -10px 20px #1e110c;
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .smoke-animation {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            height: 80px;
+            align-items: flex-end;
+            margin-bottom: 20px;
+        }
+
+        .smoke-stack {
+            width: 20px;
+            background: #d9c8b2;
+            border-radius: 20px 20px 0 0;
+            transition: height 0.3s ease;
+            box-shadow: 0 0 15px #ffebc0;
+            opacity: 0.8;
+        }
+
+        /* Колба (прогресс бар) */
+        .pyramid-progress {
+            text-align: center;
+            margin: 20px 0;
+            color: #f9e7b3;
+        }
+
+        .progress-bar-container {
+            background: #2b1c14;
+            height: 30px;
+            border-radius: 30px;
+            border: 2px solid #aa7c4f;
+            overflow: hidden;
+            margin-top: 5px;
+            box-shadow: inset 0 2px 5px #00000099;
+        }
+
+        .progress-fill {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #e0a82b, #f5d742, #ffec9e);
+            box-shadow: 0 0 20px #ffbb2b;
+            transition: width 0.4s ease;
+        }
+
+        /* Статистика */
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            background: #2f2019e0;
+            border-radius: 50px;
+            padding: 15px;
+            border: 1px solid #c9a256;
+            backdrop-filter: blur(2px);
+            margin-bottom: 25px;
+            color: #ffde9e;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2.2rem;
+            font-weight: bold;
+            color: #ffd966;
+            line-height: 1;
+        }
+
+        /* Кнопки */
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 30px;
+        }
+
+        .egypt-btn {
+            background: #b58547;
+            border: 3px solid #ffd78a;
+            color: #281a0f;
+            font-size: 1.8rem;
+            font-weight: bold;
+            padding: 15px 25px;
+            border-radius: 60px 60px 20px 20px;
+            box-shadow: 0 9px 0 #624a2e, 0 5px 15px #00000080;
+            cursor: pointer;
+            transition: 0.08s linear;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            flex: 1;
+            text-shadow: 1px 1px 0 #eec27e;
+        }
+
+        .egypt-btn:active {
+            transform: translateY(7px);
+            box-shadow: 0 2px 0 #4d3921, 0 5px 15px #00000080;
+        }
+
+        .egypt-btn:disabled {
+            opacity: 0.5;
+            transform: translateY(5px);
+            box-shadow: 0 4px 0 #4d3921;
+            pointer-events: none;
+        }
+
+        /* Мини-игра Скарабей (слоты) */
+        .mini-game {
+            background: #221712;
+            border-radius: 30px;
+            padding: 20px;
+            border: 3px solid #dcb065;
+        }
+
+        .slots {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .slot-reel {
+            background: #e8d6b5;
+            width: 80px;
+            height: 80px;
+            border-radius: 20px 20px 10px 10px;
+            border: 3px solid #a66f3f;
+            box-shadow: inset 0 0 20px #8b6b41;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            color: #2f1b0e;
+            text-shadow: 2px 2px 0 #b38b40;
+            background: #f7e9cc;
+            transition: 0.2s;
+        }
+
+        .spin-btn {
+            background: #9f783e;
+            border: 2px solid #fad47c;
+            color: #1f1207;
+            font-size: 1.5rem;
+            padding: 10px;
+            border-radius: 40px;
+            width: 100%;
+            font-weight: bold;
+            cursor: pointer;
+            box-shadow: 0 5px 0 #594d32;
+            transition: 0.08s;
+        }
+
+        .spin-btn:active {
+            transform: translateY(5px);
+            box-shadow: 0 0px 0 #594d32;
+        }
+        
+        .game-message {
+            text-align: center;
+            margin-top: 15px;
+            color: #f0cf8b;
+            font-size: 1.2rem;
+            min-height: 30px;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-container">
+        <div class="title">
+            ФАРАОН 𓂀
+            <span>Дым пустыни</span>
+        </div>
+
+        <!-- Кальян с анимацией дыма (псевдо-индикатор) -->
+        <div class="hookah-area">
+            <div class="smoke-animation" id="smokeAnimation">
+                <div class="smoke-stack" id="smoke1" style="height: 20px;"></div>
+                <div class="smoke-stack" id="smoke2" style="height: 45px;"></div>
+                <div class="smoke-stack" id="smoke3" style="height: 70px;"></div>
+                <div class="smoke-stack" id="smoke4" style="height: 35px;"></div>
+                <div class="smoke-stack" id="smoke5" style="height: 55px;"></div>
+            </div>
+            <div style="text-align: center; color: #f3cf89;">𓁹 Наслаждайся дымом 𓁹</div>
+        </div>
+
+        <!-- Прогресс Пирамида -->
+        <div class="pyramid-progress">
+            <span>⚱️ Уровень дыма фараона ⚱️</span>
+            <div class="progress-bar-container">
+                <div class="progress-fill" id="progressFill" style="width: 0%;"></div>
+            </div>
+        </div>
+
+        <!-- Счетчики -->
+        <div class="stats">
+            <div class="stat-item">
+                <div>𓆣 Затяжек</div>
+                <div class="stat-value" id="puffCount">0</div>
+            </div>
+            <div class="stat-item">
+                <div>𓋴 Свитков</div>
+                <div class="stat-value" id="scrollCount">0</div>
+            </div>
+        </div>
+
+        <!-- Главные кнопки -->
+        <div class="action-buttons">
+            <button class="egypt-btn" id="puffBtn">💨 Тяга</button>
+        </div>
+
+        <!-- Мини-игра: Сокровища Египта (слоты) -->
+        <div class="mini-game">
+            <div style="text-align: center; color: #f2d892; margin-bottom: 10px;">𓀀 Заклинание Фараона 𓀀</div>
+            <div class="slots">
+                <div class="slot-reel" id="reel1">𓆣</div>
+                <div class="slot-reel" id="reel2">𓆣</div>
+                <div class="slot-reel" id="reel3">𓆣</div>
+            </div>
+            <button class="spin-btn" id="spinBtn">🔮 Крутить свитки (1 свиток) 🔮</button>
+            <div class="game-message" id="gameMessage"></div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // Игровые переменные
+            let puffs = 0;                // Количество затяжек
+            let scrolls = 0;               // Свитки (валюта для игры)
+            let progress = 0;               // Прогресс до следующего свитка (max 100)
+            
+            // Символы для слотов (египетские тематические)
+            const symbols = ['𓆣', '𓁹', '𓋴', '𓃀', '𓊽']; // Скарабей, Глаз, Свиток, Змея, Колонна
+
+            // DOM элементы
+            const puffCountEl = document.getElementById('puffCount');
+            const scrollCountEl = document.getElementById('scrollCount');
+            const progressFill = document.getElementById('progressFill');
+            const puffBtn = document.getElementById('puffBtn');
+            const spinBtn = document.getElementById('spinBtn');
+            const reel1 = document.getElementById('reel1');
+            const reel2 = document.getElementById('reel2');
+            const reel3 = document.getElementById('reel3');
+            const gameMessage = document.getElementById('gameMessage');
+            
+            // Элементы дыма
+            const smokeStacks = [
+                document.getElementById('smoke1'),
+                document.getElementById('smoke2'),
+                document.getElementById('smoke3'),
+                document.getElementById('smoke4'),
+                document.getElementById('smoke5')
+            ];
+
+            // Функция обновления интерфейса
+            function updateUI() {
+                puffCountEl.textContent = puffs;
+                scrollCountEl.textContent = scrolls;
+                progressFill.style.width = progress + '%';
+                
+                // Анимация дыма: чем больше прогресс, тем выше дым
+                smokeStacks.forEach((stack, index) => {
+                    let baseHeight = 20 + (index * 12); // Разная высота для реализма
+                    let smokeIntensity = progress / 100; // 0 .. 1
+                    let newHeight = Math.min(90, Math.floor(baseHeight + 40 * smokeIntensity));
+                    stack.style.height = newHeight + 'px';
+                    stack.style.background = `rgba(230, 210, 170, ${0.4 + smokeIntensity * 0.5})`;
+                });
+            }
+
+            // Добавление прогресса от затяжки
+            function addPuff() {
+                puffs++;
+                progress += 24; // Каждая затяжка дает 24% прогресса
+
+                // Если накопил 100+%, получаем свиток и сбрасываем прогресс с остатком
+                if (progress >= 100) {
+                    let earnedScrolls = Math.floor(progress / 100);
+                    scrolls += earnedScrolls;
+                    progress = progress % 100;
+                    
+                    gameMessage.textContent = `⚱️ Фараон доволен! +${earnedScrolls} свиток(ов)! ⚱️`;
+                } else {
+                    gameMessage.textContent = '';
+                }
+
+                // Ограничение прогресса до 100 для плавности (но у нас сброс выше)
+                if (progress > 100) progress = 100; 
+
+                updateUI();
+                
+                // Эффект ряби на кнопке (хаптик-стиль)
+                puffBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => puffBtn.style.transform = '', 100);
+            }
+
+            // Функция прокрутки слотов (мини-игра)
+            function spinSlots() {
+                // Проверяем, хватает ли свитков
+                if (scrolls < 1) {
+                    gameMessage.textContent = '𓀐 Нужен 1 свиток! Сделай затяжку.';
+                    return;
+                }
+
+                // Тратим свиток
+                scrolls--;
+                updateUI();
+
+                // Эффект прокрутки (случайные символы 3 раза)
+                let spinsLeft = 3;
+                let spinInterval = setInterval(() => {
+                    reel1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    spinsLeft--;
+                    if (spinsLeft === 0) clearInterval(spinInterval);
+                }, 100);
+
+                // Финальный результат через 400ms
+                setTimeout(() => {
+                    // Генерируем финальные символы
+                    const final1 = symbols[Math.floor(Math.random() * symbols.length)];
+                    const final2 = symbols[Math.floor(Math.random() * symbols.length)];
+                    const final3 = symbols[Math.floor(Math.random() * symbols.length)];
+                    
+                    reel1.textContent = final1;
+                    reel2.textContent = final2;
+                    reel3.textContent = final3;
+
+                    // Проверка выигрыша (все три одинаковые)
+                    if (final1 === final2 && final2 === final3) {
+                        // Бонус: добавляем свитки
+                        let bonus = 5;
+                        scrolls += bonus;
+                        gameMessage.textContent = `𓎛 Благословение Ра! +${bonus} свитков! 𓎛`;
+                    } else if (final1 === final2 || final2 === final3 || final1 === final3) {
+                        // Утешительный приз
+                        scrolls += 1;
+                        gameMessage.textContent = '𓂀 Два одинаковых! +1 свиток.';
+                    } else {
+                        gameMessage.textContent = '𓄀 Ничего... Попробуй еще.';
+                    }
+                    
+                    updateUI();
+                }, 400);
+            }
+
+            // Случайное изменение высоты дыма для реализма (пассивное)
+            function animatePassiveSmoke() {
+                if (progress < 5) return; // если мало дыма, не шевелим
+                smokeStacks.forEach((stack) => {
+                    let currentHeight = parseInt(stack.style.height) || 30;
+                    let variation = Math.random() * 10 - 5; // -5 до +5
+                    let newHeight = Math.min(120, Math.max(15, currentHeight + variation));
+                    stack.style.height = newHeight + 'px';
+                });
+            }
+
+            // Обработчики событий
+            puffBtn.addEventListener('click', addPuff);
+            spinBtn.addEventListener('click', spinSlots);
+
+            // Пассивная анимация дыма (дым "дышит")
+            setInterval(animatePassiveSmoke, 500);
+
+            // Начальное обновление UI
+            updateUI();
+
+            // Добавим пару стартовых свитков для теста
+            scrolls = 3;
+            updateUI();
+        })();
+    </script>
+</body>
+</html>
