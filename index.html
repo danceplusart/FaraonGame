@@ -401,7 +401,7 @@
             border-bottom-width: 2px;
         }
 
-        /* Слоты - УВЕЛИЧЕНЫ ДЛЯ МОБИЛЬНЫХ */
+        /* Слоты - ИСПРАВЛЕНО */
         .slot-machine {
             background: #1e130e;
             border-radius: 20px;
@@ -413,33 +413,54 @@
         .slot-title {
             text-align: center;
             color: #f5d58c;
-            font-size: 1.1rem;
+            font-size: 1.2rem;
             margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
+            line-height: 1.3;
+            word-break: break-word;
+        }
+
+        /* Разбиваем на две строки */
+        .slot-title span {
+            display: block;
+        }
+
+        .slot-title span:first-child {
+            font-size: 1.1rem;
+            margin-bottom: 5px;
+        }
+
+        .slot-title span:last-child {
+            font-size: 1.3rem;
+            color: gold;
+            text-shadow: 0 0 10px #ffaa00;
         }
 
         .reels {
             display: flex;
             gap: 15px;
             justify-content: center;
-            margin-bottom: 20px;
+            margin-bottom: 25px;
             flex-wrap: wrap;
             width: 100%;
         }
 
         .reel {
-            width: 100px;
-            height: 100px;
+            width: 110px;
+            height: 110px;
             background: #efdbb5;
             border: 4px solid #a17338;
             border-radius: 20px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 4.5rem;
-            box-shadow: inset 0 0 15px #9b7c4b;
+            font-size: 5rem;
+            box-shadow: inset 0 0 20px #9b7c4b;
             flex-shrink: 0;
+            color: #000000; /* ЧЕРНЫЙ цвет для символов */
+            font-weight: bold;
+            text-shadow: none;
         }
 
         .spin-button {
@@ -500,6 +521,7 @@
             align-items: center;
             justify-content: center;
             flex-shrink: 0;
+            color: #000;
         }
 
         .discount-info {
@@ -581,7 +603,7 @@
             background: #3f2f24;
         }
 
-        /* МОБИЛЬНАЯ АДАПТАЦИЯ - УВЕЛИЧИВАЕМ ИГРУ */
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ */
         @media (max-width: 600px) {
             .main-content {
                 margin-top: 100px;
@@ -612,19 +634,31 @@
                 width: 100%;
             }
             
-            /* УВЕЛИЧИВАЕМ СЛОТЫ НА МОБИЛЬНЫХ */
+            /* УВЕЛИЧЕННЫЕ СЛОТЫ НА МОБИЛЬНЫХ */
             .slot-machine {
                 padding: 15px;
             }
             
             .reels {
-                gap: 10px;
+                gap: 12px;
             }
             
             .reel {
-                width: 95px;
-                height: 95px;
-                font-size: 4.2rem;
+                width: 100px;
+                height: 100px;
+                font-size: 4.5rem;
+            }
+            
+            .slot-title {
+                font-size: 1.1rem;
+            }
+            
+            .slot-title span:first-child {
+                font-size: 1rem;
+            }
+            
+            .slot-title span:last-child {
+                font-size: 1.2rem;
             }
             
             .spin-button {
@@ -650,13 +684,21 @@
         /* ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
         @media (max-width: 380px) {
             .reel {
-                width: 85px;
-                height: 85px;
-                font-size: 3.8rem;
+                width: 90px;
+                height: 90px;
+                font-size: 4rem;
             }
             
             .slot-title {
                 font-size: 1rem;
+            }
+            
+            .slot-title span:first-child {
+                font-size: 0.9rem;
+            }
+            
+            .slot-title span:last-child {
+                font-size: 1.1rem;
             }
             
             .spin-button {
@@ -811,9 +853,12 @@
                     <button class="egypt-button" id="chestBtn">🏺 СУНДУК</button>
                 </div>
 
-                <!-- Слоты -->
+                <!-- Слоты - ИСПРАВЛЕНО -->
                 <div class="slot-machine">
-                    <div class="slot-title">⚱️ ЗАКЛИНАНИЕ ФАРАОНА ⚱️</div>
+                    <div class="slot-title">
+                        <span>⚱️ ЗАКЛИНАНИЕ</span>
+                        <span>ФАРАОНА ⚱️</span>
+                    </div>
                     <div class="reels">
                         <div class="reel" id="reel1">𓆣</div>
                         <div class="reel" id="reel2">𓆣</div>
