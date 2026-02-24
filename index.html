@@ -2,7 +2,7 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Кальянная Фараон - Официальный сайт</title>
     <style>
         * {
@@ -12,11 +12,18 @@
             font-family: 'Segoe UI', 'Arial', sans-serif;
         }
 
+        html, body {
+            margin: 0;
+            padding: 0;
+            min-height: 100vh;
+            width: 100%;
+        }
+
         body {
             background: linear-gradient(145deg, #0a0503 0%, #2a1a0e 100%);
-            min-height: 100vh;
             color: #ffde9e;
-            padding-top: 90px; /* Отступ под фиксированную шапку */
+            display: flex;
+            flex-direction: column;
         }
 
         /* ФИКСИРОВАННАЯ ШАПКА */
@@ -28,7 +35,8 @@
             top: 0;
             left: 0;
             right: 0;
-            z-index: 1000;
+            width: 100%;
+            z-index: 9999;
             box-shadow: 0 5px 20px rgba(0,0,0,0.7);
             backdrop-filter: blur(10px);
         }
@@ -44,14 +52,14 @@
         }
 
         .logo {
-            font-size: 1.5rem; /* Уменьшил */
+            font-size: 1.5rem;
             color: #ffd78c;
             text-shadow: 0 0 15px #ffa500;
             letter-spacing: 3px;
         }
 
         .logo span {
-            font-size: 0.7rem; /* Уменьшил */
+            font-size: 0.7rem;
             display: block;
             color: #e6c27a;
             letter-spacing: 1px;
@@ -64,12 +72,12 @@
         }
 
         .social-btn {
-            padding: 5px 10px; /* Уменьшил */
+            padding: 5px 10px;
             border-radius: 25px;
             text-decoration: none;
             color: #221207;
             font-weight: bold;
-            font-size: 0.8rem; /* Уменьшил */
+            font-size: 0.8rem;
             display: flex;
             align-items: center;
             gap: 3px;
@@ -86,120 +94,124 @@
         .vk-btn { background: #4c75a3; }
         .insta-btn { background: linear-gradient(45deg, #f09433, #d62976, #962fbf); }
 
+        /* ОСНОВНОЙ КОНТЕЙНЕР */
         .main-content {
             max-width: 1200px;
-            margin: 0 auto;
+            margin: 80px auto 0 auto;
             padding: 10px;
+            width: 100%;
+            flex: 1;
         }
 
-        /* Секция с информацией о заведении - УМЕНЬШЕНО */
+        /* Секция с информацией о заведении */
         .info-section {
             background: #3d2b1cb3;
             border: 2px solid #c9a454;
             border-radius: 15px;
-            padding: 12px; /* Уменьшил */
-            margin-bottom: 12px; /* Уменьшил */
+            padding: 12px;
+            margin-bottom: 12px;
             backdrop-filter: blur(5px);
         }
 
         .info-title {
-            font-size: 1.4rem; /* Уменьшил */
+            font-size: 1.4rem;
             color: #ffd78c;
             text-align: center;
-            margin-bottom: 8px; /* Уменьшил */
+            margin-bottom: 8px;
             text-shadow: 1px 1px 0 #5a3e1f;
         }
 
         .info-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
-            gap: 8px; /* Уменьшил */
-            margin-top: 8px; /* Уменьшил */
+            gap: 8px;
+            margin-top: 8px;
         }
 
         .info-card {
             background: #2f2019;
             border: 1px solid #b88a45;
             border-radius: 12px;
-            padding: 8px; /* Уменьшил */
+            padding: 8px;
             text-align: center;
         }
 
         .info-card h3 {
             color: #ffd966;
-            font-size: 1rem; /* Уменьшил */
-            margin-bottom: 3px; /* Уменьшил */
+            font-size: 1rem;
+            margin-bottom: 3px;
         }
 
         .info-card p {
             color: #ffde9e;
             line-height: 1.3;
-            font-size: 0.8rem; /* Уменьшил */
+            font-size: 0.8rem;
         }
 
-        /* Инструкция по игре - УМЕНЬШЕНО */
+        /* Инструкция по игре */
         .instructions {
             background: #3d2b1cb3;
             border: 2px solid #c9a454;
             border-radius: 15px;
-            padding: 12px; /* Уменьшил */
-            margin-bottom: 12px; /* Уменьшил */
+            padding: 12px;
+            margin-bottom: 12px;
         }
 
         .instructions h2 {
-            font-size: 1.3rem; /* Уменьшил */
+            font-size: 1.3rem;
             color: #ffd78c;
-            margin-bottom: 8px; /* Уменьшил */
+            margin-bottom: 8px;
             text-align: center;
         }
 
         .instruction-steps {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-            gap: 8px; /* Уменьшил */
-            margin-bottom: 10px; /* Уменьшил */
+            gap: 8px;
+            margin-bottom: 10px;
         }
 
         .step {
             text-align: center;
-            padding: 8px; /* Уменьшил */
+            padding: 8px;
             background: #2f2019;
             border-radius: 12px;
             border: 1px solid #b88a45;
         }
 
         .step-number {
-            width: 25px; /* Уменьшил */
-            height: 25px; /* Уменьшил */
+            width: 25px;
+            height: 25px;
             background: #c9a454;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.9rem; /* Уменьшил */
+            font-size: 0.9rem;
             font-weight: bold;
             color: #221207;
-            margin: 0 auto 5px; /* Уменьшил */
+            margin: 0 auto 5px;
         }
 
         .step h3 {
             color: #ffd966;
-            font-size: 0.9rem; /* Уменьшил */
-            margin-bottom: 3px; /* Уменьшил */
+            font-size: 0.9rem;
+            margin-bottom: 3px;
         }
 
         .step p {
-            font-size: 0.7rem; /* Уменьшил */
+            font-size: 0.7rem;
             line-height: 1.2;
         }
 
-        /* Игровой блок - РАЗМЕР ОСТАВЛЕН */
+        /* Игровой блок */
         .game-wrapper {
             background: #3d2b1c;
             border: 3px solid #c9a454;
             border-radius: 20px;
             padding: 15px;
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .game-header {
@@ -236,10 +248,15 @@
             border-bottom-width: 2px;
         }
 
+        .play-btn:hover {
+            background: #b88b47;
+        }
+
         /* Игровой контейнер */
         .game-container {
             display: none;
             margin-top: 15px;
+            width: 100%;
         }
 
         /* 3D Кальян */
@@ -250,6 +267,7 @@
             margin-bottom: 15px;
             border: 2px solid #dbb466;
             box-shadow: inset 0 -10px 0 #2f1e12, 0 8px 15px #00000080;
+            width: 100%;
         }
 
         .base {
@@ -282,6 +300,7 @@
             height: 70px;
             align-items: flex-end;
             margin: 5px 0;
+            width: 100%;
         }
 
         .smoke-puff {
@@ -295,6 +314,7 @@
         /* Прогресс */
         .pyramid-container {
             margin: 15px 0;
+            width: 100%;
         }
 
         .pyramid-label {
@@ -331,6 +351,7 @@
             margin-bottom: 15px;
             border: 1px solid #d4a259;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .stat-block {
@@ -358,6 +379,7 @@
             grid-template-columns: 1fr 1fr;
             gap: 10px;
             margin-bottom: 20px;
+            width: 100%;
         }
 
         .egypt-button {
@@ -371,6 +393,7 @@
             border-radius: 30px 30px 15px 15px;
             cursor: pointer;
             transition: all 0.08s;
+            width: 100%;
         }
 
         .egypt-button:active {
@@ -378,29 +401,31 @@
             border-bottom-width: 2px;
         }
 
-        /* Слоты */
+        /* Слоты - УВЕЛИЧЕНЫ ДЛЯ МОБИЛЬНЫХ */
         .slot-machine {
             background: #1e130e;
             border-radius: 20px;
-            padding: 15px;
+            padding: 20px;
             border: 3px solid #c7a15e;
+            width: 100%;
         }
 
         .slot-title {
             text-align: center;
             color: #f5d58c;
-            font-size: 1rem;
-            margin-bottom: 15px;
+            font-size: 1.1rem;
+            margin-bottom: 20px;
             text-transform: uppercase;
             letter-spacing: 2px;
         }
 
         .reels {
             display: flex;
-            gap: 8px;
+            gap: 15px;
             justify-content: center;
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .reel {
@@ -417,35 +442,19 @@
             flex-shrink: 0;
         }
 
-        @media (max-width: 400px) {
-            .reel {
-                width: 85px;
-                height: 85px;
-                font-size: 3.8rem;
-            }
-        }
-
-        @media (max-width: 350px) {
-            .reel {
-                width: 75px;
-                height: 75px;
-                font-size: 3.2rem;
-            }
-        }
-
         .spin-button {
             background: #b88b47;
             border: none;
             border-bottom: 4px solid #624a1e;
             color: #231607;
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: bold;
-            padding: 12px;
+            padding: 15px;
             width: 100%;
-            border-radius: 30px;
+            border-radius: 40px;
             cursor: pointer;
             transition: 0.08s;
-            margin-top: 5px;
+            margin-top: 10px;
         }
 
         .spin-button:active {
@@ -456,14 +465,15 @@
         .message-box {
             text-align: center;
             margin-top: 15px;
-            padding: 10px;
+            padding: 12px;
             border-radius: 15px;
             background: #2f2019;
             color: #ffdb9e;
             font-size: 1rem;
-            min-height: 45px;
+            min-height: 50px;
             border: 1px solid #b48b47;
             word-break: break-word;
+            width: 100%;
         }
 
         /* Дисконтная карта */
@@ -471,12 +481,13 @@
             background: linear-gradient(145deg, #61481c, #94743b);
             border: 2px solid gold;
             border-radius: 15px;
-            padding: 12px;
+            padding: 15px;
             margin-bottom: 15px;
             display: none;
             align-items: center;
-            gap: 12px;
+            gap: 15px;
             flex-wrap: wrap;
+            width: 100%;
         }
 
         .discount-icon {
@@ -524,12 +535,13 @@
             word-break: break-word;
         }
 
-        /* Футер - УМЕНЬШЕНО */
+        /* Футер */
         .footer {
             background: #1f130eb3;
             border-top: 2px solid #c9a454;
-            padding: 12px 10px; /* Уменьшил */
-            margin-top: 20px; /* Уменьшил */
+            padding: 12px 10px;
+            margin-top: 20px;
+            width: 100%;
         }
 
         .footer-content {
@@ -539,35 +551,41 @@
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 10px; /* Уменьшил */
+            gap: 10px;
         }
 
         .footer-info p {
-            margin: 2px 0; /* Уменьшил */
-            font-size: 0.75rem; /* Уменьшил */
+            margin: 2px 0;
+            font-size: 0.75rem;
         }
 
         .footer-social {
             display: flex;
-            gap: 8px; /* Уменьшил */
+            gap: 8px;
             flex-wrap: wrap;
         }
 
         .footer-social a {
             color: #ffde9e;
             text-decoration: none;
-            font-size: 0.8rem; /* Уменьшил */
+            font-size: 0.8rem;
             transition: color 0.3s;
-            padding: 4px 8px; /* Уменьшил */
+            padding: 4px 8px;
             background: #2f2019;
             border-radius: 15px;
             border: 1px solid #b88a45;
         }
 
-        /* Адаптивность */
+        .footer-social a:hover {
+            color: #ffd966;
+            background: #3f2f24;
+        }
+
+        /* МОБИЛЬНАЯ АДАПТАЦИЯ - УВЕЛИЧИВАЕМ ИГРУ */
         @media (max-width: 600px) {
-            body {
-                padding-top: 100px;
+            .main-content {
+                margin-top: 100px;
+                padding: 8px;
             }
             
             .nav-container {
@@ -584,9 +602,66 @@
                 text-align: center;
             }
             
+            .game-title {
+                font-size: 1.3rem;
+            }
+            
+            .play-btn {
+                font-size: 1.1rem;
+                padding: 10px 20px;
+                width: 100%;
+            }
+            
+            /* УВЕЛИЧИВАЕМ СЛОТЫ НА МОБИЛЬНЫХ */
+            .slot-machine {
+                padding: 15px;
+            }
+            
+            .reels {
+                gap: 10px;
+            }
+            
+            .reel {
+                width: 95px;
+                height: 95px;
+                font-size: 4.2rem;
+            }
+            
+            .spin-button {
+                font-size: 1.2rem;
+                padding: 14px;
+            }
+            
+            .stat-number {
+                font-size: 1.3rem;
+            }
+            
+            .egypt-button {
+                font-size: 1.1rem;
+                padding: 12px 5px;
+            }
+            
             .footer-content {
                 flex-direction: column;
                 text-align: center;
+            }
+        }
+
+        /* ДЛЯ ОЧЕНЬ МАЛЕНЬКИХ ЭКРАНОВ */
+        @media (max-width: 380px) {
+            .reel {
+                width: 85px;
+                height: 85px;
+                font-size: 3.8rem;
+            }
+            
+            .slot-title {
+                font-size: 1rem;
+            }
+            
+            .spin-button {
+                font-size: 1.1rem;
+                padding: 12px;
             }
         }
     </style>
@@ -614,7 +689,7 @@
     </nav>
 
     <main class="main-content">
-        <!-- Информация о заведении - УМЕНЬШЕНО -->
+        <!-- Информация о заведении -->
         <section class="info-section">
             <h1 class="info-title">Лаунж-бар Фараон</h1>
             <div class="info-grid">
@@ -637,7 +712,7 @@
             </div>
         </section>
 
-        <!-- Инструкция по игре - УМЕНЬШЕНО -->
+        <!-- Инструкция по игре -->
         <section class="instructions">
             <h2>🎯 Как получить скидку 10%</h2>
             <div class="instruction-steps">
@@ -667,7 +742,7 @@
             </div>
         </section>
 
-        <!-- Игра - РАЗМЕР ОСТАВЛЕН -->
+        <!-- Игра -->
         <section class="game-wrapper">
             <div class="game-header">
                 <h2 class="game-title">𓂀 Проклятие Фараона 𓂀</h2>
@@ -751,7 +826,7 @@
         </section>
     </main>
 
-    <!-- Футер - УМЕНЬШЕНО -->
+    <!-- Футер -->
     <footer class="footer">
         <div class="footer-content">
             <div class="footer-info">
