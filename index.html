@@ -396,81 +396,7 @@
             color: #34c759;
         }
 
-        /* Модальное окно для сканера */
-        .scanner-modal {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.95);
-            z-index: 2000;
-            padding: 20px;
-            flex-direction: column;
-        }
-
-        .scanner-modal.active {
-            display: flex;
-        }
-
-        .scanner-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .scanner-title {
-            font-size: 18px;
-            font-weight: 600;
-            color: #ffd966;
-        }
-
-        .scanner-close {
-            background: none;
-            border: none;
-            color: #ffd966;
-            font-size: 24px;
-            cursor: pointer;
-            padding: 8px;
-        }
-
-        #qr-video {
-            width: 100%;
-            border-radius: 16px;
-            background: #000;
-            min-height: 400px;
-            object-fit: cover;
-        }
-
-        .scanner-error {
-            color: #ff3b30;
-            text-align: center;
-            padding: 20px;
-            font-size: 16px;
-        }
-
-        .scanner-loading {
-            color: #ffd966;
-            text-align: center;
-            padding: 20px;
-            font-size: 16px;
-        }
-
-        .scanner-overlay {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            width: 250px;
-            height: 250px;
-            border: 2px solid #ffd966;
-            border-radius: 20px;
-            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
-            pointer-events: none;
-        }
-
+        /* Модальное окно для запроса разрешения камеры */
         .camera-permission {
             position: fixed;
             top: 0;
@@ -533,6 +459,67 @@
             opacity: 0.9;
         }
 
+        /* Модальное окно для сканера */
+        .scanner-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
+            padding: 20px;
+            flex-direction: column;
+        }
+
+        .scanner-modal.active {
+            display: flex;
+        }
+
+        .scanner-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .scanner-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd966;
+        }
+
+        .scanner-close {
+            background: none;
+            border: none;
+            color: #ffd966;
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+        }
+
+        #qr-video {
+            width: 100%;
+            border-radius: 16px;
+            background: #000;
+            min-height: 400px;
+            object-fit: cover;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 2px solid #ffd966;
+            border-radius: 20px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
+        }
+
         .table-selector {
             margin-bottom: 16px;
         }
@@ -552,6 +539,7 @@
             color: #fff;
             font-size: 16px;
             outline: none;
+            cursor: default;
         }
 
         .table-input:focus {
@@ -565,6 +553,14 @@
         .table-input:disabled {
             opacity: 0.3;
             pointer-events: none;
+        }
+
+        /* Стили для readonly поля */
+        .table-input[readonly] {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffd966;
+            font-weight: 600;
+            cursor: not-allowed;
         }
 
         .hookah-call-btn {
@@ -1201,10 +1197,10 @@
                 <span>📷</span> СКАНИРОВАТЬ QR-КОД СТОЛИКА
             </button>
 
-            <!-- Номер столика -->
+            <!-- Номер столика (только для чтения) -->
             <div class="table-selector">
                 <div class="table-label">Номер вашего столика</div>
-                <input type="number" class="table-input" id="tableNumber" placeholder="Определится после сканирования" min="1" max="50" disabled>
+                <input type="number" class="table-input" id="tableNumber" placeholder="Сканируйте QR-код" min="1" max="50" readonly>
             </div>
 
             <!-- Кнопка вызова -->
@@ -1681,7 +1677,6 @@
                         tableVerified = true;
                         tableNumber = scannedTable;
                         tableInput.value = scannedTable;
-                        tableInput.disabled = false;
                         hookahBtn.disabled = false;
                         hookahBtn.classList.add('active');
                         
