@@ -696,8 +696,8 @@
             margin-top: 15px;
         }
 
-        /* БЛОК С ПОДПИСКАМИ И ПРОМОКОДАМИ */
-        .promo-block {
+        /* БЛОК С ПОДПИСКАМИ */
+        .subscription-block {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
             padding: 20px;
@@ -705,11 +705,11 @@
             border: 1px solid rgba(201, 164, 84, 0.2);
         }
 
-        .promo-block.hidden {
+        .subscription-block.hidden {
             display: none;
         }
 
-        .promo-block-title {
+        .subscription-title {
             font-size: 20px;
             font-weight: 600;
             color: #ffd966;
@@ -834,17 +834,20 @@
             pointer-events: none;
         }
 
-        /* ПОЛЕ ДЛЯ ВВОДА ПРОМОКОДА */
-        .manual-promo-section {
-            margin-top: 20px;
-            padding-top: 20px;
-            border-top: 1px solid rgba(201, 164, 84, 0.3);
+        /* БЛОК РУЧНОГО ВВОДА ПРОМОКОДА */
+        .manual-promo-block {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 24px 0;
+            border: 1px solid rgba(201, 164, 84, 0.2);
         }
 
-        .manual-promo-label {
-            font-size: 16px;
+        .manual-promo-title {
+            font-size: 20px;
+            font-weight: 600;
             color: #ffd966;
-            margin-bottom: 12px;
+            margin-bottom: 20px;
             display: flex;
             align-items: center;
             gap: 8px;
@@ -853,6 +856,7 @@
         .promo-input-group {
             display: flex;
             gap: 8px;
+            margin-bottom: 16px;
         }
 
         .promo-input {
@@ -1287,10 +1291,10 @@
             </div>
         </section>
 
-        <!-- БЛОК С ПОДПИСКАМИ И ПРОМОКОДАМИ -->
-        <div class="promo-block" id="promoBlock">
-            <div class="promo-block-title">
-                <span>🎁</span> Получи бонус
+        <!-- БЛОК С ПОДПИСКАМИ (СКРЫВАЕТСЯ ПОСЛЕ АКТИВАЦИИ) -->
+        <div class="subscription-block" id="subscriptionBlock">
+            <div class="subscription-title">
+                <span>🎁</span> Получи бонус за подписку
             </div>
             
             <!-- Каналы для подписки -->
@@ -1330,16 +1334,20 @@
                 <div id="promoMessage"></div>
                 <div class="promo-code" id="promoCodeDisplay"></div>
             </div>
+        </div>
 
-            <!-- Ручной ввод промокода -->
-            <div class="manual-promo-section">
-                <div class="manual-promo-label">
-                    <span>🔑</span> Ввести промокод
-                </div>
-                <div class="promo-input-group">
-                    <input type="text" class="promo-input" id="promoInput" placeholder="Например: WELCOME-XXXXXX" value="">
-                    <button class="promo-apply-btn" id="applyPromoBtn">Активировать</button>
-                </div>
+        <!-- БЛОК РУЧНОГО ВВОДА ПРОМОКОДА (ВСЕГДА ВИДЕН) -->
+        <div class="manual-promo-block">
+            <div class="manual-promo-title">
+                <span>🔑</span> Ввести промокод
+            </div>
+            <div class="promo-input-group">
+                <input type="text" class="promo-input" id="promoInput" placeholder="Например: COFEE" value="">
+                <button class="promo-apply-btn" id="applyPromoBtn">Активировать</button>
+            </div>
+            <div class="promo-result" id="manualPromoResult">
+                <div id="manualPromoMessage"></div>
+                <div class="promo-code" id="manualPromoCodeDisplay"></div>
             </div>
         </div>
 
@@ -1463,7 +1471,7 @@
             // Адрес вашего сервера
             const SERVER_URL = 'http://103.231.73.178:3000';
             
-            // Звук прокрутки (используем другой источник)
+            // Звук прокрутки
             const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
             spinSound.volume = 0.3;
             
@@ -1494,8 +1502,8 @@
             const userName = document.getElementById('userName');
             const userId = document.getElementById('userId');
             
-            // Элементы промо-блока
-            const promoBlock = document.getElementById('promoBlock');
+            // Элементы блока подписок
+            const subscriptionBlock = document.getElementById('subscriptionBlock');
             const status1 = document.getElementById('status1');
             const status2 = document.getElementById('status2');
             const channel1 = document.getElementById('channel1');
@@ -1509,6 +1517,9 @@
             // Элементы для ручного ввода промокода
             const promoInput = document.getElementById('promoInput');
             const applyPromoBtn = document.getElementById('applyPromoBtn');
+            const manualPromoResult = document.getElementById('manualPromoResult');
+            const manualPromoMessage = document.getElementById('manualPromoMessage');
+            const manualPromoCodeDisplay = document.getElementById('manualPromoCodeDisplay');
             
             // Элементы для кальянщика
             const qrButton = document.getElementById('qrButton');
@@ -1806,10 +1817,10 @@
                 return code;
             }
 
-            // Функция для скрытия блока с промо НАВСЕГДА
-            function hidePromoBlock() {
-                if (promoBlock) {
-                    promoBlock.classList.add('hidden');
+            // Функция для скрытия блока с подписками
+            function hideSubscriptionBlock() {
+                if (subscriptionBlock) {
+                    subscriptionBlock.classList.add('hidden');
                 }
             }
 
@@ -1822,12 +1833,12 @@
                     return;
                 }
 
-                // Проверяем, активировал ли уже пользователь промокод
+                // Проверяем, активировал ли уже пользователь промокод за подписку
                 if (usedPromoCodes.includes(tgUser.id.toString())) {
                     promoResult.className = 'promo-result error';
                     promoMessage.innerHTML = '❌ Вы уже активировали промокод';
                     promoCodeDisplay.innerHTML = '';
-                    hidePromoBlock(); // Скрываем блок, если бонус уже был получен
+                    hideSubscriptionBlock(); // Скрываем блок с подписками
                     return;
                 }
 
@@ -1850,8 +1861,8 @@
                     promoMessage.innerHTML = '✅ Промокод активирован! +5 свитков';
                     promoCodeDisplay.innerHTML = newCode;
                     
-                    // Скрываем блок с промо навсегда после успешного получения бонуса
-                    hidePromoBlock();
+                    // Скрываем блок с подписками навсегда
+                    hideSubscriptionBlock();
                     
                     await sendToTelegram(`🎫 Активирован промокод за подписку\n\nПользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\nID: ${tgUser.id}\nКод: ${newCode}`);
                     
@@ -1870,62 +1881,54 @@
                 const code = promoInput.value.trim().toUpperCase();
                 
                 if (!code) {
-                    promoResult.className = 'promo-result error';
-                    promoMessage.innerHTML = '❌ Введите промокод';
-                    promoCodeDisplay.innerHTML = '';
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Введите промокод';
+                    manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
-                // Проверяем, активировал ли уже пользователь промокод (любой)
-                if (tgUser && usedPromoCodes.includes(tgUser.id.toString())) {
-                    promoResult.className = 'promo-result error';
-                    promoMessage.innerHTML = '❌ Вы уже активировали промокод';
-                    promoCodeDisplay.innerHTML = '';
-                    hidePromoBlock();
-                    return;
-                }
-
-                // Проверяем, существует ли такой код в списке использованных
+                // Проверяем, не использован ли уже этот код
                 if (usedPromoCodes.includes(code)) {
-                    promoResult.className = 'promo-result error';
-                    promoMessage.innerHTML = '❌ Этот промокод уже использован';
-                    promoCodeDisplay.innerHTML = '';
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Этот промокод уже использован';
+                    manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
-                // Проверяем формат промокода (должен начинаться с WELCOME-)
-                if (!code.startsWith('WELCOME-')) {
-                    promoResult.className = 'promo-result error';
-                    promoMessage.innerHTML = '❌ Неверный формат промокода';
-                    promoCodeDisplay.innerHTML = '';
+                // Список допустимых промокодов
+                const validCodes = ['NEW', 'BONUS', 'GIFT', 'SUMMER', 'WELCOME'];
+                
+                if (!validCodes.includes(code)) {
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Неверный промокод';
+                    manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
                 // Активируем промокод
-                if (tgUser) {
-                    usedPromoCodes.push(tgUser.id.toString()); // Сохраняем ID пользователя
-                } else {
-                    usedPromoCodes.push(code); // Сохраняем сам код для неавторизованных
-                }
+                usedPromoCodes.push(code);
                 localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
                 
-                // Начисляем бонус
-                scrolls += 10;
+                // Начисляем бонус (разные бонусы для разных кодов)
+                let bonus = 10;
+                if (code === 'NEW') bonus = 15;
+                if (code === 'BONUS') bonus = 20;
+                if (code === 'GIFT') bonus = 25;
+                if (code === 'SUMMER') bonus = 30;
+                
+                scrolls += bonus;
                 scrollDisplay.textContent = scrolls;
                 
-                promoResult.className = 'promo-result success';
-                promoMessage.innerHTML = '✅ Промокод активирован! +10 свитков';
-                promoCodeDisplay.innerHTML = code;
+                manualPromoResult.className = 'promo-result success';
+                manualPromoMessage.innerHTML = `✅ Промокод активирован! +${bonus} свитков`;
+                manualPromoCodeDisplay.innerHTML = code;
                 
                 // Очищаем поле ввода
                 promoInput.value = '';
                 
-                // Скрываем блок с промо
-                hidePromoBlock();
-                
                 // Отправляем уведомление в Telegram
                 if (tgUser) {
-                    await sendToTelegram(`🎫 Активирован ручной промокод\n\nПользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\nID: ${tgUser.id}\nКод: ${code}\nБонус: +10 свитков`);
+                    await sendToTelegram(`🎫 Активирован ручной промокод\n\nПользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\nID: ${tgUser.id}\nКод: ${code}\nБонус: +${bonus} свитков`);
                 }
             });
 
@@ -1941,9 +1944,9 @@
                     userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
                 }
                 
-                // Проверяем, активирован ли уже промокод для этого пользователя
+                // Проверяем, активирован ли уже промокод за подписку для этого пользователя
                 if (usedPromoCodes.includes(tgUser.id.toString())) {
-                    hidePromoBlock();
+                    hideSubscriptionBlock();
                 } else {
                     // Проверяем подписки при загрузке
                     checkAllSubscriptions();
