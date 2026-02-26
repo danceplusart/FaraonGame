@@ -441,12 +441,27 @@
             border-radius: 16px;
             overflow: hidden;
             background: #000;
+            min-height: 400px;
         }
 
         #qr-reader video {
             width: 100%;
             height: auto;
             border-radius: 16px;
+        }
+
+        .scanner-error {
+            color: #ff3b30;
+            text-align: center;
+            padding: 20px;
+            font-size: 16px;
+        }
+
+        .scanner-loading {
+            color: #ffd966;
+            text-align: center;
+            padding: 20px;
+            font-size: 16px;
         }
 
         .scanner-overlay {
@@ -1330,6 +1345,7 @@
             <button class="scanner-close" id="closeScanner">&times;</button>
         </div>
         <div id="qr-reader"></div>
+        <div id="scannerStatus" class="scanner-loading">Запуск камеры...</div>
         <div class="scanner-overlay"></div>
     </div>
 
@@ -1420,6 +1436,7 @@
             const hookahBtn = document.getElementById('hookahBtn');
             const scannerModal = document.getElementById('scannerModal');
             const closeScanner = document.getElementById('closeScanner');
+            const scannerStatus = document.getElementById('scannerStatus');
             
             // Элементы игры
             const levelDisplay = document.getElementById('levelDisplay');
@@ -1521,16 +1538,47 @@
                 return sub1 && sub2;
             }
 
+            // Функция для проверки поддержки камеры
+            async function checkCameraSupport() {
+                if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                    throw new Error('Ваш браузер не поддерживает камеру');
+                }
+                
+                const devices = await navigator.mediaDevices.enumerateDevices();
+                const hasCamera = devices.some(device => device.kind === 'videoinput');
+                
+                if (!hasCamera) {
+                    throw new Error('Камера не найдена');
+                }
+                
+                return true;
+            }
+
             // ОТКРЫТИЕ СКАНЕРА QR
             qrButton.addEventListener('click', async () => {
                 try {
                     // Показываем модальное окно
                     scannerModal.classList.add('active');
+                    scannerStatus.textContent = 'Запрос доступа к камере...';
+                    scannerStatus.className = 'scanner-loading';
                     
-                    // Даем время для отрисовки модального окна
+                    // Проверяем поддержку камеры
+                    await checkCameraSupport();
+                    
+                    // Даем время для отрисовки
                     await new Promise(resolve => setTimeout(resolve, 500));
                     
-                    // Создаем экземпляр сканера
+                    // Очищаем предыдущий сканер если был
+                    if (html5QrCode) {
+                        try {
+                            await html5QrCode.stop();
+                            await html5QrCode.clear();
+                        } catch (e) {
+                            console.log('Ошибка при очистке предыдущего сканера:', e);
+                        }
+                    }
+                    
+                    // Создаем новый экземпляр сканера
                     html5QrCode = new Html5Qrcode("qr-reader");
                     
                     // Настройки сканера
@@ -1541,7 +1589,9 @@
                         formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
                     };
                     
-                    // Запускаем сканер
+                    scannerStatus.textContent = 'Запуск камеры...';
+                    
+                    // Запрашиваем разрешение и запускаем сканер
                     await html5QrCode.start(
                         { facingMode: "environment" },
                         qrConfig,
@@ -1550,12 +1600,21 @@
                     );
                     
                     isScannerActive = true;
+                    scannerStatus.style.display = 'none';
                     console.log('✅ Сканер запущен');
                     
                 } catch (error) {
                     console.error('❌ Ошибка запуска сканера:', error);
-                    gameMessage.textContent = '❌ Ошибка доступа к камере';
-                    scannerModal.classList.remove('active');
+                    
+                    scannerStatus.textContent = '❌ ' + (error.message || 'Ошибка доступа к камере');
+                    scannerStatus.className = 'scanner-error';
+                    
+                    gameMessage.textContent = '❌ Не удалось получить доступ к камере';
+                    
+                    // Закрываем модальное окно через 3 секунды при ошибке
+                    setTimeout(() => {
+                        scannerModal.classList.remove('active');
+                    }, 3000);
                 }
             });
 
@@ -1614,6 +1673,9 @@
                     }
                 }
                 scannerModal.classList.remove('active');
+                scannerStatus.style.display = 'block';
+                scannerStatus.textContent = 'Запуск камеры...';
+                scannerStatus.className = 'scanner-loading';
             }
 
             // Отправка вызова кальянщика
