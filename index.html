@@ -5,7 +5,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Фараон - Кальянная</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <script src="https://unpkg.com/html5-qrcode/minified/html5-qrcode.min.js"></script>
+    <!-- Загружаем библиотеку с правильным URL -->
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+    <!-- Добавляем запасной вариант через CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -1538,6 +1541,28 @@
                 return sub1 && sub2;
             }
 
+            // Проверка загрузки библиотеки
+            function waitForLibrary() {
+                return new Promise((resolve, reject) => {
+                    let attempts = 0;
+                    const maxAttempts = 20;
+                    
+                    const check = () => {
+                        attempts++;
+                        if (typeof Html5Qrcode !== 'undefined') {
+                            console.log('✅ Библиотека Html5Qrcode загружена');
+                            resolve();
+                        } else if (attempts >= maxAttempts) {
+                            reject(new Error('Библиотека не загрузилась'));
+                        } else {
+                            setTimeout(check, 500);
+                        }
+                    };
+                    
+                    check();
+                });
+            }
+
             // Функция для проверки поддержки камеры
             async function checkCameraSupport() {
                 if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -1559,8 +1584,14 @@
                 try {
                     // Показываем модальное окно
                     scannerModal.classList.add('active');
-                    scannerStatus.textContent = 'Запрос доступа к камере...';
+                    scannerStatus.textContent = 'Загрузка библиотеки...';
                     scannerStatus.className = 'scanner-loading';
+                    scannerStatus.style.display = 'block';
+                    
+                    // Ждем загрузки библиотеки
+                    await waitForLibrary();
+                    
+                    scannerStatus.textContent = 'Запрос доступа к камере...';
                     
                     // Проверяем поддержку камеры
                     await checkCameraSupport();
