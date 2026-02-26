@@ -1287,7 +1287,7 @@
             </div>
         </section>
 
-        <!-- БЛОК С ПОДПИСКАМИ И ПРОМОКОДАМИ (ПЕРЕНЕСЕН ВНИЗ) -->
+        <!-- БЛОК С ПОДПИСКАМИ И ПРОМОКОДАМИ -->
         <div class="promo-block" id="promoBlock">
             <div class="promo-block-title">
                 <span>🎁</span> Получи бонус
@@ -1460,15 +1460,12 @@
             let tableVerified = false;
             let tableNumber = '';
             
-            // Переменные для промокода за подписку
-            let subscriptionBonusClaimed = false;
-            
             // Адрес вашего сервера
             const SERVER_URL = 'http://103.231.73.178:3000';
             
-            // Звук прокрутки
-            const spinSound = new Audio('https://drive.google.com/uc?export=download&id=1Wl8ieRBpHRoNhOWE02ErCt_Cj2dJ4xAp');
-            spinSound.volume = 0.5;
+            // Звук прокрутки (используем другой источник)
+            const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+            spinSound.volume = 0.3;
             
             // Звания с увеличенными требованиями
             const rankTitles = [
@@ -1809,7 +1806,7 @@
                 return code;
             }
 
-            // Функция для скрытия блока с промо
+            // Функция для скрытия блока с промо НАВСЕГДА
             function hidePromoBlock() {
                 if (promoBlock) {
                     promoBlock.classList.add('hidden');
@@ -1825,6 +1822,7 @@
                     return;
                 }
 
+                // Проверяем, активировал ли уже пользователь промокод
                 if (usedPromoCodes.includes(tgUser.id.toString())) {
                     promoResult.className = 'promo-result error';
                     promoMessage.innerHTML = '❌ Вы уже активировали промокод';
@@ -1841,6 +1839,7 @@
                 if (allSubscribed) {
                     const newCode = generatePromoCode(tgUser.id);
                     
+                    // Сохраняем ID пользователя как активировавший промокод
                     usedPromoCodes.push(tgUser.id.toString());
                     localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
                     
@@ -1851,7 +1850,7 @@
                     promoMessage.innerHTML = '✅ Промокод активирован! +5 свитков';
                     promoCodeDisplay.innerHTML = newCode;
                     
-                    // Скрываем блок с промо после успешного получения бонуса
+                    // Скрываем блок с промо навсегда после успешного получения бонуса
                     hidePromoBlock();
                     
                     await sendToTelegram(`🎫 Активирован промокод за подписку\n\nПользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\nID: ${tgUser.id}\nКод: ${newCode}`);
@@ -1877,7 +1876,16 @@
                     return;
                 }
 
-                // Проверяем не использован ли уже
+                // Проверяем, активировал ли уже пользователь промокод (любой)
+                if (tgUser && usedPromoCodes.includes(tgUser.id.toString())) {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Вы уже активировали промокод';
+                    promoCodeDisplay.innerHTML = '';
+                    hidePromoBlock();
+                    return;
+                }
+
+                // Проверяем, существует ли такой код в списке использованных
                 if (usedPromoCodes.includes(code)) {
                     promoResult.className = 'promo-result error';
                     promoMessage.innerHTML = '❌ Этот промокод уже использован';
@@ -1885,8 +1893,20 @@
                     return;
                 }
 
+                // Проверяем формат промокода (должен начинаться с WELCOME-)
+                if (!code.startsWith('WELCOME-')) {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Неверный формат промокода';
+                    promoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
                 // Активируем промокод
-                usedPromoCodes.push(code);
+                if (tgUser) {
+                    usedPromoCodes.push(tgUser.id.toString()); // Сохраняем ID пользователя
+                } else {
+                    usedPromoCodes.push(code); // Сохраняем сам код для неавторизованных
+                }
                 localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
                 
                 // Начисляем бонус
@@ -1899,6 +1919,9 @@
                 
                 // Очищаем поле ввода
                 promoInput.value = '';
+                
+                // Скрываем блок с промо
+                hidePromoBlock();
                 
                 // Отправляем уведомление в Telegram
                 if (tgUser) {
@@ -1918,7 +1941,7 @@
                     userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
                 }
                 
-                // Проверяем, активирован ли уже промокод
+                // Проверяем, активирован ли уже промокод для этого пользователя
                 if (usedPromoCodes.includes(tgUser.id.toString())) {
                     hidePromoBlock();
                 } else {
