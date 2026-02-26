@@ -407,11 +407,11 @@
             background: rgba(0, 0, 0, 0.95);
             z-index: 2000;
             padding: 20px;
+            flex-direction: column;
         }
 
         .scanner-modal.active {
             display: flex;
-            flex-direction: column;
         }
 
         .scanner-header {
@@ -440,6 +440,26 @@
             width: 100%;
             border-radius: 16px;
             overflow: hidden;
+            background: #000;
+        }
+
+        #qr-reader video {
+            width: 100%;
+            height: auto;
+            border-radius: 16px;
+        }
+
+        .scanner-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 250px;
+            height: 250px;
+            border: 2px solid #ffd966;
+            border-radius: 20px;
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
+            pointer-events: none;
         }
 
         .table-selector {
@@ -1310,6 +1330,7 @@
             <button class="scanner-close" id="closeScanner">&times;</button>
         </div>
         <div id="qr-reader"></div>
+        <div class="scanner-overlay"></div>
     </div>
 
     <!-- ФУТЕР -->
@@ -1351,7 +1372,7 @@
             let tableVerified = false;
             let tableNumber = '';
             
-            // Адрес вашего сервера (ЗАМЕНИТЕ НА ВАШ IP)
+            // Адрес вашего сервера
             const SERVER_URL = 'http://103.231.73.178:3000';
             
             // Звания с увеличенными требованиями
@@ -1433,6 +1454,7 @@
 
             // Переменные для QR сканера
             let html5QrCode = null;
+            let isScannerActive = false;
 
             // ЗВУК
             soundBtn.addEventListener('click', () => {
@@ -1500,27 +1522,41 @@
             }
 
             // ОТКРЫТИЕ СКАНЕРА QR
-            qrButton.addEventListener('click', () => {
-                scannerModal.classList.add('active');
-                
-                // Инициализация сканера
-                html5QrCode = new Html5Qrcode("qr-reader");
-                
-                const qrConfig = {
-                    fps: 10,
-                    qrbox: { width: 250, height: 250 },
-                    aspectRatio: 1.0
-                };
-                
-                html5QrCode.start(
-                    { facingMode: "environment" },
-                    qrConfig,
-                    onScanSuccess,
-                    onScanError
-                ).catch(err => {
+            qrButton.addEventListener('click', async () => {
+                try {
+                    // Показываем модальное окно
+                    scannerModal.classList.add('active');
+                    
+                    // Даем время для отрисовки модального окна
+                    await new Promise(resolve => setTimeout(resolve, 500));
+                    
+                    // Создаем экземпляр сканера
+                    html5QrCode = new Html5Qrcode("qr-reader");
+                    
+                    // Настройки сканера
+                    const qrConfig = {
+                        fps: 10,
+                        qrbox: { width: 250, height: 250 },
+                        aspectRatio: 1.0,
+                        formatsToSupport: [ Html5QrcodeSupportedFormats.QR_CODE ]
+                    };
+                    
+                    // Запускаем сканер
+                    await html5QrCode.start(
+                        { facingMode: "environment" },
+                        qrConfig,
+                        onScanSuccess,
+                        onScanError
+                    );
+                    
+                    isScannerActive = true;
+                    console.log('✅ Сканер запущен');
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка запуска сканера:', error);
                     gameMessage.textContent = '❌ Ошибка доступа к камере';
                     scannerModal.classList.remove('active');
-                });
+                }
             });
 
             // ЗАКРЫТИЕ СКАНЕРА
@@ -1530,8 +1566,10 @@
 
             // УСПЕШНОЕ СКАНИРОВАНИЕ
             function onScanSuccess(decodedText, decodedResult) {
-                // Ожидаем что в QR-коде содержится номер столика в формате "TABLE:5" или просто "5"
-                let tableMatch = decodedText.match(/TABLE:(\d+)/i) || decodedText.match(/^(\d+)$/);
+                console.log('✅ Отсканирован QR:', decodedText);
+                
+                // Проверяем формат Faraon-1, Faraon-2 и т.д.
+                const tableMatch = decodedText.match(/Faraon[-\s]?(\d+)/i);
                 
                 if (tableMatch) {
                     const scannedTable = parseInt(tableMatch[1]);
@@ -1549,28 +1587,33 @@
                         
                         gameMessage.textContent = `✅ Столик №${scannedTable} подтвержден!`;
                         
+                        // Останавливаем сканер после успешного сканирования
                         stopScanner();
                     } else {
                         gameMessage.textContent = '❌ Неверный номер столика (должен быть 1-50)';
                     }
                 } else {
-                    gameMessage.textContent = '❌ Неверный формат QR-кода';
+                    gameMessage.textContent = '❌ Неверный формат QR-кода. Ожидается: Faraon-1, Faraon-2 и т.д.';
+                    console.log('Получено:', decodedText);
                 }
             }
 
             function onScanError(error) {
                 // Игнорируем ошибки сканирования
+                // console.log('Ошибка сканирования:', error);
             }
 
-            function stopScanner() {
-                if (html5QrCode) {
-                    html5QrCode.stop().then(() => {
-                        html5QrCode.clear();
-                        scannerModal.classList.remove('active');
-                    });
-                } else {
-                    scannerModal.classList.remove('active');
+            async function stopScanner() {
+                if (html5QrCode && isScannerActive) {
+                    try {
+                        await html5QrCode.stop();
+                        await html5QrCode.clear();
+                        isScannerActive = false;
+                    } catch (error) {
+                        console.error('Ошибка при остановке сканера:', error);
+                    }
                 }
+                scannerModal.classList.remove('active');
             }
 
             // Отправка вызова кальянщика
@@ -1940,7 +1983,7 @@
             }
 
             function createConfetti() {
-                // Простая имитация конфетти (можно добавить позже)
+                // Простая имитация конфетти
                 console.log('Победа!');
             }
 
