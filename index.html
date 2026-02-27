@@ -995,6 +995,11 @@
             color: white;
         }
 
+        .status-warning {
+            background: #ff8c42;
+            color: white;
+        }
+
         @media (max-width: 400px) {
             .info-grid {
                 grid-template-columns: 1fr;
@@ -1309,791 +1314,776 @@
         </div>
     </footer>
 
-  <script>
-    (function() {
-        // Telegram данные
-        let tg = window.Telegram?.WebApp;
-        let tgUser = null;
-        
-        if (tg) {
-            tg.expand();
-            tgUser = tg.initDataUnsafe?.user;
-        }
-        
-        // Переменные игры
-        let puffs = 0;
-        let scrolls = 10;
-        let wins = 0;
-        let discounts = 0;
-        let progress = 0;
-        let chestAvailable = true;
-        let chestTimer = null;
-        let currentDiscount = null;
-        let soundEnabled = true;
-        let turboActive = false;
-        
-        // Переменные для столика
-        let tableVerified = false;
-        let tableNumber = '';
-        
-        // Токен бота и каналы
-        const BOT_TOKEN = '8729627281:AAFxcCPITUhVZYO3H4nMp_dMdXOdI9weKqc';
-        const HOOKAH_CHAT = '@faraon_Stol';
-        const PROMO_CHAT = '@faraon_promo';
-        
-        // Звания
-        const rankTitles = [
-            { name: '👤 Раб', icon: '👤', requirement: 0 },
-            { name: '⚱️ Носильщик', icon: '⚱️', requirement: 500 },
-            { name: '🏺 Писец', icon: '🏺', requirement: 1500 },
-            { name: '👑 Жрец', icon: '👑', requirement: 3000 },
-            { name: '𓂀 Фараон', icon: '𓂀', requirement: 5000 },
-            { name: '⚡ Бог', icon: '⚡', requirement: 10000 }
-        ];
-        
-        const symbols = ['𓆣', '𓁹', '𓋴', '𓃀', '𓊽', '𓎛', '𓂀'];
-        
-        // Промокоды - теперь для каждого пользователя свой список
-        let userPromoCodes = JSON.parse(localStorage.getItem('user_promo_codes')) || {};
-        
-        // DOM элементы
-        const soundBtn = document.getElementById('soundBtn');
-        const telegramUserDiv = document.getElementById('telegramUser');
-        const userAvatar = document.getElementById('userAvatar');
-        const userName = document.getElementById('userName');
-        const userId = document.getElementById('userId');
-        
-        // Элементы для вызова
-        const qrButton = document.getElementById('qrButton');
-        const tableInput = document.getElementById('tableNumber');
-        const messageText = document.getElementById('messageText');
-        const sendHookahBtn = document.getElementById('sendHookahBtn');
-        const hookahStatus = document.getElementById('hookahStatus');
-        const scannerModal = document.getElementById('scannerModal');
-        const closeScanner = document.getElementById('closeScanner');
-        const qrVideo = document.getElementById('qr-video');
-        
-        // Элементы игры
-        const levelDisplay = document.getElementById('levelDisplay');
-        const puffDisplay = document.getElementById('puffDisplay');
-        const scrollDisplay = document.getElementById('scrollDisplay');
-        const winsDisplay = document.getElementById('winsDisplay');
-        const discountDisplay = document.getElementById('discountDisplay');
-        const progressFill = document.getElementById('progressFill');
-        const progressPercent = document.getElementById('progressPercent');
-        const puffBtn = document.getElementById('puffBtn');
-        const turboBtn = document.getElementById('turboBtn');
-        const chestBtn = document.getElementById('chestBtn');
-        const spinBtn = document.getElementById('spinBtn');
-        const reel1 = document.getElementById('reel1');
-        const reel2 = document.getElementById('reel2');
-        const reel3 = document.getElementById('reel3');
-        const gameMessage = document.getElementById('gameMessage');
-        
-        // Элементы званий
-        const rankIcon = document.getElementById('rankIcon');
-        const rankName = document.getElementById('rankName');
-        const rankProgressText = document.getElementById('rankProgressText');
-        const rankProgressFill = document.getElementById('rankProgressFill');
-        const badge100 = document.getElementById('badge100');
-        const badge500 = document.getElementById('badge500');
-        const badge1000 = document.getElementById('badge1000');
-        const badgeFirstWin = document.getElementById('badgeFirstWin');
-        const badge5Discounts = document.getElementById('badge5Discounts');
-        const badge10Wins = document.getElementById('badge10Wins');
-        const badge25Wins = document.getElementById('badge25Wins');
-        const badge50Wins = document.getElementById('badge50Wins');
-        
-        // Элементы промокодов
-        const promoBlock = document.getElementById('promoBlock');
-        const status1 = document.getElementById('status1');
-        const status2 = document.getElementById('status2');
-        const channel1 = document.getElementById('channel1');
-        const channel2 = document.getElementById('channel2');
-        const getPromoBtn = document.getElementById('getPromoBtn');
-        const promoResult = document.getElementById('promoResult');
-        const promoMessage = document.getElementById('promoMessage');
-        const promoCodeDisplay = document.getElementById('promoCodeDisplay');
-        const promoInput = document.getElementById('promoInput');
-        const applyPromoBtn = document.getElementById('applyPromoBtn');
-        const manualPromoResult = document.getElementById('manualPromoResult');
-        const manualPromoMessage = document.getElementById('manualPromoMessage');
-        const manualPromoCodeDisplay = document.getElementById('manualPromoCodeDisplay');
-
-        // Переменные для сканера
-        let canvasElement = document.createElement('canvas');
-        let canvas = canvasElement.getContext('2d');
-        let scanning = false;
-        let cameraStream = null;
-
-        // Звук
-        const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
-        spinSound.volume = 0.3;
-
-        // Звук
-        soundBtn.addEventListener('click', () => {
-            soundEnabled = !soundEnabled;
-            soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
-        });
-
-        // ========== СКАНЕР QR ==========
-        async function startCamera() {
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment" } 
-                });
-                
-                qrVideo.srcObject = cameraStream;
-                await qrVideo.play();
-                
-                scannerModal.classList.add('active');
-                scanning = true;
-                requestAnimationFrame(scanFrame);
-                
-            } catch (error) {
-                hookahStatus.textContent = '❌ Ошибка доступа к камере';
-                hookahStatus.className = 'status-message status-error';
-            }
-        }
-
-        function scanFrame() {
-            if (!scanning) return;
+    <script>
+        (function() {
+            // Telegram данные
+            let tg = window.Telegram?.WebApp;
+            let tgUser = null;
             
-            if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
-                canvasElement.height = qrVideo.videoHeight;
-                canvasElement.width = qrVideo.videoWidth;
-                canvas.drawImage(qrVideo, 0, 0, canvasElement.width, canvasElement.height);
-                
-                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                const code = jsQR(imageData.data, canvasElement.width, canvasElement.height, {
-                    inversionAttempts: "dontInvert",
-                });
-                
-                if (code) {
-                    // Изменено: теперь ищем Faraon- и берем все, что после него
-                    const tableMatch = code.data.match(/Faraon[-\s]?(.+)/i);
+            if (tg) {
+                tg.expand();
+                tgUser = tg.initDataUnsafe?.user;
+            }
+            
+            // Переменные игры
+            let puffs = 0;
+            let scrolls = 10;
+            let wins = 0;
+            let discounts = 0;
+            let progress = 0;
+            let chestAvailable = true;
+            let chestTimer = null;
+            let currentDiscount = null;
+            let soundEnabled = true;
+            let turboActive = false;
+            
+            // Переменные для столика
+            let tableVerified = false;
+            let tableNumber = '';
+            
+            // Токен бота и каналы
+            const BOT_TOKEN = '8729627281:AAFxcCPITUhVZYO3H4nMp_dMdXOdI9weKqc';
+            const HOOKAH_CHAT = '@faraon_Stol';
+            const PROMO_CHAT = '@faraon_promo';
+            
+            // Звания
+            const rankTitles = [
+                { name: '👤 Раб', icon: '👤', requirement: 0 },
+                { name: '⚱️ Носильщик', icon: '⚱️', requirement: 500 },
+                { name: '🏺 Писец', icon: '🏺', requirement: 1500 },
+                { name: '👑 Жрец', icon: '👑', requirement: 3000 },
+                { name: '𓂀 Фараон', icon: '𓂀', requirement: 5000 },
+                { name: '⚡ Бог', icon: '⚡', requirement: 10000 }
+            ];
+            
+            const symbols = ['𓆣', '𓁹', '𓋴', '𓃀', '𓊽', '𓎛', '𓂀'];
+            
+            // Промокоды - теперь для каждого пользователя свой список
+            let userPromoCodes = JSON.parse(localStorage.getItem('user_promo_codes')) || {};
+            
+            // DOM элементы
+            const soundBtn = document.getElementById('soundBtn');
+            const telegramUserDiv = document.getElementById('telegramUser');
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userId = document.getElementById('userId');
+            
+            // Элементы для вызова
+            const qrButton = document.getElementById('qrButton');
+            const tableInput = document.getElementById('tableNumber');
+            const messageText = document.getElementById('messageText');
+            const sendHookahBtn = document.getElementById('sendHookahBtn');
+            const hookahStatus = document.getElementById('hookahStatus');
+            const scannerModal = document.getElementById('scannerModal');
+            const closeScanner = document.getElementById('closeScanner');
+            const qrVideo = document.getElementById('qr-video');
+            
+            // Элементы игры
+            const levelDisplay = document.getElementById('levelDisplay');
+            const puffDisplay = document.getElementById('puffDisplay');
+            const scrollDisplay = document.getElementById('scrollDisplay');
+            const winsDisplay = document.getElementById('winsDisplay');
+            const discountDisplay = document.getElementById('discountDisplay');
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const puffBtn = document.getElementById('puffBtn');
+            const turboBtn = document.getElementById('turboBtn');
+            const chestBtn = document.getElementById('chestBtn');
+            const spinBtn = document.getElementById('spinBtn');
+            const reel1 = document.getElementById('reel1');
+            const reel2 = document.getElementById('reel2');
+            const reel3 = document.getElementById('reel3');
+            const gameMessage = document.getElementById('gameMessage');
+            
+            // Элементы званий
+            const rankIcon = document.getElementById('rankIcon');
+            const rankName = document.getElementById('rankName');
+            const rankProgressText = document.getElementById('rankProgressText');
+            const rankProgressFill = document.getElementById('rankProgressFill');
+            const badge100 = document.getElementById('badge100');
+            const badge500 = document.getElementById('badge500');
+            const badge1000 = document.getElementById('badge1000');
+            const badgeFirstWin = document.getElementById('badgeFirstWin');
+            const badge5Discounts = document.getElementById('badge5Discounts');
+            const badge10Wins = document.getElementById('badge10Wins');
+            const badge25Wins = document.getElementById('badge25Wins');
+            const badge50Wins = document.getElementById('badge50Wins');
+            
+            // Элементы промокодов
+            const promoBlock = document.getElementById('promoBlock');
+            const status1 = document.getElementById('status1');
+            const status2 = document.getElementById('status2');
+            const channel1 = document.getElementById('channel1');
+            const channel2 = document.getElementById('channel2');
+            const getPromoBtn = document.getElementById('getPromoBtn');
+            const promoResult = document.getElementById('promoResult');
+            const promoMessage = document.getElementById('promoMessage');
+            const promoCodeDisplay = document.getElementById('promoCodeDisplay');
+            const promoInput = document.getElementById('promoInput');
+            const applyPromoBtn = document.getElementById('applyPromoBtn');
+            const manualPromoResult = document.getElementById('manualPromoResult');
+            const manualPromoMessage = document.getElementById('manualPromoMessage');
+            const manualPromoCodeDisplay = document.getElementById('manualPromoCodeDisplay');
+
+            // Переменные для сканера
+            let canvasElement = document.createElement('canvas');
+            let canvas = canvasElement.getContext('2d');
+            let scanning = false;
+            let cameraStream = null;
+
+            // Звук
+            const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+            spinSound.volume = 0.3;
+
+            // Звук
+            soundBtn.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+            });
+
+            // ========== СКАНЕР QR ==========
+            async function startCamera() {
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: "environment" } 
+                    });
                     
-                    if (tableMatch && tableMatch[1]) {
-                        const scannedTable = tableMatch[1].trim();
+                    qrVideo.srcObject = cameraStream;
+                    await qrVideo.play();
+                    
+                    scannerModal.classList.add('active');
+                    scanning = true;
+                    requestAnimationFrame(scanFrame);
+                    
+                } catch (error) {
+                    hookahStatus.textContent = '❌ Ошибка доступа к камере';
+                    hookahStatus.className = 'status-message status-error';
+                }
+            }
+
+            function scanFrame() {
+                if (!scanning) return;
+                
+                if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
+                    canvasElement.height = qrVideo.videoHeight;
+                    canvasElement.width = qrVideo.videoWidth;
+                    canvas.drawImage(qrVideo, 0, 0, canvasElement.width, canvasElement.height);
+                    
+                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                    const code = jsQR(imageData.data, canvasElement.width, canvasElement.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    
+                    if (code) {
+                        // Изменено: теперь ищем Faraon- и берем все, что после него
+                        const tableMatch = code.data.match(/Faraon[-\s]?(.+)/i);
                         
-                        // Проверяем, что значение не пустое
-                        if (scannedTable.length > 0) {
-                            tableVerified = true;
-                            tableNumber = scannedTable;
-                            tableInput.value = `Стол ${scannedTable}`;
-                            sendHookahBtn.disabled = false;
-                            hookahStatus.textContent = '✅ Столик подтвержден! Введите сообщение';
-                            hookahStatus.className = 'status-message status-success';
-                            stopScanner();
+                        if (tableMatch && tableMatch[1]) {
+                            const scannedTable = tableMatch[1].trim();
+                            
+                            // Проверяем, что значение не пустое
+                            if (scannedTable.length > 0) {
+                                tableVerified = true;
+                                tableNumber = scannedTable;
+                                tableInput.value = `Стол ${scannedTable}`;
+                                sendHookahBtn.disabled = false;
+                                hookahStatus.textContent = '✅ Столик подтвержден! Введите сообщение';
+                                hookahStatus.className = 'status-message status-success';
+                                stopScanner();
+                            }
                         }
                     }
                 }
-            }
-            
-            requestAnimationFrame(scanFrame);
-        }
-
-        function stopScanner() {
-            scanning = false;
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-            }
-            scannerModal.classList.remove('active');
-        }
-
-        qrButton.addEventListener('click', startCamera);
-        closeScanner.addEventListener('click', stopScanner);
-
-        // ========== ОТПРАВКА ВЫЗОВА ==========
-        sendHookahBtn.addEventListener('click', async () => {
-            if (!tableVerified || !tableNumber) {
-                hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
-                hookahStatus.className = 'status-message status-error';
-                return;
-            }
-
-            sendHookahBtn.disabled = true;
-            sendHookahBtn.textContent = '⏳ ОТПРАВКА...';
-
-            const userInfo = tgUser ? 
-                `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
-                'Гость (не авторизован)';
-            
-            const message = messageText.value.trim() || 'Без сообщения';
-            
-            const userName = tgUser ? 
-                `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : 
-                'Гость';
-            
-            const username = tgUser?.username || '';
-
-            // Формируем текст для Telegram
-            const telegramText = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n` +
-                `📍 Столик: ${tableNumber}\n` +
-                `👤 Пользователь: ${userInfo}\n` +
-                `💬 Сообщение: ${message}\n` +
-                `⏰ Время: ${new Date().toLocaleString()}`;
-
-            // Данные для сайта
-            const callData = {
-                id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-                tableNumber: tableNumber,
-                userId: tgUser?.id || 0,
-                userName: userName,
-                username: username,
-                message: message,
-                timestamp: new Date().toISOString(),
-                status: 'new'
-            };
-
-            // Переменные для отслеживания результатов
-            let telegramSuccess = false;
-            let siteSuccess = false;
-
-            try {
-                // Отправляем в Telegram
-                const telegramResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        chat_id: HOOKAH_CHAT,
-                        text: telegramText,
-                        parse_mode: 'HTML'
-                    })
-                });
-
-                const telegramData = await telegramResponse.json();
-                telegramSuccess = telegramData.ok;
                 
-                if (telegramSuccess) {
-                    console.log('✅ Telegram: успешно');
-                } else {
-                    console.error('❌ Telegram ошибка:', telegramData);
+                requestAnimationFrame(scanFrame);
+            }
+
+            function stopScanner() {
+                scanning = false;
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
                 }
-            } catch (telegramError) {
-                console.error('❌ Telegram ошибка:', telegramError);
+                scannerModal.classList.remove('active');
             }
 
-           // Отправляем на сайт с упрощенной обработкой
-// Очень простой способ отправки на сайт
-try {
-    console.log('Отправляем на сайт:', callData);
-    
-    const siteResponse = await fetch('https://faraon.free.nf/save_call.php', {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(callData)
-    });
-    
-    const responseText = await siteResponse.text();
-    console.log('Ответ от сайта:', responseText);
-    
-    try {
-        const response = JSON.parse(responseText);
-        if (response.success) {
-            console.log('✅ Сайт сохранил вызов');
-        }
-    } catch (e) {
-        console.log('Ответ не JSON, но возможно сохранилось');
-    }
-    
-} catch (error) {
-    console.error('Ошибка отправки на сайт:', error);
-}
-    
-    xhr.send(JSON.stringify(callData));
-    
-} catch (siteError) {
-    console.error('❌ Ошибка:', siteError);
-}
-            // Показываем результат пользователю
-            if (telegramSuccess && siteSuccess) {
-                hookahStatus.textContent = '✅ Вызов отправлен в Telegram и на сайт! Кальянщик скоро подойдет';
-                hookahStatus.className = 'status-message status-success';
-                messageText.value = '';
-            } else if (telegramSuccess) {
-                hookahStatus.textContent = '⚠️ Вызов отправлен в Telegram, но не на сайт. Кальянщик все равно придет!';
-                hookahStatus.className = 'status-message status-warning';
-                hookahStatus.style.background = '#FF8C42';
-                messageText.value = '';
-            } else if (siteSuccess) {
-                hookahStatus.textContent = '⚠️ Вызов отправлен на сайт, но не в Telegram. Кальянщик все равно придет!';
-                hookahStatus.className = 'status-message status-warning';
-                hookahStatus.style.background = '#FF8C42';
-                messageText.value = '';
-            } else {
-                hookahStatus.textContent = '❌ Ошибка отправки. Попробуйте еще раз';
-                hookahStatus.className = 'status-message status-error';
+            qrButton.addEventListener('click', startCamera);
+            closeScanner.addEventListener('click', stopScanner);
+
+            // ========== ОТПРАВКА ВЫЗОВА ==========
+            sendHookahBtn.addEventListener('click', async () => {
+                if (!tableVerified || !tableNumber) {
+                    hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
+                    hookahStatus.className = 'status-message status-error';
+                    return;
+                }
+
+                sendHookahBtn.disabled = true;
+                sendHookahBtn.textContent = '⏳ ОТПРАВКА...';
+
+                const userInfo = tgUser ? 
+                    `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
+                    'Гость (не авторизован)';
+                
+                const message = messageText.value.trim() || 'Без сообщения';
+                
+                const userName = tgUser ? 
+                    `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : 
+                    'Гость';
+                
+                const username = tgUser?.username || '';
+
+                // Формируем текст для Telegram
+                const telegramText = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n` +
+                    `📍 Столик: ${tableNumber}\n` +
+                    `👤 Пользователь: ${userInfo}\n` +
+                    `💬 Сообщение: ${message}\n` +
+                    `⏰ Время: ${new Date().toLocaleString()}`;
+
+                // Данные для сайта
+                const callData = {
+                    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+                    tableNumber: tableNumber,
+                    userId: tgUser?.id || 0,
+                    userName: userName,
+                    username: username,
+                    message: message,
+                    timestamp: new Date().toISOString(),
+                    status: 'new'
+                };
+
+                // Переменные для отслеживания результатов
+                let telegramSuccess = false;
+                let siteSuccess = false;
+
+                try {
+                    // Отправляем в Telegram
+                    const telegramResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: HOOKAH_CHAT,
+                            text: telegramText,
+                            parse_mode: 'HTML'
+                        })
+                    });
+
+                    const telegramData = await telegramResponse.json();
+                    telegramSuccess = telegramData.ok;
+                    
+                    if (telegramSuccess) {
+                        console.log('✅ Telegram: успешно');
+                    } else {
+                        console.error('❌ Telegram ошибка:', telegramData);
+                    }
+                } catch (telegramError) {
+                    console.error('❌ Telegram ошибка:', telegramError);
+                }
+
+                try {
+                    // Отправляем на сайт
+                    console.log('📤 Отправляем на сайт:', callData);
+                    
+                    const siteResponse = await fetch('https://faraon.free.nf/save_call.php', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify(callData)
+                    });
+                    
+                    const siteData = await siteResponse.json();
+                    console.log('📥 Ответ от сайта:', siteData);
+                    
+                    siteSuccess = siteData.success === true;
+                    
+                    if (siteSuccess) {
+                        console.log('✅ Сайт: успешно');
+                    } else {
+                        console.error('❌ Сайт ошибка:', siteData.error || 'Неизвестная ошибка');
+                    }
+                } catch (siteError) {
+                    console.error('❌ Сайт ошибка:', siteError);
+                }
+
+                // Показываем результат пользователю
+                if (telegramSuccess && siteSuccess) {
+                    hookahStatus.textContent = '✅ Вызов отправлен в Telegram и на сайт! Кальянщик скоро подойдет';
+                    hookahStatus.className = 'status-message status-success';
+                    messageText.value = '';
+                } else if (telegramSuccess) {
+                    hookahStatus.textContent = '⚠️ Вызов отправлен в Telegram, но не на сайт. Кальянщик все равно придет!';
+                    hookahStatus.className = 'status-message status-warning';
+                    messageText.value = '';
+                } else if (siteSuccess) {
+                    hookahStatus.textContent = '⚠️ Вызов отправлен на сайт, но не в Telegram. Кальянщик все равно придет!';
+                    hookahStatus.className = 'status-message status-warning';
+                    messageText.value = '';
+                } else {
+                    hookahStatus.textContent = '❌ Ошибка отправки. Попробуйте еще раз';
+                    hookahStatus.className = 'status-message status-error';
+                }
+
+                sendHookahBtn.disabled = false;
+                sendHookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
+            });
+
+            // ========== ИГРА ==========
+            function updateUI() {
+                puffDisplay.textContent = puffs;
+                scrollDisplay.textContent = scrolls;
+                winsDisplay.textContent = wins;
+                discountDisplay.textContent = discounts;
+                progressFill.style.width = progress + '%';
+                progressPercent.textContent = progress + '%';
+                
+                updateRanksAndBadges();
+                
+                levelDisplay.textContent = Math.floor(puffs / 100) + 1;
             }
 
-            sendHookahBtn.disabled = false;
-            sendHookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
-        });
-
-        // ========== ИГРА ==========
-        function updateUI() {
-            puffDisplay.textContent = puffs;
-            scrollDisplay.textContent = scrolls;
-            winsDisplay.textContent = wins;
-            discountDisplay.textContent = discounts;
-            progressFill.style.width = progress + '%';
-            progressPercent.textContent = progress + '%';
-            
-            updateRanksAndBadges();
-            
-            levelDisplay.textContent = Math.floor(puffs / 100) + 1;
-        }
-
-        function updateRanksAndBadges() {
-            let currentRank = rankTitles[0];
-            let nextRank = rankTitles[1];
-            
-            for (let i = 0; i < rankTitles.length; i++) {
-                if (puffs >= rankTitles[i].requirement) {
-                    currentRank = rankTitles[i];
-                    if (i < rankTitles.length - 1) {
-                        nextRank = rankTitles[i + 1];
+            function updateRanksAndBadges() {
+                let currentRank = rankTitles[0];
+                let nextRank = rankTitles[1];
+                
+                for (let i = 0; i < rankTitles.length; i++) {
+                    if (puffs >= rankTitles[i].requirement) {
+                        currentRank = rankTitles[i];
+                        if (i < rankTitles.length - 1) {
+                            nextRank = rankTitles[i + 1];
+                        }
                     }
                 }
-            }
-            
-            rankIcon.textContent = currentRank.icon;
-            rankName.textContent = currentRank.name;
-            
-            if (nextRank) {
-                const progressToNext = puffs - currentRank.requirement;
-                const needForNext = nextRank.requirement - currentRank.requirement;
-                const progressPercent = Math.min(100, Math.floor((progressToNext / needForNext) * 100));
                 
-                rankProgressText.textContent = `${progressToNext}/${needForNext}`;
-                rankProgressFill.style.width = progressPercent + '%';
-            } else {
-                rankProgressText.textContent = 'Максимум';
-                rankProgressFill.style.width = '100%';
-            }
-            
-            badge100.classList.toggle('unlocked', puffs >= 100);
-            badge500.classList.toggle('unlocked', puffs >= 500);
-            badge1000.classList.toggle('unlocked', puffs >= 1000);
-            badgeFirstWin.classList.toggle('unlocked', wins >= 1);
-            badge5Discounts.classList.toggle('unlocked', discounts >= 5);
-            badge10Wins.classList.toggle('unlocked', wins >= 10);
-            badge25Wins.classList.toggle('unlocked', wins >= 25);
-            badge50Wins.classList.toggle('unlocked', wins >= 50);
-        }
-
-        function takePuff() {
-            let puffCount = turboActive ? 10 : 1;
-            let progressGain = 8 * puffCount;
-            
-            puffs += puffCount;
-            progress += progressGain;
-            
-            if (turboActive && puffCount > 1) {
-                scrolls = Math.max(0, scrolls - 3);
-            }
-            
-            if (progress >= 100) {
-                let earned = Math.floor(progress / 100);
-                scrolls += earned;
-                progress = progress % 100;
-                gameMessage.textContent = `✨ +${earned} свитков! ✨`;
-            }
-            
-            if (progress > 100) progress = 100;
-            
-            updateUI();
-            
-            puffBtn.style.transform = 'scale(0.95)';
-            setTimeout(() => puffBtn.style.transform = '', 100);
-        }
-
-        function openChest() {
-            if (!chestAvailable) {
-                gameMessage.textContent = '⏳ Сундук ещё закрыт! 2 часа ⏳';
-                return;
-            }
-
-            let bonus = Math.floor(Math.random() * 8) + 3;
-            scrolls += bonus;
-            gameMessage.textContent = `🎁 +${bonus} свитков! 🎁`;
-
-            chestAvailable = false;
-            chestBtn.style.opacity = '0.5';
-            chestBtn.style.pointerEvents = 'none';
-            
-            chestTimer = setTimeout(() => {
-                chestAvailable = true;
-                chestBtn.style.opacity = '1';
-                chestBtn.style.pointerEvents = 'auto';
-                gameMessage.textContent = '🏺 Сундук снова готов! 🏺';
-            }, 7200000);
-            
-            updateUI();
-        }
-
-        turboBtn.addEventListener('click', () => {
-            if (scrolls < 8) {
-                gameMessage.textContent = '❌ Нужно минимум 8 свитков для турбо!';
-                return;
-            }
-            
-            turboActive = !turboActive;
-            turboBtn.style.background = turboActive ? '#b84a4a' : 'linear-gradient(135deg, #aa7b44, #8b5e2e)';
-            
-            if (turboActive) {
-                gameMessage.textContent = '⚡ ТУРБО-РЕЖИМ АКТИВИРОВАН!';
-            }
-        });
-
-        function spinSlots() {
-            if (scrolls < 2) {
-                gameMessage.textContent = '❌ Нужно 2 свитка! Сделай затяжку! ❌';
-                return;
-            }
-
-            spinBtn.disabled = true;
-            
-            scrolls -= 2;
-            updateUI();
-
-            reel1.classList.add('spinning');
-            reel2.classList.add('spinning');
-            reel3.classList.add('spinning');
-            
-            if (soundEnabled) {
-                spinSound.currentTime = 0;
-                spinSound.play().catch(e => console.log('Ошибка воспроизведения звука:', e));
-            }
-
-            let spinCount = 0;
-            let spinInterval = setInterval(() => {
-                reel1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                reel2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                reel3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
-                spinCount++;
+                rankIcon.textContent = currentRank.icon;
+                rankName.textContent = currentRank.name;
                 
-                if (spinCount > 15) {
-                    clearInterval(spinInterval);
+                if (nextRank) {
+                    const progressToNext = puffs - currentRank.requirement;
+                    const needForNext = nextRank.requirement - currentRank.requirement;
+                    const progressPercent = Math.min(100, Math.floor((progressToNext / needForNext) * 100));
                     
-                    reel1.classList.remove('spinning');
-                    reel2.classList.remove('spinning');
-                    reel3.classList.remove('spinning');
-                    
-                    if (soundEnabled) {
-                        spinSound.pause();
-                        spinSound.currentTime = 0;
-                    }
-                    
-                    finishSpin();
-                }
-            }, 100);
-
-            function finishSpin() {
-                const s1 = symbols[Math.floor(Math.random() * symbols.length)];
-                const s2 = symbols[Math.floor(Math.random() * symbols.length)];
-                const s3 = symbols[Math.floor(Math.random() * symbols.length)];
-                
-                reel1.textContent = s1;
-                reel2.textContent = s2;
-                reel3.textContent = s3;
-                
-                if (s1 === s2 && s2 === s3) {
-                    let winAmount = 8;
-                    scrolls += winAmount;
-                    wins++;
-                    
-                    reel1.classList.add('win');
-                    reel2.classList.add('win');
-                    reel3.classList.add('win');
-                    setTimeout(() => {
-                        reel1.classList.remove('win');
-                        reel2.classList.remove('win');
-                        reel3.classList.remove('win');
-                    }, 500);
-                    
-                    gameMessage.textContent = `👑 ДЖЕКПОТ! +${winAmount} свитков! 👑`;
-                    
-                } else if (s1 === s2 || s2 === s3 || s1 === s3) {
-                    scrolls += 1;
-                    gameMessage.textContent = `✨ +1 свиток ✨`;
+                    rankProgressText.textContent = `${progressToNext}/${needForNext}`;
+                    rankProgressFill.style.width = progressPercent + '%';
                 } else {
-                    gameMessage.textContent = `💔 Не повезло...`;
+                    rankProgressText.textContent = 'Максимум';
+                    rankProgressFill.style.width = '100%';
                 }
+                
+                badge100.classList.toggle('unlocked', puffs >= 100);
+                badge500.classList.toggle('unlocked', puffs >= 500);
+                badge1000.classList.toggle('unlocked', puffs >= 1000);
+                badgeFirstWin.classList.toggle('unlocked', wins >= 1);
+                badge5Discounts.classList.toggle('unlocked', discounts >= 5);
+                badge10Wins.classList.toggle('unlocked', wins >= 10);
+                badge25Wins.classList.toggle('unlocked', wins >= 25);
+                badge50Wins.classList.toggle('unlocked', wins >= 50);
+            }
+
+            function takePuff() {
+                let puffCount = turboActive ? 10 : 1;
+                let progressGain = 8 * puffCount;
+                
+                puffs += puffCount;
+                progress += progressGain;
+                
+                if (turboActive && puffCount > 1) {
+                    scrolls = Math.max(0, scrolls - 3);
+                }
+                
+                if (progress >= 100) {
+                    let earned = Math.floor(progress / 100);
+                    scrolls += earned;
+                    progress = progress % 100;
+                    gameMessage.textContent = `✨ +${earned} свитков! ✨`;
+                }
+                
+                if (progress > 100) progress = 100;
                 
                 updateUI();
                 
-                spinBtn.disabled = false;
+                puffBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => puffBtn.style.transform = '', 100);
             }
-        }
 
-        puffBtn.addEventListener('click', takePuff);
-        chestBtn.addEventListener('click', openChest);
-        spinBtn.addEventListener('click', spinSlots);
+            function openChest() {
+                if (!chestAvailable) {
+                    gameMessage.textContent = '⏳ Сундук ещё закрыт! 2 часа ⏳';
+                    return;
+                }
 
-        // ========== ПРОМОКОДЫ ==========
-        async function checkSubscription(channelUsername) {
-            // Имитация проверки (в реальности здесь должен быть сервер)
-            return new Promise(resolve => {
-                setTimeout(() => {
-                    // Для демо всегда true
-                    resolve(true);
-                }, 1000);
+                let bonus = Math.floor(Math.random() * 8) + 3;
+                scrolls += bonus;
+                gameMessage.textContent = `🎁 +${bonus} свитков! 🎁`;
+
+                chestAvailable = false;
+                chestBtn.style.opacity = '0.5';
+                chestBtn.style.pointerEvents = 'none';
+                
+                chestTimer = setTimeout(() => {
+                    chestAvailable = true;
+                    chestBtn.style.opacity = '1';
+                    chestBtn.style.pointerEvents = 'auto';
+                    gameMessage.textContent = '🏺 Сундук снова готов! 🏺';
+                }, 7200000);
+                
+                updateUI();
+            }
+
+            turboBtn.addEventListener('click', () => {
+                if (scrolls < 8) {
+                    gameMessage.textContent = '❌ Нужно минимум 8 свитков для турбо!';
+                    return;
+                }
+                
+                turboActive = !turboActive;
+                turboBtn.style.background = turboActive ? '#b84a4a' : 'linear-gradient(135deg, #aa7b44, #8b5e2e)';
+                
+                if (turboActive) {
+                    gameMessage.textContent = '⚡ ТУРБО-РЕЖИМ АКТИВИРОВАН!';
+                }
             });
-        }
 
-        function updateChannelStatusUI(channelElement, statusElement, isSubscribed) {
-            if (isSubscribed) {
-                statusElement.innerHTML = '<span>✅</span> Подписан';
-                statusElement.className = 'channel-status checked';
-                channelElement.classList.add('verified');
-            } else {
-                statusElement.innerHTML = '<span>❌</span> Не подписан';
-                statusElement.className = 'channel-status error';
-                channelElement.classList.remove('verified');
-            }
-        }
+            function spinSlots() {
+                if (scrolls < 2) {
+                    gameMessage.textContent = '❌ Нужно 2 свитка! Сделай затяжку! ❌';
+                    return;
+                }
 
-        async function checkAllSubscriptions() {
-            if (!tgUser) {
-                status1.innerHTML = '<span>❌</span> Нет данных';
-                status2.innerHTML = '<span>❌</span> Нет данных';
-                return false;
-            }
-
-            status1.innerHTML = '<span>⏳</span> Проверка...';
-            status2.innerHTML = '<span>⏳</span> Проверка...';
-            
-            const sub1 = await checkSubscription('faraon_loungebar');
-            const sub2 = await checkSubscription('faraon_barber_top');
-            
-            updateChannelStatusUI(channel1, status1, sub1);
-            updateChannelStatusUI(channel2, status2, sub2);
-            
-            return sub1 && sub2;
-        }
-
-        function generatePromoCode(userId) {
-            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-            let code = 'WELCOME-';
-            for (let i = 0; i < 6; i++) {
-                code += chars[Math.floor(Math.random() * chars.length)];
-            }
-            code += `-${userId.toString().slice(-4)}`;
-            return code;
-        }
-
-        function getUserPromoCodes() {
-            if (!tgUser) return [];
-            return userPromoCodes[tgUser.id] || [];
-        }
-
-        function addUserPromoCode(code) {
-            if (!tgUser) return;
-            if (!userPromoCodes[tgUser.id]) {
-                userPromoCodes[tgUser.id] = [];
-            }
-            userPromoCodes[tgUser.id].push(code);
-            localStorage.setItem('user_promo_codes', JSON.stringify(userPromoCodes));
-        }
-
-        function isPromoCodeUsed(code) {
-            if (!tgUser) return false;
-            const userCodes = getUserPromoCodes();
-            return userCodes.includes(code);
-        }
-
-        function hidePromoBlock() {
-            if (promoBlock) {
-                promoBlock.classList.add('hidden');
-            }
-        }
-
-        getPromoBtn.addEventListener('click', async () => {
-            if (!tgUser) {
-                promoResult.className = 'promo-result error';
-                promoMessage.innerHTML = '❌ Запустите игру через Telegram бота';
-                promoCodeDisplay.innerHTML = '';
-                return;
-            }
-
-            if (isPromoCodeUsed('subscription_bonus')) {
-                promoResult.className = 'promo-result error';
-                promoMessage.innerHTML = '❌ Вы уже активировали бонус за подписку';
-                promoCodeDisplay.innerHTML = '';
-                hidePromoBlock();
-                return;
-            }
-
-            getPromoBtn.disabled = true;
-            getPromoBtn.innerHTML = '<span>⏳</span> ПРОВЕРКА...';
-            
-            const allSubscribed = await checkAllSubscriptions();
-            
-            if (allSubscribed) {
-                const newCode = generatePromoCode(tgUser.id);
+                spinBtn.disabled = true;
                 
-                addUserPromoCode('subscription_bonus');
+                scrolls -= 2;
+                updateUI();
+
+                reel1.classList.add('spinning');
+                reel2.classList.add('spinning');
+                reel3.classList.add('spinning');
                 
-                scrolls += 5;
+                if (soundEnabled) {
+                    spinSound.currentTime = 0;
+                    spinSound.play().catch(e => console.log('Ошибка воспроизведения звука:', e));
+                }
+
+                let spinCount = 0;
+                let spinInterval = setInterval(() => {
+                    reel1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    spinCount++;
+                    
+                    if (spinCount > 15) {
+                        clearInterval(spinInterval);
+                        
+                        reel1.classList.remove('spinning');
+                        reel2.classList.remove('spinning');
+                        reel3.classList.remove('spinning');
+                        
+                        if (soundEnabled) {
+                            spinSound.pause();
+                            spinSound.currentTime = 0;
+                        }
+                        
+                        finishSpin();
+                    }
+                }, 100);
+
+                function finishSpin() {
+                    const s1 = symbols[Math.floor(Math.random() * symbols.length)];
+                    const s2 = symbols[Math.floor(Math.random() * symbols.length)];
+                    const s3 = symbols[Math.floor(Math.random() * symbols.length)];
+                    
+                    reel1.textContent = s1;
+                    reel2.textContent = s2;
+                    reel3.textContent = s3;
+                    
+                    if (s1 === s2 && s2 === s3) {
+                        let winAmount = 8;
+                        scrolls += winAmount;
+                        wins++;
+                        
+                        reel1.classList.add('win');
+                        reel2.classList.add('win');
+                        reel3.classList.add('win');
+                        setTimeout(() => {
+                            reel1.classList.remove('win');
+                            reel2.classList.remove('win');
+                            reel3.classList.remove('win');
+                        }, 500);
+                        
+                        gameMessage.textContent = `👑 ДЖЕКПОТ! +${winAmount} свитков! 👑`;
+                        
+                    } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+                        scrolls += 1;
+                        gameMessage.textContent = `✨ +1 свиток ✨`;
+                    } else {
+                        gameMessage.textContent = `💔 Не повезло...`;
+                    }
+                    
+                    updateUI();
+                    
+                    spinBtn.disabled = false;
+                }
+            }
+
+            puffBtn.addEventListener('click', takePuff);
+            chestBtn.addEventListener('click', openChest);
+            spinBtn.addEventListener('click', spinSlots);
+
+            // ========== ПРОМОКОДЫ ==========
+            async function checkSubscription(channelUsername) {
+                // Имитация проверки (в реальности здесь должен быть сервер)
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        // Для демо всегда true
+                        resolve(true);
+                    }, 1000);
+                });
+            }
+
+            function updateChannelStatusUI(channelElement, statusElement, isSubscribed) {
+                if (isSubscribed) {
+                    statusElement.innerHTML = '<span>✅</span> Подписан';
+                    statusElement.className = 'channel-status checked';
+                    channelElement.classList.add('verified');
+                } else {
+                    statusElement.innerHTML = '<span>❌</span> Не подписан';
+                    statusElement.className = 'channel-status error';
+                    channelElement.classList.remove('verified');
+                }
+            }
+
+            async function checkAllSubscriptions() {
+                if (!tgUser) {
+                    status1.innerHTML = '<span>❌</span> Нет данных';
+                    status2.innerHTML = '<span>❌</span> Нет данных';
+                    return false;
+                }
+
+                status1.innerHTML = '<span>⏳</span> Проверка...';
+                status2.innerHTML = '<span>⏳</span> Проверка...';
+                
+                const sub1 = await checkSubscription('faraon_loungebar');
+                const sub2 = await checkSubscription('faraon_barber_top');
+                
+                updateChannelStatusUI(channel1, status1, sub1);
+                updateChannelStatusUI(channel2, status2, sub2);
+                
+                return sub1 && sub2;
+            }
+
+            function generatePromoCode(userId) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let code = 'WELCOME-';
+                for (let i = 0; i < 6; i++) {
+                    code += chars[Math.floor(Math.random() * chars.length)];
+                }
+                code += `-${userId.toString().slice(-4)}`;
+                return code;
+            }
+
+            function getUserPromoCodes() {
+                if (!tgUser) return [];
+                return userPromoCodes[tgUser.id] || [];
+            }
+
+            function addUserPromoCode(code) {
+                if (!tgUser) return;
+                if (!userPromoCodes[tgUser.id]) {
+                    userPromoCodes[tgUser.id] = [];
+                }
+                userPromoCodes[tgUser.id].push(code);
+                localStorage.setItem('user_promo_codes', JSON.stringify(userPromoCodes));
+            }
+
+            function isPromoCodeUsed(code) {
+                if (!tgUser) return false;
+                const userCodes = getUserPromoCodes();
+                return userCodes.includes(code);
+            }
+
+            function hidePromoBlock() {
+                if (promoBlock) {
+                    promoBlock.classList.add('hidden');
+                }
+            }
+
+            getPromoBtn.addEventListener('click', async () => {
+                if (!tgUser) {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Запустите игру через Telegram бота';
+                    promoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                if (isPromoCodeUsed('subscription_bonus')) {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Вы уже активировали бонус за подписку';
+                    promoCodeDisplay.innerHTML = '';
+                    hidePromoBlock();
+                    return;
+                }
+
+                getPromoBtn.disabled = true;
+                getPromoBtn.innerHTML = '<span>⏳</span> ПРОВЕРКА...';
+                
+                const allSubscribed = await checkAllSubscriptions();
+                
+                if (allSubscribed) {
+                    const newCode = generatePromoCode(tgUser.id);
+                    
+                    addUserPromoCode('subscription_bonus');
+                    
+                    scrolls += 5;
+                    scrollDisplay.textContent = scrolls;
+                    
+                    promoResult.className = 'promo-result success';
+                    promoMessage.innerHTML = '✅ Промокод активирован! +5 свитков';
+                    promoCodeDisplay.innerHTML = newCode;
+                    
+                    // Отправляем в канал промокодов
+                    try {
+                        const promoText = `🎁 <b>АКТИВИРОВАН ПРОМОКОД ЗА ПОДПИСКУ!</b>\n\n` +
+                            `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
+                            `🆔 ID: ${tgUser.id}\n` +
+                            `🔑 Код: <code>${newCode}</code>\n` +
+                            `💰 Бонус: +5 свитков\n` +
+                            `⏰ Время: ${new Date().toLocaleString()}`;
+                        
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: PROMO_CHAT,
+                                text: promoText,
+                                parse_mode: 'HTML'
+                            })
+                        });
+                    } catch (e) {
+                        console.log('Ошибка отправки в канал промокодов');
+                    }
+                    
+                    hidePromoBlock();
+                    
+                } else {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Подпишитесь на все каналы';
+                    promoCodeDisplay.innerHTML = '';
+                }
+                
+                getPromoBtn.disabled = false;
+                getPromoBtn.innerHTML = '<span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ';
+            });
+
+            applyPromoBtn.addEventListener('click', async () => {
+                const code = promoInput.value.trim().toUpperCase();
+                
+                if (!code) {
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Введите промокод';
+                    manualPromoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                if (isPromoCodeUsed(code)) {
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Этот промокод уже был активирован';
+                    manualPromoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                const validCodes = ['NEW', 'BONUS', 'GIFT', 'SUMMER', 'WELCOME'];
+                
+                if (!validCodes.includes(code)) {
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Неверный промокод';
+                    manualPromoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                addUserPromoCode(code);
+                
+                let bonus = 10;
+                if (code === 'NEW') bonus = 15;
+                if (code === 'BONUS') bonus = 20;
+                if (code === 'GIFT') bonus = 25;
+                if (code === 'SUMMER') bonus = 30;
+                
+                scrolls += bonus;
                 scrollDisplay.textContent = scrolls;
                 
-                promoResult.className = 'promo-result success';
-                promoMessage.innerHTML = '✅ Промокод активирован! +5 свитков';
-                promoCodeDisplay.innerHTML = newCode;
+                manualPromoResult.className = 'promo-result success';
+                manualPromoMessage.innerHTML = `✅ Промокод активирован! +${bonus} свитков`;
+                manualPromoCodeDisplay.innerHTML = code;
                 
                 // Отправляем в канал промокодов
-                try {
-                    const promoText = `🎁 <b>АКТИВИРОВАН ПРОМОКОД ЗА ПОДПИСКУ!</b>\n\n` +
-                        `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
-                        `🆔 ID: ${tgUser.id}\n` +
-                        `🔑 Код: <code>${newCode}</code>\n` +
-                        `💰 Бонус: +5 свитков\n` +
-                        `⏰ Время: ${new Date().toLocaleString()}`;
-                    
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: PROMO_CHAT,
-                            text: promoText,
-                            parse_mode: 'HTML'
-                        })
-                    });
-                } catch (e) {
-                    console.log('Ошибка отправки в канал промокодов');
+                if (tgUser) {
+                    try {
+                        const promoText = `🔑 <b>АКТИВИРОВАН РУЧНОЙ ПРОМОКОД!</b>\n\n` +
+                            `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
+                            `🆔 ID: ${tgUser.id}\n` +
+                            `🔑 Код: <code>${code}</code>\n` +
+                            `💰 Бонус: +${bonus} свитков\n` +
+                            `⏰ Время: ${new Date().toLocaleString()}`;
+                        
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: PROMO_CHAT,
+                                text: promoText,
+                                parse_mode: 'HTML'
+                            })
+                        });
+                    } catch (e) {
+                        console.log('Ошибка отправки в канал промокодов');
+                    }
                 }
                 
-                hidePromoBlock();
-                
-            } else {
-                promoResult.className = 'promo-result error';
-                promoMessage.innerHTML = '❌ Подпишитесь на все каналы';
-                promoCodeDisplay.innerHTML = '';
-            }
-            
-            getPromoBtn.disabled = false;
-            getPromoBtn.innerHTML = '<span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ';
-        });
+                promoInput.value = '';
+            });
 
-        applyPromoBtn.addEventListener('click', async () => {
-            const code = promoInput.value.trim().toUpperCase();
-            
-            if (!code) {
-                manualPromoResult.className = 'promo-result error';
-                manualPromoMessage.innerHTML = '❌ Введите промокод';
-                manualPromoCodeDisplay.innerHTML = '';
-                return;
-            }
-
-            if (isPromoCodeUsed(code)) {
-                manualPromoResult.className = 'promo-result error';
-                manualPromoMessage.innerHTML = '❌ Этот промокод уже был активирован';
-                manualPromoCodeDisplay.innerHTML = '';
-                return;
-            }
-
-            const validCodes = ['NEW', 'BONUS', 'GIFT', 'SUMMER', 'WELCOME'];
-            
-            if (!validCodes.includes(code)) {
-                manualPromoResult.className = 'promo-result error';
-                manualPromoMessage.innerHTML = '❌ Неверный промокод';
-                manualPromoCodeDisplay.innerHTML = '';
-                return;
-            }
-
-            addUserPromoCode(code);
-            
-            let bonus = 10;
-            if (code === 'NEW') bonus = 15;
-            if (code === 'BONUS') bonus = 20;
-            if (code === 'GIFT') bonus = 25;
-            if (code === 'SUMMER') bonus = 30;
-            
-            scrolls += bonus;
-            scrollDisplay.textContent = scrolls;
-            
-            manualPromoResult.className = 'promo-result success';
-            manualPromoMessage.innerHTML = `✅ Промокод активирован! +${bonus} свитков`;
-            manualPromoCodeDisplay.innerHTML = code;
-            
-            // Отправляем в канал промокодов
+            // Отображение пользователя Telegram
             if (tgUser) {
-                try {
-                    const promoText = `🔑 <b>АКТИВИРОВАН РУЧНОЙ ПРОМОКОД!</b>\n\n` +
-                        `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
-                        `🆔 ID: ${tgUser.id}\n` +
-                        `🔑 Код: <code>${code}</code>\n` +
-                        `💰 Бонус: +${bonus} свитков\n` +
-                        `⏰ Время: ${new Date().toLocaleString()}`;
-                    
-                    await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: PROMO_CHAT,
-                            text: promoText,
-                            parse_mode: 'HTML'
-                        })
-                    });
-                } catch (e) {
-                    console.log('Ошибка отправки в канал промокодов');
+                telegramUserDiv.style.display = 'flex';
+                userName.textContent = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+                userId.textContent = `ID: ${tgUser.id}`;
+                
+                if (tgUser.photo_url) {
+                    userAvatar.src = tgUser.photo_url;
+                } else {
+                    userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
+                }
+                
+                if (isPromoCodeUsed('subscription_bonus')) {
+                    hidePromoBlock();
+                } else {
+                    checkAllSubscriptions();
                 }
             }
-            
-            promoInput.value = '';
-        });
 
-        // Отображение пользователя Telegram
-        if (tgUser) {
-            telegramUserDiv.style.display = 'flex';
-            userName.textContent = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
-            userId.textContent = `ID: ${tgUser.id}`;
+            // Загрузка сохранений
+            const savedPuffs = localStorage.getItem('pharaoh_puffs');
+            const savedScrolls = localStorage.getItem('pharaoh_scrolls');
+            const savedWins = localStorage.getItem('pharaoh_wins');
+            const savedDiscounts = localStorage.getItem('pharaoh_discounts');
+            const savedProgress = localStorage.getItem('pharaoh_progress');
             
-            if (tgUser.photo_url) {
-                userAvatar.src = tgUser.photo_url;
-            } else {
-                userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
-            }
+            if (savedPuffs) puffs = parseInt(savedPuffs);
+            if (savedScrolls) scrolls = parseInt(savedScrolls);
+            if (savedWins) wins = parseInt(savedWins);
+            if (savedDiscounts) discounts = parseInt(savedDiscounts);
+            if (savedProgress) progress = parseInt(savedProgress);
             
-            if (isPromoCodeUsed('subscription_bonus')) {
-                hidePromoBlock();
-            } else {
-                checkAllSubscriptions();
-            }
-        }
+            updateUI();
 
-        // Загрузка сохранений
-        const savedPuffs = localStorage.getItem('pharaoh_puffs');
-        const savedScrolls = localStorage.getItem('pharaoh_scrolls');
-        const savedWins = localStorage.getItem('pharaoh_wins');
-        const savedDiscounts = localStorage.getItem('pharaoh_discounts');
-        const savedProgress = localStorage.getItem('pharaoh_progress');
-        
-        if (savedPuffs) puffs = parseInt(savedPuffs);
-        if (savedScrolls) scrolls = parseInt(savedScrolls);
-        if (savedWins) wins = parseInt(savedWins);
-        if (savedDiscounts) discounts = parseInt(savedDiscounts);
-        if (savedProgress) progress = parseInt(savedProgress);
-        
-        updateUI();
-
-        window.addEventListener('beforeunload', () => {
-            localStorage.setItem('pharaoh_puffs', puffs);
-            localStorage.setItem('pharaoh_scrolls', scrolls);
-            localStorage.setItem('pharaoh_wins', wins);
-            localStorage.setItem('pharaoh_discounts', discounts);
-            localStorage.setItem('pharaoh_progress', progress);
-        });
-    })();
-</script>
+            window.addEventListener('beforeunload', () => {
+                localStorage.setItem('pharaoh_puffs', puffs);
+                localStorage.setItem('pharaoh_scrolls', scrolls);
+                localStorage.setItem('pharaoh_wins', wins);
+                localStorage.setItem('pharaoh_discounts', discounts);
+                localStorage.setItem('pharaoh_progress', progress);
+            });
+        })();
+    </script>
 </body>
 </html>
-
-
-
-
-
