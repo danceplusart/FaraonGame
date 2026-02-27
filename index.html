@@ -1675,58 +1675,65 @@
 
             // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА ===
             hookahBtn.addEventListener('click', async () => {
-    if (!tableVerified || !tableNumber) {
-        gameMessage.textContent = '❌ Сначала отсканируйте QR-код';
-        return;
-    }
-    
-    hookahBtn.disabled = true;
-    hookahBtn.textContent = '⏳ ВЫЗЫВАЕМ...';
-    
-    const userInfo = tgUser ? 
-        `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
-        'Не авторизован';
-    
-    // Простое сообщение в игре
-    gameMessage.textContent = '⏳ Отправка запроса...';
-    
-    try {
-        console.log('📤 Отправка на сервер...');
-        console.log('URL:', 'http://103.231.73.178:3001/api/call');
-        console.log('Данные:', { tableNumber, userInfo });
-        
-        const response = await fetch('http://103.231.73.178:3001/api/call', {
-            method: 'POST',
-            headers: { 
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                tableNumber: tableNumber,
-                userInfo: userInfo
-            })
-        });
-        
-        if (response.ok) {
-            const data = await response.json();
-            console.log('✅ Успех:', data);
-            gameMessage.textContent = '✅ Кальянщик вызван!';
-        } else {
-            console.log('❌ Ошибка сервера:', response.status);
-            gameMessage.textContent = '❌ Ошибка сервера';
-        }
-        
-    } catch (error) {
-        console.error('❌ Ошибка:', error);
-        gameMessage.textContent = '❌ Ошибка соединения';
-    }
-    
-    setTimeout(() => {
-        if (tableVerified && tableNumber) {
-            hookahBtn.disabled = false;
-        }
-        hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
-    }, 30000);
-});
+                if (!tableVerified || !tableNumber) {
+                    gameMessage.textContent = '❌ Отсканируйте QR-код на столике';
+                    return;
+                }
+                
+                hookahBtn.disabled = true;
+                hookahBtn.textContent = '⏳ ВЫЗЫВАЕМ...';
+                
+                const userInfo = tgUser ? 
+                    `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
+                    'Не авторизован';
+                
+                gameMessage.textContent = '⏳ Отправка запроса...';
+                
+                try {
+                    console.log('📤 Отправка на сервер...');
+                    console.log('URL:', 'http://103.231.73.178:3001/api/call');
+                    console.log('Данные:', { tableNumber, userInfo });
+                    
+                    const response = await fetch('http://103.231.73.178:3001/api/call', {
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            tableNumber: tableNumber,
+                            userInfo: userInfo,
+                            stats: {
+                                puffs: puffs,
+                                scrolls: scrolls,
+                                wins: wins
+                            }
+                        })
+                    });
+                    
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Успех! Ответ сервера:', data);
+                        gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
+                    } else {
+                        console.log('❌ Ошибка сервера. Статус:', response.status);
+                        gameMessage.textContent = '❌ Ошибка сервера';
+                    }
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка:', error);
+                    console.error('❌ Имя ошибки:', error.name);
+                    console.error('❌ Сообщение:', error.message);
+                    gameMessage.textContent = '❌ Ошибка соединения с сервером';
+                }
+                
+                setTimeout(() => {
+                    if (tableVerified && tableNumber) {
+                        hookahBtn.disabled = false;
+                    }
+                    hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
+                }, 30000);
+            });
+
             async function sendToTelegram(message) {
                 try {
                     await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
