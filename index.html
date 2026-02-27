@@ -1576,30 +1576,38 @@
             }
 
            // Отправляем на сайт с упрощенной обработкой
+// Очень простой способ отправки на сайт
 try {
-    console.log('📤 Отправляем на сайт:', JSON.stringify(callData));
+    console.log('📤 Отправляем на сайт (простой способ)...');
     
-    const siteResponse = await fetch('https://faraon.free.nf/save_call.php', {
-        method: 'POST',
-        headers: { 
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(callData)
-    });
+    // Используем XMLHttpRequest вместо fetch (он более надежный)
+    const xhr = new XMLHttpRequest();
+    xhr.open('POST', 'https://faraon.free.nf/save_call_jsonp.php', true);
+    xhr.setRequestHeader('Content-Type', 'application/json');
     
-    const responseText = await siteResponse.text();
-    console.log('📥 Ответ от сайта (текст):', responseText);
+    xhr.onload = function() {
+        if (xhr.status === 200) {
+            console.log('✅ Сайт ответил:', xhr.responseText);
+            siteSuccess = true;
+            
+            // Обновляем статус если Telegram уже отправился
+            if (telegramSuccess) {
+                hookahStatus.textContent = '✅ Вызов отправлен в Telegram и на сайт!';
+                hookahStatus.className = 'status-message status-success';
+            }
+        } else {
+            console.error('❌ Ошибка сайта:', xhr.status);
+        }
+    };
     
-    try {
-        const siteData = JSON.parse(responseText);
-        console.log('📥 Ответ от сайта (JSON):', siteData);
-        siteSuccess = siteData.success === true;
-    } catch (e) {
-        console.error('❌ Ответ не является JSON:', responseText);
-    }
+    xhr.onerror = function() {
+        console.error('❌ Не удалось отправить на сайт');
+    };
+    
+    xhr.send(JSON.stringify(callData));
     
 } catch (siteError) {
-    console.error('❌ Ошибка отправки на сайт:', siteError);
+    console.error('❌ Ошибка:', siteError);
 }
             // Показываем результат пользователю
             if (telegramSuccess && siteSuccess) {
@@ -2084,6 +2092,7 @@ try {
 </script>
 </body>
 </html>
+
 
 
 
