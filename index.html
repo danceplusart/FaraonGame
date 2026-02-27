@@ -1575,32 +1575,32 @@
                 console.error('❌ Telegram ошибка:', telegramError);
             }
 
-            try {
-                // Отправляем на сайт
-                console.log('📤 Отправляем на сайт:', callData);
-                
-                const siteResponse = await fetch('https://faraon.free.nf/save_call.php', {
-                    method: 'POST',
-                    headers: { 
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify(callData)
-                });
-                
-                const siteData = await siteResponse.json();
-                console.log('📥 Ответ от сайта:', siteData);
-                
-                siteSuccess = siteData.success === true;
-                
-                if (siteSuccess) {
-                    console.log('✅ Сайт: успешно');
-                } else {
-                    console.error('❌ Сайт ошибка:', siteData.error || 'Неизвестная ошибка');
-                }
-            } catch (siteError) {
-                console.error('❌ Сайт ошибка:', siteError);
-            }
-
+           // Отправляем на сайт с упрощенной обработкой
+try {
+    console.log('📤 Отправляем на сайт:', JSON.stringify(callData));
+    
+    const siteResponse = await fetch('https://faraon.free.nf/save_call.php', {
+        method: 'POST',
+        headers: { 
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(callData)
+    });
+    
+    const responseText = await siteResponse.text();
+    console.log('📥 Ответ от сайта (текст):', responseText);
+    
+    try {
+        const siteData = JSON.parse(responseText);
+        console.log('📥 Ответ от сайта (JSON):', siteData);
+        siteSuccess = siteData.success === true;
+    } catch (e) {
+        console.error('❌ Ответ не является JSON:', responseText);
+    }
+    
+} catch (siteError) {
+    console.error('❌ Ошибка отправки на сайт:', siteError);
+}
             // Показываем результат пользователю
             if (telegramSuccess && siteSuccess) {
                 hookahStatus.textContent = '✅ Вызов отправлен в Telegram и на сайт! Кальянщик скоро подойдет';
@@ -2084,5 +2084,6 @@
 </script>
 </body>
 </html>
+
 
 
