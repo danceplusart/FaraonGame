@@ -102,7 +102,6 @@
             padding: 16px;
         }
 
-        /* ДИАГНОСТИЧЕСКАЯ ПАНЕЛЬ */
         .debug-panel {
             background: #1a1a1a;
             border: 1px solid #c9a454;
@@ -1139,7 +1138,6 @@
     </header>
 
     <main class="main-content">
-        <!-- ДИАГНОСТИЧЕСКАЯ ПАНЕЛЬ -->
         <div class="debug-panel" id="debugPanel">
             🔍 Диагностика готова...
         </div>
@@ -1448,6 +1446,7 @@
             let tableVerified = false;
             let tableNumber = '';
             
+            // HTTP URL (работает, проверено)
             const SERVER_URL = 'http://103.231.73.178:3001';
             
             const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
@@ -1536,9 +1535,9 @@
             let scanning = false;
             let cameraStream = null;
 
-            // Функция для обновления диагностической панели
             function updateDebug(message) {
-                debugPanel.innerHTML = message + '<br>' + debugPanel.innerHTML;
+                const time = new Date().toLocaleTimeString();
+                debugPanel.innerHTML = `[${time}] ${message}<br>` + debugPanel.innerHTML;
                 console.log(message);
             }
 
@@ -1553,6 +1552,11 @@
                 try {
                     updateDebug(`🔍 Проверка подписки на ${channelUsername}`);
                     const response = await fetch(`${SERVER_URL}/check-subscription?userId=${tgUser.id}&channel=${channelUsername}`);
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP ${response.status}`);
+                    }
+                    
                     const data = await response.json();
                     
                     if (data.subscribed) {
@@ -1699,7 +1703,7 @@
                 scannerModal.classList.remove('active');
             }
 
-            // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА С ДИАГНОСТИКОЙ ===
+            // Функция вызова кальянщика
             hookahBtn.addEventListener('click', async () => {
                 if (!tableVerified || !tableNumber) {
                     gameMessage.textContent = '❌ Отсканируйте QR-код на столике';
@@ -1724,15 +1728,20 @@
                     updateDebug('📤 Отправка fetch запроса...');
                     
                     const response = await fetch(`${SERVER_URL}/api/call`, {
-    method: 'POST',
-    headers: { 
-        'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-        tableNumber: tableNumber,
-        userInfo: userInfo
-    })
-});
+                        method: 'POST',
+                        headers: { 
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            tableNumber: tableNumber,
+                            userInfo: userInfo,
+                            stats: {
+                                puffs: puffs,
+                                scrolls: scrolls,
+                                wins: wins
+                            }
+                        })
+                    });
                     
                     updateDebug(`📥 Статус ответа: ${response.status}`);
                     
@@ -2136,5 +2145,3 @@
     </script>
 </body>
 </html>
-
-
