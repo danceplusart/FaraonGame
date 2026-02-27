@@ -1161,59 +1161,60 @@
             </div>
         </section>
 
-        <!-- Промокоды -->
-        <div class="promo-block" id="promoBlock">
-            <div class="promo-title">
-                <span>🎁</span> Получи бонус
-            </div>
-            
-            <div class="channels-grid">
-                <div class="channel-card" id="channel1">
-                    <div class="channel-avatar">📱</div>
-                    <div class="channel-info">
-                        <div class="channel-name">ФАРАОН LoungeBar</div>
-                        <div class="channel-status pending" id="status1">
-                            <span>⏳</span> Проверка...
-                        </div>
-                    </div>
-                    <a href="https://t.me/faraon_loungebar" target="_blank" class="channel-action">Перейти</a>
-                </div>
-
-                <div class="channel-card" id="channel2">
-                    <div class="channel-avatar">💈</div>
-                    <div class="channel-info">
-                        <div class="channel-name">ФАРАОН BarberTop</div>
-                        <div class="channel-status pending" id="status2">
-                            <span>⏳</span> Проверка...
-                        </div>
-                    </div>
-                    <a href="https://t.me/faraon_barber_top" target="_blank" class="channel-action">Перейти</a>
+       <!-- Промокоды -->
+<div class="promo-block" id="promoBlock">
+    <div class="promo-title">
+        <span>🎁</span> Получи бонус за подписку
+    </div>
+    
+    <div class="channels-grid">
+        <div class="channel-card" id="channel1">
+            <div class="channel-avatar">📱</div>
+            <div class="channel-info">
+                <div class="channel-name">ФАРАОН LoungeBar</div>
+                <div class="channel-status pending" id="status1">
+                    <span>⏳</span> Проверка...
                 </div>
             </div>
-
-            <button class="promo-button" id="getPromoBtn">
-                <span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ
-            </button>
-
-            <div class="promo-result" id="promoResult">
-                <div id="promoMessage"></div>
-                <div class="promo-code" id="promoCodeDisplay"></div>
-            </div>
-
-            <div class="manual-promo">
-                <div style="font-size: 16px; color: #ffd966; margin-bottom: 12px;">
-                    <span>🔑</span> Ввести промокод
-                </div>
-                <div class="promo-input-group">
-                    <input type="text" class="promo-input" id="promoInput" placeholder="NEW, BONUS, GIFT, SUMMER, WELCOME">
-                    <button class="promo-apply-btn" id="applyPromoBtn">Активировать</button>
-                </div>
-                <div class="promo-result" id="manualPromoResult">
-                    <div id="manualPromoMessage"></div>
-                    <div class="promo-code" id="manualPromoCodeDisplay"></div>
-                </div>
-            </div>
+            <a href="https://t.me/faraon_loungebar" target="_blank" class="channel-action">Перейти</a>
         </div>
+
+        <div class="channel-card" id="channel2">
+            <div class="channel-avatar">💈</div>
+            <div class="channel-info">
+                <div class="channel-name">ФАРАОН BarberTop</div>
+                <div class="channel-status pending" id="status2">
+                    <span>⏳</span> Проверка...
+                </div>
+            </div>
+            <a href="https://t.me/faraon_barber_top" target="_blank" class="channel-action">Перейти</a>
+        </div>
+    </div>
+
+    <button class="promo-button" id="getPromoBtn">
+        <span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ
+    </button>
+
+    <div class="promo-result" id="promoResult">
+        <div id="promoMessage"></div>
+        <div class="promo-code" id="promoCodeDisplay"></div>
+    </div>
+</div>
+
+<!-- Ручной ввод промокода (ВСЕГДА ВИДЕН) -->
+<div class="manual-promo-block" style="background: rgba(30, 30, 30, 0.95); border-radius: 20px; padding: 20px; margin: 24px 0; border: 1px solid rgba(201, 164, 84, 0.2);">
+    <div class="manual-promo-title" style="font-size: 20px; font-weight: 600; color: #ffd966; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+        <span>🔑</span> Ввести промокод
+    </div>
+    <div class="promo-input-group" style="display: flex; gap: 8px; margin-bottom: 16px;">
+        <input type="text" class="promo-input" id="promoInput" placeholder="Введите промокод" style="flex: 1; padding: 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(201, 164, 84, 0.3); border-radius: 12px; color: #fff; font-size: 16px; outline: none;">
+        <button class="promo-apply-btn" id="applyPromoBtn" style="background: linear-gradient(135deg, #c9a454, #b38a3a); border: none; border-radius: 12px; padding: 0 20px; color: #000; font-size: 16px; font-weight: 600; cursor: pointer;">Активировать</button>
+    </div>
+    <div class="promo-result" id="manualPromoResult" style="background: rgba(30, 30, 30, 0.95); border-radius: 16px; padding: 20px; margin: 20px 0 0 0; text-align: center; border: 1px solid rgba(201, 164, 84, 0.2); display: none;">
+        <div id="manualPromoMessage"></div>
+        <div class="promo-code" id="manualPromoCodeDisplay" style="font-size: 28px; font-weight: 700; color: #ffd966; letter-spacing: 3px; margin: 12px 0; font-family: monospace;"></div>
+    </div>
+</div>
 
         <!-- Информация о заведении -->
         <section class="info-section">
@@ -1455,12 +1456,14 @@
                     });
                     
                     if (code) {
-                        const tableMatch = code.data.match(/Faraon[-\s]?(\d+)/i);
+                        // Изменено: теперь ищем Faraon- и берем все, что после него
+                        const tableMatch = code.data.match(/Faraon[-\s]?(.+)/i);
                         
-                        if (tableMatch) {
-                            const scannedTable = parseInt(tableMatch[1]);
+                        if (tableMatch && tableMatch[1]) {
+                            const scannedTable = tableMatch[1].trim();
                             
-                            if (scannedTable >= 1 && scannedTable <= 50) {
+                            // Проверяем, что значение не пустое
+                            if (scannedTable.length > 0) {
                                 tableVerified = true;
                                 tableNumber = scannedTable;
                                 tableInput.value = `Стол ${scannedTable}`;
