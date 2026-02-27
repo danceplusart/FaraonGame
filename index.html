@@ -1448,7 +1448,7 @@
             let tableVerified = false;
             let tableNumber = '';
             
-            const SERVER_URL = 'https://slight-starsmerchant-wedding-ste.trycloudflare.com';
+            const SERVER_URL = 'http://103.231.73.178:3001';
             
             const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
             spinSound.volume = 0.3;
@@ -1724,20 +1724,15 @@
                     updateDebug('📤 Отправка fetch запроса...');
                     
                     const response = await fetch(`${SERVER_URL}/api/call`, {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify({
-                            tableNumber: tableNumber,
-                            userInfo: userInfo,
-                            stats: {
-                                puffs: puffs,
-                                scrolls: scrolls,
-                                wins: wins
-                            }
-                        })
-                    });
+    method: 'POST',
+    headers: { 
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({
+        tableNumber: tableNumber,
+        userInfo: userInfo
+    })
+});
                     
                     updateDebug(`📥 Статус ответа: ${response.status}`);
                     
@@ -2141,4 +2136,5 @@
     </script>
 </body>
 </html>
+
 
