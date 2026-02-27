@@ -7,7 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
-        /* Все стили остаются как в предыдущей версии */
         * {
             margin: 0;
             padding: 0;
@@ -1446,6 +1445,9 @@
             
             let usedPromoCodes = JSON.parse(localStorage.getItem('used_promo_codes')) || [];
             
+            const TELEGRAM_BOT_TOKEN = '8729627281:AAFxcCPITUhVZYO3H4nMp_dMdXOdI9weKqc';
+            const TELEGRAM_CHAT_ID = '1709039111';
+            
             const soundBtn = document.getElementById('soundBtn');
             const telegramUserDiv = document.getElementById('telegramUser');
             const userAvatar = document.getElementById('userAvatar');
@@ -1652,7 +1654,6 @@
                 scannerModal.classList.remove('active');
             }
 
-            // ВЫЗОВ КАЛЬЯНЩИКА
             hookahBtn.addEventListener('click', async () => {
                 if (!tableVerified || !tableNumber) {
                     gameMessage.textContent = '❌ Отсканируйте QR-код';
@@ -1667,7 +1668,7 @@
                     'Не авторизован';
                 
                 try {
-                    const response = await fetch('http://103.231.73.178:3001/api/call', {
+                    const response = await fetch(`${SERVER_URL}/api/call`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
                         body: JSON.stringify({
@@ -1694,7 +1695,6 @@
                 }, 30000);
             });
 
-            // ПРОМОКОД ЗА ПОДПИСКУ
             getPromoBtn.addEventListener('click', async () => {
                 if (!tgUser) {
                     promoResult.className = 'promo-result error';
@@ -1723,17 +1723,6 @@
                     scrolls += 5;
                     scrollDisplay.textContent = scrolls;
                     
-                    // Отправляем в канал
-                    await fetch(`${SERVER_URL}/api/promo/subscription`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId: tgUser.id,
-                            userName: tgUser.first_name,
-                            promoCode: newCode
-                        })
-                    });
-                    
                     promoResult.className = 'promo-result success';
                     promoMessage.innerHTML = '✅ Промокод активирован! +5 свитков';
                     promoCodeDisplay.innerHTML = newCode;
@@ -1748,7 +1737,6 @@
                 getPromoBtn.innerHTML = '<span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ';
             });
 
-            // РУЧНОЙ ПРОМОКОД
             applyPromoBtn.addEventListener('click', async () => {
                 const code = promoInput.value.trim().toUpperCase();
                 
@@ -1783,20 +1771,6 @@
                 
                 scrolls += bonus;
                 scrollDisplay.textContent = scrolls;
-                
-                // Отправляем в канал
-                if (tgUser) {
-                    await fetch(`${SERVER_URL}/api/promo/manual`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            userId: tgUser.id,
-                            userName: tgUser.first_name,
-                            promoCode: code,
-                            bonus: bonus
-                        })
-                    });
-                }
                 
                 manualPromoResult.className = 'promo-result success';
                 manualPromoMessage.innerHTML = `✅ Промокод активирован! +${bonus} свитков`;
