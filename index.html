@@ -1427,6 +1427,7 @@
             let tableVerified = false;
             let tableNumber = '';
             
+            // ПРАВИЛЬНЫЙ URL С ПОРТОМ 3001
             const SERVER_URL = 'http://103.231.73.178:3001';
             
             const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
@@ -1686,16 +1687,15 @@
                     `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
                     'Не авторизован';
                 
-                console.log('📞 Отправка вызова на сервер...');
-                console.log('📍 Столик:', tableNumber);
-                console.log('👤 Пользователь:', userInfo);
+                // Показываем сообщение о начале вызова
+                gameMessage.textContent = '⏳ Отправка вызова...';
                 
                 try {
+                    // ИСПОЛЬЗУЕМ ПРАВИЛЬНЫЙ URL С ПОРТОМ 3001
                     const response = await fetch('http://103.231.73.178:3001/api/call', {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
-                            'Accept': 'application/json'
                         },
                         body: JSON.stringify({
                             tableNumber: tableNumber,
@@ -1708,29 +1708,17 @@
                         })
                     });
                     
-                    if (!response.ok) {
-                        throw new Error(`HTTP error! status: ${response.status}`);
-                    }
-                    
-                    const data = await response.json();
-                    console.log('✅ Ответ от сервера:', data);
-                    
-                    if (data.success) {
+                    if (response.ok) {
+                        const data = await response.json();
+                        console.log('✅ Ответ сервера:', data);
                         gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
-                        
-                        if (data.telegram) {
-                            console.log('✅ Telegram: доставлено');
-                        }
-                        if (data.site) {
-                            console.log('✅ Сайт: доставлено');
-                        }
                     } else {
-                        gameMessage.textContent = '❌ Ошибка вызова';
+                        gameMessage.textContent = '❌ Ошибка сервера';
                     }
                     
                 } catch (error) {
-                    console.error('❌ Ошибка при вызове:', error);
-                    gameMessage.textContent = '❌ Ошибка соединения с сервером';
+                    console.error('❌ Ошибка:', error);
+                    gameMessage.textContent = '❌ Не удалось вызвать кальянщика';
                 }
                 
                 setTimeout(() => {
