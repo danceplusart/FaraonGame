@@ -102,6 +102,22 @@
             padding: 16px;
         }
 
+        /* ДИАГНОСТИЧЕСКАЯ ПАНЕЛЬ */
+        .debug-panel {
+            background: #1a1a1a;
+            border: 1px solid #c9a454;
+            border-radius: 10px;
+            padding: 10px;
+            margin-bottom: 20px;
+            font-family: monospace;
+            font-size: 12px;
+            color: #ffd966;
+            white-space: pre-wrap;
+            word-break: break-all;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
         .user-card {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
@@ -1123,6 +1139,11 @@
     </header>
 
     <main class="main-content">
+        <!-- ДИАГНОСТИЧЕСКАЯ ПАНЕЛЬ -->
+        <div class="debug-panel" id="debugPanel">
+            🔍 Диагностика готова...
+        </div>
+
         <div class="user-card" id="telegramUser" style="display: none;">
             <img class="user-avatar" id="userAvatar" src="" alt="">
             <div class="user-info">
@@ -1453,6 +1474,7 @@
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
             const userId = document.getElementById('userId');
+            const debugPanel = document.getElementById('debugPanel');
             
             const subscriptionBlock = document.getElementById('subscriptionBlock');
             const status1 = document.getElementById('status1');
@@ -1514,6 +1536,12 @@
             let scanning = false;
             let cameraStream = null;
 
+            // Функция для обновления диагностической панели
+            function updateDebug(message) {
+                debugPanel.innerHTML = message + '<br>' + debugPanel.innerHTML;
+                console.log(message);
+            }
+
             soundBtn.addEventListener('click', () => {
                 soundEnabled = !soundEnabled;
                 soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
@@ -1523,21 +1551,19 @@
                 if (!tgUser) return false;
                 
                 try {
-                    console.log(`🔍 Проверка подписки на ${channelUsername} для пользователя ${tgUser.id}`);
+                    updateDebug(`🔍 Проверка подписки на ${channelUsername}`);
                     const response = await fetch(`${SERVER_URL}/check-subscription?userId=${tgUser.id}&channel=${channelUsername}`);
                     const data = await response.json();
                     
-                    console.log(`📡 Ответ от сервера:`, data);
-                    
                     if (data.subscribed) {
+                        updateDebug(`✅ Подписан на ${channelUsername}`);
                         return true;
                     } else {
-                        console.log(`❌ Не подписан на ${channelUsername}:`, data.status || data.error);
+                        updateDebug(`❌ Не подписан на ${channelUsername}`);
                         return false;
                     }
                 } catch (error) {
-                    console.error('❌ Ошибка при проверке подписки через сервер:', error);
-                    gameMessage.textContent = '⚠️ Ошибка связи с сервером';
+                    updateDebug(`❌ Ошибка проверки подписки: ${error.message}`);
                     return false;
                 }
             }
@@ -1600,7 +1626,7 @@
                     requestAnimationFrame(scanFrame);
                     
                 } catch (error) {
-                    console.error('Ошибка камеры:', error);
+                    updateDebug('❌ Ошибка камеры: ' + error.message);
                     gameMessage.textContent = '❌ Не удалось получить доступ к камере';
                     cameraPermission.classList.remove('active');
                 }
@@ -1620,7 +1646,7 @@
                     });
                     
                     if (code) {
-                        console.log('✅ Найден QR:', code.data);
+                        updateDebug('✅ Найден QR: ' + code.data);
                         onQRSuccess(code.data);
                     }
                 }
@@ -1645,14 +1671,15 @@
                         qrButton.innerHTML = '<span>✅</span> СТОЛИК ПОДТВЕРЖДЕН';
                         
                         gameMessage.textContent = `✅ Столик №${scannedTable} подтвержден!`;
+                        updateDebug(`✅ Столик ${scannedTable} подтвержден`);
                         
                         stopScanner();
                     } else {
                         gameMessage.textContent = '❌ Неверный номер столика (должен быть 1-50)';
                     }
                 } else {
-                    gameMessage.textContent = '❌ Неверный формат QR-кода. Ожидается: Faraon-1, Faraon-2 и т.д.';
-                    console.log('Получено:', decodedText);
+                    gameMessage.textContent = '❌ Неверный формат QR-кода';
+                    updateDebug('❌ Неверный формат QR: ' + decodedText);
                 }
             }
 
@@ -1672,7 +1699,7 @@
                 scannerModal.classList.remove('active');
             }
 
-            // === ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА ===
+            // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА С ДИАГНОСТИКОЙ ===
             hookahBtn.addEventListener('click', async () => {
                 if (!tableVerified || !tableNumber) {
                     gameMessage.textContent = '❌ Отсканируйте QR-код на столике';
@@ -1686,14 +1713,17 @@
                     `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
                     'Не авторизован';
                 
+                updateDebug('🔍 НАЧАЛО ВЫЗОВА');
+                updateDebug(`📍 Столик: ${tableNumber}`);
+                updateDebug(`👤 Пользователь: ${userInfo}`);
+                updateDebug(`📡 URL: ${SERVER_URL}/api/call`);
+                
                 gameMessage.textContent = '⏳ Отправка запроса...';
                 
                 try {
-                    console.log('📤 Отправка на сервер...');
-                    console.log('URL:', 'http://103.231.73.178:3001/api/call');
-                    console.log('Данные:', { tableNumber, userInfo });
+                    updateDebug('📤 Отправка fetch запроса...');
                     
-                    const response = await fetch('http://103.231.73.178:3001/api/call', {
+                    const response = await fetch(`${SERVER_URL}/api/call`, {
                         method: 'POST',
                         headers: { 
                             'Content-Type': 'application/json',
@@ -1709,17 +1739,20 @@
                         })
                     });
                     
+                    updateDebug(`📥 Статус ответа: ${response.status}`);
+                    
                     if (response.ok) {
                         const data = await response.json();
-                        console.log('✅ Успех! Ответ сервера:', data);
+                        updateDebug(`✅ Успех! Ответ: ${JSON.stringify(data)}`);
                         gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
                     } else {
-                        console.log('❌ Ошибка сервера. Статус:', response.status);
+                        const text = await response.text();
+                        updateDebug(`❌ Ошибка сервера: ${response.status} - ${text}`);
                         gameMessage.textContent = '❌ Ошибка сервера';
                     }
                     
                 } catch (error) {
-                    console.error('❌ Ошибка:', error);
+                    updateDebug(`❌ Критическая ошибка: ${error.name} - ${error.message}`);
                     gameMessage.textContent = '❌ Ошибка соединения с сервером';
                 }
                 
@@ -1864,6 +1897,7 @@
                 telegramUserDiv.style.display = 'flex';
                 userName.textContent = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
                 userId.textContent = `ID: ${tgUser.id}`;
+                updateDebug(`✅ Пользователь авторизован: ${tgUser.first_name} (ID: ${tgUser.id})`);
                 
                 if (tgUser.photo_url) {
                     userAvatar.src = tgUser.photo_url;
@@ -1873,9 +1907,12 @@
                 
                 if (usedPromoCodes.includes(tgUser.id.toString())) {
                     hideSubscriptionBlock();
+                    updateDebug('🔒 Промокод уже активирован');
                 } else {
                     checkAllSubscriptions();
                 }
+            } else {
+                updateDebug('⚠️ Пользователь не авторизован в Telegram');
             }
 
             function updateRanksAndBadges() {
@@ -2091,6 +2128,7 @@
             if (savedProgress) progress = parseInt(savedProgress);
             
             updateUI();
+            updateDebug('🚀 Приложение загружено');
 
             window.addEventListener('beforeunload', () => {
                 localStorage.setItem('pharaoh_puffs', puffs);
