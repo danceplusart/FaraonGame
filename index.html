@@ -1506,57 +1506,92 @@
             closeScanner.addEventListener('click', stopScanner);
 
             // ========== ОТПРАВКА ВЫЗОВА ==========
-            sendHookahBtn.addEventListener('click', async () => {
-                if (!tableVerified || !tableNumber) {
-                    hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
-                    hookahStatus.className = 'status-message status-error';
-                    return;
-                }
+           <!-- Добавьте эту функцию в раздел отправки вызова кальянщика (в основном приложении) -->
 
-                sendHookahBtn.disabled = true;
-                sendHookahBtn.textContent = '⏳ ОТПРАВКА...';
+// ========== ОТПРАВКА ВЫЗОВА ==========
+sendHookahBtn.addEventListener('click', async () => {
+    if (!tableVerified || !tableNumber) {
+        hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
+        hookahStatus.className = 'status-message status-error';
+        return;
+    }
 
-                const userInfo = tgUser ? 
-                    `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
-                    'Гость (не авторизован)';
-                
-                const message = messageText.value.trim() || 'Без сообщения';
+    sendHookahBtn.disabled = true;
+    sendHookahBtn.textContent = '⏳ ОТПРАВКА...';
 
-                const text = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n` +
-                    `📍 Столик: ${tableNumber}\n` +
-                    `👤 Пользователь: ${userInfo}\n` +
-                    `💬 Сообщение: ${message}\n` +
-                    `⏰ Время: ${new Date().toLocaleString()}`;
+    const userInfo = tgUser ? 
+        `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
+        'Гость (не авторизован)';
+    
+    const message = messageText.value.trim() || 'Без сообщения';
+    
+    const userName = tgUser ? 
+        `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : 
+        'Гость';
+    
+    const username = tgUser?.username || '';
 
-                try {
-                    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: HOOKAH_CHAT,
-                            text: text,
-                            parse_mode: 'HTML'
-                        })
-                    });
+    // Формируем текст для Telegram
+    const telegramText = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n` +
+        `📍 Столик: ${tableNumber}\n` +
+        `👤 Пользователь: ${userInfo}\n` +
+        `💬 Сообщение: ${message}\n` +
+        `⏰ Время: ${new Date().toLocaleString()}`;
 
-                    const data = await response.json();
+    // Данные для сайта
+    const callData = {
+        id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
+        tableNumber: tableNumber,
+        userId: tgUser?.id || 0,
+        userName: userName,
+        username: username,
+        message: message,
+        timestamp: new Date().toISOString(),
+        status: 'new'
+    };
 
-                    if (data.ok) {
-                        hookahStatus.textContent = '✅ Вызов отправлен! Кальянщик скоро подойдет';
-                        hookahStatus.className = 'status-message status-success';
-                        messageText.value = '';
-                    } else {
-                        hookahStatus.textContent = `❌ Ошибка: ${data.description}`;
-                        hookahStatus.className = 'status-message status-error';
-                    }
-                } catch (error) {
-                    hookahStatus.textContent = '❌ Ошибка отправки';
-                    hookahStatus.className = 'status-message status-error';
-                }
+    try {
+        // Отправляем в Telegram
+        const telegramPromise = fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: HOOKAH_CHAT,
+                text: telegramText,
+                parse_mode: 'HTML'
+            })
+        });
 
-                sendHookahBtn.disabled = false;
-                sendHookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
-            });
+        // Отправляем на сайт
+        const sitePromise = fetch('https://faraon.free.nf/save_call.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(callData)
+        });
+
+        // Ждем обе отправки
+        const [telegramResponse, siteResponse] = await Promise.all([telegramPromise, sitePromise]);
+        
+        const telegramData = await telegramResponse.json();
+        const siteData = await siteResponse.json();
+
+        if (telegramData.ok && siteData.success) {
+            hookahStatus.textContent = '✅ Вызов отправлен! Кальянщик скоро подойдет';
+            hookahStatus.className = 'status-message status-success';
+            messageText.value = '';
+        } else {
+            hookahStatus.textContent = '❌ Ошибка отправки';
+            hookahStatus.className = 'status-message status-error';
+        }
+    } catch (error) {
+        console.error('Ошибка:', error);
+        hookahStatus.textContent = '❌ Ошибка отправки';
+        hookahStatus.className = 'status-message status-error';
+    }
+
+    sendHookahBtn.disabled = false;
+    sendHookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
+});
 
             // ========== ИГРА ==========
             function updateUI() {
@@ -2017,3 +2052,4 @@
     </script>
 </body>
 </html>
+
