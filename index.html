@@ -2,8 +2,8 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Фараон - Простой вызов</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+    <title>Фараон - Кальянная</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
@@ -14,116 +14,230 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
         }
 
-        body {
-            background: #0a0a0a;
-            color: white;
+        html, body {
+            margin: 0;
+            padding: 0;
             min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .container {
-            max-width: 500px;
             width: 100%;
+            background: #0a0a0a;
+            color: #ffffff;
         }
 
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
+        :root {
+            --tg-theme-bg-color: #0a0a0a;
+            --tg-theme-text-color: #ffffff;
+            --tg-theme-hint-color: #8e8e93;
+            --tg-theme-link-color: #ffd966;
+            --tg-theme-button-color: #c9a454;
+            --tg-theme-button-text-color: #000000;
         }
 
-        .header h1 {
-            font-size: 48px;
-            color: #c9a454;
-            text-shadow: 0 0 10px #ffd966;
-            margin-bottom: 10px;
+        body {
+            background: var(--tg-theme-bg-color);
+            color: var(--tg-theme-text-color);
         }
 
-        .header p {
-            color: #8e8e93;
-            font-size: 14px;
+        .app-header {
+            background: rgba(18, 18, 18, 0.95);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-bottom: 1px solid rgba(201, 164, 84, 0.3);
+            padding: 12px 16px;
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
         }
 
-        .scan-section {
-            background: #1a1a1a;
+        .app-logo {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .app-logo-icon {
+            font-size: 28px;
+            filter: drop-shadow(0 0 8px #c9a454);
+        }
+
+        .app-logo-text {
+            font-size: 20px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffd966, #c9a454);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .app-action-btn {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #ffd966;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .app-action-btn:active {
+            background: rgba(201, 164, 84, 0.3);
+            transform: scale(0.95);
+        }
+
+        .main-content {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 16px;
+        }
+
+        .user-card {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 16px;
+            margin-bottom: 24px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(201, 164, 84, 0.2);
+        }
+
+        .user-avatar {
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
             border: 2px solid #c9a454;
+        }
+
+        .user-info {
+            flex: 1;
+        }
+
+        .user-name {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 4px;
+        }
+
+        .user-id {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+
+        /* Секция вызова кальянщика */
+        .hookah-section {
+            background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
             padding: 20px;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(201, 164, 84, 0.2);
         }
 
-        .scan-btn {
-            width: 100%;
-            background: #c9a454;
-            border: none;
-            border-bottom: 4px solid #8b6e2e;
-            color: black;
+        .section-title {
             font-size: 18px;
-            font-weight: bold;
-            padding: 15px;
-            border-radius: 15px;
-            cursor: pointer;
-            transition: 0.1s;
-            margin-bottom: 15px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .scan-btn:active {
-            transform: translateY(4px);
-            border-bottom-width: 2px;
+        .qr-button {
+            background: rgba(201, 164, 84, 0.2);
+            border: 2px dashed #c9a454;
+            border-radius: 16px;
+            padding: 16px;
+            width: 100%;
+            color: #ffd966;
+            font-size: 16px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 16px;
+        }
+
+        .qr-button:active {
+            background: rgba(201, 164, 84, 0.3);
+            transform: scale(0.98);
+        }
+
+        .qr-button.verified {
+            background: rgba(52, 199, 89, 0.2);
+            border-color: #34c759;
+            color: #34c759;
         }
 
         .table-input {
             width: 100%;
-            padding: 15px;
-            background: #333;
-            border: 2px solid #c9a454;
-            border-radius: 10px;
-            color: white;
-            font-size: 18px;
-            text-align: center;
-        }
-
-        .table-input:disabled {
-            opacity: 0.5;
-        }
-
-        .message-section {
-            background: #1a1a1a;
-            border: 2px solid #c9a454;
-            border-radius: 20px;
-            padding: 20px;
-            margin-bottom: 20px;
-        }
-
-        textarea {
-            width: 100%;
-            padding: 15px;
-            background: #333;
-            border: 2px solid #c9a454;
-            border-radius: 10px;
-            color: white;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(201, 164, 84, 0.3);
+            border-radius: 12px;
+            color: #fff;
             font-size: 16px;
+            outline: none;
+            margin-bottom: 16px;
+        }
+
+        .table-input:focus {
+            border-color: #c9a454;
+        }
+
+        .table-input[readonly] {
+            background: rgba(0, 0, 0, 0.5);
+            color: #ffd966;
+            font-weight: 600;
+        }
+
+        .message-input {
+            width: 100%;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(201, 164, 84, 0.3);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
             min-height: 100px;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
             resize: vertical;
         }
 
-        textarea::placeholder {
-            color: #8e8e93;
+        .message-input:focus {
+            border-color: #c9a454;
         }
 
         .send-btn {
-            width: 100%;
-            background: #c9a454;
+            background: linear-gradient(135deg, #ff3b30, #ff2d55);
             border: none;
-            border-bottom: 4px solid #8b6e2e;
-            color: black;
+            border-bottom: 4px solid #8b1e1e;
+            border-radius: 16px;
+            padding: 16px;
+            width: 100%;
+            color: white;
             font-size: 18px;
-            font-weight: bold;
-            padding: 15px;
-            border-radius: 15px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
             cursor: pointer;
             transition: 0.1s;
         }
@@ -138,25 +252,6 @@
             pointer-events: none;
         }
 
-        .status {
-            margin-top: 20px;
-            padding: 10px;
-            border-radius: 10px;
-            text-align: center;
-            font-size: 14px;
-            min-height: 40px;
-        }
-
-        .success {
-            background: #2e7d32;
-            color: white;
-        }
-
-        .error {
-            background: #c41e3a;
-            color: white;
-        }
-
         /* Сканер QR */
         .scanner-modal {
             display: none;
@@ -165,8 +260,8 @@
             left: 0;
             right: 0;
             bottom: 0;
-            background: black;
-            z-index: 1000;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 2000;
             padding: 20px;
             flex-direction: column;
         }
@@ -183,22 +278,26 @@
         }
 
         .scanner-title {
-            color: #c9a454;
             font-size: 18px;
+            font-weight: 600;
+            color: #ffd966;
         }
 
-        .close-btn {
+        .scanner-close {
             background: none;
             border: none;
-            color: #c9a454;
+            color: #ffd966;
             font-size: 24px;
             cursor: pointer;
+            padding: 8px;
         }
 
         #qr-video {
             width: 100%;
-            border-radius: 10px;
+            border-radius: 16px;
             background: #000;
+            min-height: 400px;
+            object-fit: cover;
         }
 
         .scanner-overlay {
@@ -208,200 +307,1678 @@
             transform: translate(-50%, -50%);
             width: 250px;
             height: 250px;
-            border: 2px solid #c9a454;
+            border: 2px solid #ffd966;
             border-radius: 20px;
-            box-shadow: 0 0 0 9999px rgba(0,0,0,0.5);
+            box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.5);
             pointer-events: none;
+        }
+
+        /* Игра */
+        .game-wrapper {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 24px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(201, 164, 84, 0.2);
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .game-title {
+            font-size: 22px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #ffd966, #c9a454);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 12px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffd966;
+            line-height: 1.2;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+
+        .achievements-section {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            margin-bottom: 20px;
+        }
+
+        .achievements-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .rank-card {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            border: 1px solid rgba(201, 164, 84, 0.3);
+        }
+
+        .rank-icon {
+            width: 48px;
+            height: 48px;
+            background: linear-gradient(135deg, #c9a454, #ffd966);
+            border-radius: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #000;
+        }
+
+        .rank-info {
+            flex: 1;
+        }
+
+        .rank-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 4px;
+        }
+
+        .rank-progress {
+            font-size: 12px;
+            color: #8e8e93;
+        }
+
+        .rank-progress-bar {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 3px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+
+        .rank-progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #c9a454, #ffd966);
+            border-radius: 3px;
+            transition: width 0.3s;
+        }
+
+        .badges-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+            margin-top: 12px;
+        }
+
+        .badge {
+            background: rgba(30, 30, 30, 0.95);
+            border: 1px solid rgba(201, 164, 84, 0.3);
+            border-radius: 12px;
+            padding: 8px;
+            text-align: center;
+            transition: 0.2s;
+        }
+
+        .badge.unlocked {
+            border-color: #c9a454;
+            background: rgba(201, 164, 84, 0.1);
+        }
+
+        .badge-icon {
+            font-size: 24px;
+            margin-bottom: 4px;
+        }
+
+        .badge-name {
+            font-size: 10px;
+            color: #8e8e93;
+        }
+
+        .badge.unlocked .badge-name {
+            color: #ffd966;
+        }
+
+        .pyramid-container {
+            margin: 20px 0;
+        }
+
+        .pyramid-label {
+            display: flex;
+            justify-content: space-between;
+            color: #ffde9e;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .pyramid-progress {
+            width: 100%;
+            height: 20px;
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            border: 2px solid #b88a45;
+            overflow: hidden;
+        }
+
+        .pyramid-fill {
+            height: 100%;
+            width: 0%;
+            background: repeating-linear-gradient(45deg, #e6b422, #ffd966 10px, #eebb55 20px);
+            transition: width 0.3s ease;
+        }
+
+        .slot-machine {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .slot-title {
+            text-align: center;
+            color: #f5d58c;
+            font-size: 16px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .slot-title span:first-child {
+            display: block;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .slot-title span:last-child {
+            display: block;
+            font-size: 18px;
+            color: gold;
+            text-shadow: 0 0 10px #ffaa00;
+        }
+
+        .reels {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .reel {
+            width: 100px;
+            height: 100px;
+            background: #efdbb5;
+            border: 4px solid #a17338;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+            box-shadow: inset 0 0 20px #9b7c4b;
+            color: #000000;
+            font-weight: bold;
+            transition: all 0.1s ease;
+            animation: none;
+        }
+
+        .reel.spinning {
+            animation: spinReel 0.1s infinite linear;
+        }
+
+        @keyframes spinReel {
+            0% { transform: scale(1) rotate(0deg); }
+            25% { transform: scale(1.1) rotate(5deg); }
+            50% { transform: scale(1) rotate(0deg); }
+            75% { transform: scale(1.1) rotate(-5deg); }
+            100% { transform: scale(1) rotate(0deg); }
+        }
+
+        .reel.win {
+            animation: winFlash 0.5s ease;
+        }
+
+        @keyframes winFlash {
+            0% { transform: scale(1); background: #ffd966; }
+            50% { transform: scale(1.2); background: gold; box-shadow: 0 0 50px gold; }
+            100% { transform: scale(1); background: #efdbb5; }
+        }
+
+        .spin-button {
+            background: linear-gradient(135deg, #b88b47, #9b6e2e);
+            border: none;
+            border-radius: 30px;
+            padding: 15px;
+            width: 100%;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-top: 10px;
+        }
+
+        .spin-button:active {
+            transform: scale(0.98);
+        }
+
+        .spin-button:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin: 20px 0;
+        }
+
+        .egypt-button {
+            background: linear-gradient(135deg, #aa7b44, #8b5e2e);
+            border: none;
+            border-radius: 30px;
+            padding: 15px;
+            color: white;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .egypt-button:active {
+            transform: scale(0.95);
+        }
+
+        .egypt-button.turbo {
+            background: linear-gradient(135deg, #b84a4a, #8b2e2e);
+        }
+
+        .message-box {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 15px;
+            text-align: center;
+            color: #ffd966;
+            font-size: 14px;
+            margin-top: 15px;
+        }
+
+        /* Промокоды */
+        .promo-block {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 24px 0;
+            border: 1px solid rgba(201, 164, 84, 0.2);
+        }
+
+        .promo-block.hidden {
+            display: none;
+        }
+
+        .promo-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .channels-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-bottom: 24px;
+        }
+
+        .channel-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            border: 1px solid rgba(201, 164, 84, 0.3);
+            transition: 0.2s;
+        }
+
+        .channel-card.verified {
+            border-color: #34c759;
+            background: rgba(52, 199, 89, 0.1);
+        }
+
+        .channel-avatar {
+            width: 48px;
+            height: 48px;
+            border-radius: 24px;
+            background: linear-gradient(135deg, #c9a454, #ffd966);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #000;
+        }
+
+        .channel-info {
+            flex: 1;
+        }
+
+        .channel-name {
+            font-size: 16px;
+            font-weight: 600;
+            color: #ffffff;
+            margin-bottom: 4px;
+        }
+
+        .channel-status {
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .channel-status.checked {
+            color: #34c759;
+        }
+
+        .channel-status.pending {
+            color: #ffd966;
+        }
+
+        .channel-status.error {
+            color: #ff3b30;
+        }
+
+        .channel-action {
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            padding: 8px 20px;
+            border-radius: 30px;
+            color: #ffd966;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .promo-button {
+            background: linear-gradient(135deg, #c9a454, #b38a3a);
+            border: none;
+            border-radius: 16px;
+            padding: 16px;
+            width: 100%;
+            color: #000;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            transition: 0.2s;
+            margin-bottom: 24px;
+        }
+
+        .promo-button:active {
+            transform: scale(0.98);
+        }
+
+        .promo-button:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .manual-promo {
+            margin-top: 20px;
+            padding-top: 20px;
+            border-top: 1px solid rgba(201, 164, 84, 0.3);
+        }
+
+        .promo-input-group {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 16px;
+        }
+
+        .promo-input {
+            flex: 1;
+            padding: 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(201, 164, 84, 0.3);
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            outline: none;
+        }
+
+        .promo-apply-btn {
+            background: linear-gradient(135deg, #c9a454, #b38a3a);
+            border: none;
+            border-radius: 12px;
+            padding: 0 20px;
+            color: #000;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .promo-result {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 16px;
+            padding: 20px;
+            margin: 20px 0 0 0;
+            text-align: center;
+            border: 1px solid rgba(201, 164, 84, 0.2);
+            display: none;
+        }
+
+        .promo-result.success {
+            display: block;
+            border-color: #34c759;
+        }
+
+        .promo-result.error {
+            display: block;
+            border-color: #ff3b30;
+        }
+
+        .promo-code {
+            font-size: 28px;
+            font-weight: 700;
+            color: #ffd966;
+            letter-spacing: 3px;
+            margin: 12px 0;
+            font-family: monospace;
+        }
+
+        /* Информация о заведении */
+        .info-section {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(201, 164, 84, 0.2);
+        }
+
+        .info-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .info-card {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .info-card h3 {
+            color: #ffd966;
+            font-size: 16px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .info-card p {
+            color: #ffffff;
+            font-size: 14px;
+            line-height: 1.5;
+            opacity: 0.9;
+        }
+
+        .instructions {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(201, 164, 84, 0.2);
+        }
+
+        .instructions h2 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .instruction-steps {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .step {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 16px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .step-number {
+            width: 32px;
+            height: 32px;
+            background: #c9a454;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: bold;
+            color: #000;
+            margin: 0 auto 12px;
+        }
+
+        .step h3 {
+            color: #ffd966;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .step p {
+            color: #ffffff;
+            font-size: 13px;
+            line-height: 1.4;
+            opacity: 0.8;
+        }
+
+        .instruction-note {
+            background: rgba(201, 164, 84, 0.1);
+            border-radius: 12px;
+            padding: 12px;
+            text-align: center;
+            color: #ffd966;
+            font-size: 14px;
+            border: 1px dashed #c9a454;
+        }
+
+        .footer {
+            background: rgba(18, 18, 18, 0.95);
+            border-top: 1px solid rgba(201, 164, 84, 0.3);
+            padding: 20px 16px;
+            margin-top: 24px;
+            text-align: center;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            margin-bottom: 12px;
+        }
+
+        .footer-link {
+            color: #8e8e93;
+            text-decoration: none;
+            font-size: 14px;
+        }
+
+        .footer-copy {
+            color: #8e8e93;
+            font-size: 12px;
+        }
+
+        .status-message {
+            margin-top: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            text-align: center;
+            font-size: 14px;
+        }
+
+        .status-success {
+            background: #2e7d32;
+            color: white;
+        }
+
+        .status-error {
+            background: #c41e3a;
+            color: white;
+        }
+
+        @media (max-width: 400px) {
+            .info-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .instruction-steps {
+                grid-template-columns: 1fr;
+            }
+            
+            .badges-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            
+            .promo-input-group {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>𓂀 ФАРАОН</h1>
-            <p>Вызов кальянщика</p>
+    <header class="app-header">
+        <div class="app-logo">
+            <span class="app-logo-icon">𓂀</span>
+            <span class="app-logo-text">ФАРАОН</span>
+        </div>
+        <div class="app-actions">
+            <button class="app-action-btn" id="soundBtn">🔊</button>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <!-- Информация о пользователе -->
+        <div class="user-card" id="telegramUser" style="display: none;">
+            <img class="user-avatar" id="userAvatar" src="" alt="">
+            <div class="user-info">
+                <div class="user-name" id="userName"></div>
+                <div class="user-id" id="userId"></div>
+            </div>
         </div>
 
-        <div class="scan-section">
-            <button class="scan-btn" id="scanBtn">📷 СКАНИРОВАТЬ QR-КОД</button>
+        <!-- Вызов кальянщика -->
+        <section class="hookah-section">
+            <div class="section-title">
+                <span>🔔</span> Вызов кальянщика
+            </div>
+            
+            <button class="qr-button" id="qrButton">
+                <span>📷</span> СКАНИРОВАТЬ QR-КОД СТОЛИКА
+            </button>
+
             <input type="text" class="table-input" id="tableNumber" placeholder="Номер столика" readonly>
+
+            <textarea class="message-input" id="messageText" placeholder="Введите сообщение для кальянщика (например: принесите угли, поменяйте чашу и т.д.)"></textarea>
+
+            <button class="send-btn" id="sendHookahBtn" disabled>
+                <span>🔔</span> ВЫЗВАТЬ КАЛЬЯНЩИКА
+            </button>
+            <div id="hookahStatus" class="status-message"></div>
+        </section>
+
+        <!-- Игра -->
+        <section class="game-wrapper">
+            <div class="game-header">
+                <div class="game-title">𓂀 Проклятие Фараона</div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-value" id="levelDisplay">1</div>
+                    <div class="stat-label">Уровень</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="puffDisplay">0</div>
+                    <div class="stat-label">Затяжки</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="scrollDisplay">10</div>
+                    <div class="stat-label">Свитки</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="winsDisplay">0</div>
+                    <div class="stat-label">Победы</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="discountDisplay">0</div>
+                    <div class="stat-label">Скидки</div>
+                </div>
+            </div>
+
+            <div class="achievements-section">
+                <div class="achievements-title">
+                    <span>👑</span> Твое звание
+                </div>
+                
+                <div class="rank-card">
+                    <div class="rank-icon" id="rankIcon">👤</div>
+                    <div class="rank-info">
+                        <div class="rank-name" id="rankName">Раб</div>
+                        <div class="rank-progress" id="rankProgressText">0/500</div>
+                        <div class="rank-progress-bar">
+                            <div class="rank-progress-fill" id="rankProgressFill" style="width: 0%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="achievements-title" style="margin-top: 16px;">
+                    <span>🏆</span> Награды
+                </div>
+                <div class="badges-grid" id="badgesGrid">
+                    <div class="badge" id="badge100">
+                        <div class="badge-icon">💨</div>
+                        <div class="badge-name">100 тяг</div>
+                    </div>
+                    <div class="badge" id="badge500">
+                        <div class="badge-icon">🔥</div>
+                        <div class="badge-name">500 тяг</div>
+                    </div>
+                    <div class="badge" id="badge1000">
+                        <div class="badge-icon">👑</div>
+                        <div class="badge-name">1000 тяг</div>
+                    </div>
+                    <div class="badge" id="badgeFirstWin">
+                        <div class="badge-icon">🎰</div>
+                        <div class="badge-name">1 победа</div>
+                    </div>
+                    <div class="badge" id="badge5Discounts">
+                        <div class="badge-icon">🏷️</div>
+                        <div class="badge-name">5 скидок</div>
+                    </div>
+                    <div class="badge" id="badge10Wins">
+                        <div class="badge-icon">⭐</div>
+                        <div class="badge-name">10 побед</div>
+                    </div>
+                    <div class="badge" id="badge25Wins">
+                        <div class="badge-icon">🌟</div>
+                        <div class="badge-name">25 побед</div>
+                    </div>
+                    <div class="badge" id="badge50Wins">
+                        <div class="badge-icon">💫</div>
+                        <div class="badge-name">50 побед</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="pyramid-container">
+                <div class="pyramid-label">
+                    <span>🏺 Уровень дыма</span>
+                    <span id="progressPercent">0%</span>
+                </div>
+                <div class="pyramid-progress">
+                    <div class="pyramid-fill" id="progressFill"></div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <button class="egypt-button" id="puffBtn">💨 ТЯГА</button>
+                <button class="egypt-button" id="chestBtn">🏺 СУНДУК</button>
+            </div>
+
+            <button class="egypt-button turbo" id="turboBtn">⚡ ТУРБО-ТЯГА (x10)</button>
+
+            <div class="slot-machine">
+                <div class="slot-title">
+                    <span>ЗАКЛИНАНИЕ</span>
+                    <span>⚱️ ФАРАОНА ⚱️</span>
+                </div>
+                <div class="reels">
+                    <div class="reel" id="reel1">𓆣</div>
+                    <div class="reel" id="reel2">𓆣</div>
+                    <div class="reel" id="reel3">𓆣</div>
+                </div>
+                <button class="spin-button" id="spinBtn">🎲 КРУТИТЬ (2 СВИТКА) 🎲</button>
+                <div class="message-box" id="gameMessage">Нажми ТЯГА чтобы начать!</div>
+            </div>
+        </section>
+
+        <!-- Промокоды -->
+        <div class="promo-block" id="promoBlock">
+            <div class="promo-title">
+                <span>🎁</span> Получи бонус
+            </div>
+            
+            <div class="channels-grid">
+                <div class="channel-card" id="channel1">
+                    <div class="channel-avatar">📱</div>
+                    <div class="channel-info">
+                        <div class="channel-name">ФАРАОН LoungeBar</div>
+                        <div class="channel-status pending" id="status1">
+                            <span>⏳</span> Проверка...
+                        </div>
+                    </div>
+                    <a href="https://t.me/faraon_loungebar" target="_blank" class="channel-action">Перейти</a>
+                </div>
+
+                <div class="channel-card" id="channel2">
+                    <div class="channel-avatar">💈</div>
+                    <div class="channel-info">
+                        <div class="channel-name">ФАРАОН BarberTop</div>
+                        <div class="channel-status pending" id="status2">
+                            <span>⏳</span> Проверка...
+                        </div>
+                    </div>
+                    <a href="https://t.me/faraon_barber_top" target="_blank" class="channel-action">Перейти</a>
+                </div>
+            </div>
+
+            <button class="promo-button" id="getPromoBtn">
+                <span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ
+            </button>
+
+            <div class="promo-result" id="promoResult">
+                <div id="promoMessage"></div>
+                <div class="promo-code" id="promoCodeDisplay"></div>
+            </div>
+
+            <div class="manual-promo">
+                <div style="font-size: 16px; color: #ffd966; margin-bottom: 12px;">
+                    <span>🔑</span> Ввести промокод
+                </div>
+                <div class="promo-input-group">
+                    <input type="text" class="promo-input" id="promoInput" placeholder="NEW, BONUS, GIFT, SUMMER, WELCOME">
+                    <button class="promo-apply-btn" id="applyPromoBtn">Активировать</button>
+                </div>
+                <div class="promo-result" id="manualPromoResult">
+                    <div id="manualPromoMessage"></div>
+                    <div class="promo-code" id="manualPromoCodeDisplay"></div>
+                </div>
+            </div>
         </div>
 
-        <div class="message-section">
-            <textarea id="messageText" placeholder="Введите сообщение для кальянщика (например: принесите угли, нужен второй калауд и т.д.)"></textarea>
-            <button class="send-btn" id="sendBtn" disabled>📤 ОТПРАВИТЬ ВЫЗОВ</button>
-        </div>
+        <!-- Информация о заведении -->
+        <section class="info-section">
+            <div class="info-title">
+                <span>🏛️</span> Лаунж-бар Фараон
+            </div>
+            <div class="info-grid">
+                <div class="info-card">
+                    <h3>📍 Адрес</h3>
+                    <p>г. Орёл, ул. 1-я Посадская, 42</p>
+                </div>
+                <div class="info-card">
+                    <h3>🕐 Время работы</h3>
+                    <p>Ежедневно: 17:00 — 04:00</p>
+                </div>
+                <div class="info-card">
+                    <h3>💰 Бронирование</h3>
+                    <p>Мин. чек: 3000 ₽</p>
+                </div>
+                <div class="info-card">
+                    <h3>🎮 Игровая зона</h3>
+                    <p>Приставка для ваших игр</p>
+                </div>
+            </div>
+        </section>
 
-        <div class="status" id="status"></div>
-    </div>
+        <!-- Инструкция -->
+        <section class="instructions">
+            <h2>
+                <span>🎯</span> Как получить скидку 10%
+            </h2>
+            <div class="instruction-steps">
+                <div class="step">
+                    <div class="step-number">1</div>
+                    <h3>💨 Кури кальян</h3>
+                    <p>Нажимай "ТЯГА" и наполняй пирамиду дымом. За каждые 100% получаешь свитки.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">2</div>
+                    <h3>🎰 Крути слоты</h3>
+                    <p>Трать свитки в слотах. Собирай комбинации из египетских символов.</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">3</div>
+                    <h3>🏺 Открывай сундук</h3>
+                    <p>Каждый час можно открыть сундук с бонусами. Там тоже может быть скидка!</p>
+                </div>
+                <div class="step">
+                    <div class="step-number">4</div>
+                    <h3>🎁 Лови момент</h3>
+                    <p>Боги могут даровать скидку в любой момент. Следи за сообщениями!</p>
+                </div>
+            </div>
+            <div class="instruction-note">
+                🎉 При выигрыше покажи код админу! 🎉
+            </div>
+        </section>
+    </main>
 
-    <!-- Модальное окно сканера -->
+    <!-- Сканер QR -->
     <div class="scanner-modal" id="scannerModal">
         <div class="scanner-header">
-            <span class="scanner-title">Наведите на QR-код столика</span>
-            <button class="close-btn" id="closeScanner">&times;</button>
+            <div class="scanner-title">📷 Наведите на QR-код столика</div>
+            <button class="scanner-close" id="closeScanner">&times;</button>
         </div>
         <video id="qr-video" autoplay playsinline></video>
         <div class="scanner-overlay"></div>
     </div>
 
+    <footer class="footer">
+        <div class="footer-links">
+            <a href="https://t.me/faraon_loungebar" target="_blank" class="footer-link">Telegram Lounge</a>
+            <a href="https://t.me/faraon_barber_top" target="_blank" class="footer-link">Telegram Barber</a>
+            <a href="https://instagram.com/faraon_loungebar" target="_blank" class="footer-link">Instagram</a>
+        </div>
+        <div class="footer-copy">
+            г. Орёл, ул. 1-я Посадская, 42 | 17:00 — 04:00
+        </div>
+    </footer>
+
     <script>
-        let tg = Telegram.WebApp;
-        tg.expand();
-
-        // Данные
-        let tableNumber = '';
-        let tgUser = tg.initDataUnsafe?.user;
-
-        // DOM элементы
-        const scanBtn = document.getElementById('scanBtn');
-        const sendBtn = document.getElementById('sendBtn');
-        const tableInput = document.getElementById('tableNumber');
-        const messageText = document.getElementById('messageText');
-        const statusDiv = document.getElementById('status');
-        const scannerModal = document.getElementById('scannerModal');
-        const closeScanner = document.getElementById('closeScanner');
-        const qrVideo = document.getElementById('qr-video');
-
-        // Переменные для сканера
-        let canvasElement = document.createElement('canvas');
-        let canvas = canvasElement.getContext('2d');
-        let scanning = false;
-        let cameraStream = null;
-
-        // Токен бота и ID чата
-        const BOT_TOKEN = '8729627281:AAFxcCPITUhVZYO3H4nMp_dMdXOdI9weKqc';
-        const CHAT_ID = '@faraon_Stol'; // Или ID канала/группы
-
-        // Запуск камеры
-        async function startCamera() {
-            try {
-                cameraStream = await navigator.mediaDevices.getUserMedia({ 
-                    video: { facingMode: "environment" } 
-                });
-                
-                qrVideo.srcObject = cameraStream;
-                await qrVideo.play();
-                
-                scannerModal.classList.add('active');
-                scanning = true;
-                requestAnimationFrame(scanFrame);
-                
-            } catch (error) {
-                statusDiv.textContent = '❌ Ошибка доступа к камере';
-                statusDiv.className = 'status error';
-            }
-        }
-
-        // Сканирование кадра
-        function scanFrame() {
-            if (!scanning) return;
+        (function() {
+            // Telegram данные
+            let tg = window.Telegram?.WebApp;
+            let tgUser = null;
             
-            if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
-                canvasElement.height = qrVideo.videoHeight;
-                canvasElement.width = qrVideo.videoWidth;
-                canvas.drawImage(qrVideo, 0, 0, canvasElement.width, canvasElement.height);
-                
-                const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
-                const code = jsQR(imageData.data, canvasElement.width, canvasElement.height, {
-                    inversionAttempts: "dontInvert",
-                });
-                
-                if (code) {
-                    // Проверяем формат Faraon-1, Faraon-2 и т.д.
-                    const tableMatch = code.data.match(/Faraon[-\s]?(\d+)/i);
+            if (tg) {
+                tg.expand();
+                tgUser = tg.initDataUnsafe?.user;
+            }
+            
+            // Переменные игры
+            let puffs = 0;
+            let scrolls = 10;
+            let wins = 0;
+            let discounts = 0;
+            let progress = 0;
+            let chestAvailable = true;
+            let chestTimer = null;
+            let currentDiscount = null;
+            let soundEnabled = true;
+            let turboActive = false;
+            
+            // Переменные для столика
+            let tableVerified = false;
+            let tableNumber = '';
+            
+            // Токен бота и каналы
+            const BOT_TOKEN = '8729627281:AAFxcCPITUhVZYO3H4nMp_dMdXOdI9weKqc';
+            const HOOKAH_CHAT = '@faraon_Stol';
+            const PROMO_CHAT = '@faraon_promo';
+            
+            // Звания
+            const rankTitles = [
+                { name: '👤 Раб', icon: '👤', requirement: 0 },
+                { name: '⚱️ Носильщик', icon: '⚱️', requirement: 500 },
+                { name: '🏺 Писец', icon: '🏺', requirement: 1500 },
+                { name: '👑 Жрец', icon: '👑', requirement: 3000 },
+                { name: '𓂀 Фараон', icon: '𓂀', requirement: 5000 },
+                { name: '⚡ Бог', icon: '⚡', requirement: 10000 }
+            ];
+            
+            const symbols = ['𓆣', '𓁹', '𓋴', '𓃀', '𓊽', '𓎛', '𓂀'];
+            
+            // Промокоды
+            let usedPromoCodes = JSON.parse(localStorage.getItem('used_promo_codes')) || [];
+            
+            // DOM элементы
+            const soundBtn = document.getElementById('soundBtn');
+            const telegramUserDiv = document.getElementById('telegramUser');
+            const userAvatar = document.getElementById('userAvatar');
+            const userName = document.getElementById('userName');
+            const userId = document.getElementById('userId');
+            
+            // Элементы для вызова
+            const qrButton = document.getElementById('qrButton');
+            const tableInput = document.getElementById('tableNumber');
+            const messageText = document.getElementById('messageText');
+            const sendHookahBtn = document.getElementById('sendHookahBtn');
+            const hookahStatus = document.getElementById('hookahStatus');
+            const scannerModal = document.getElementById('scannerModal');
+            const closeScanner = document.getElementById('closeScanner');
+            const qrVideo = document.getElementById('qr-video');
+            
+            // Элементы игры
+            const levelDisplay = document.getElementById('levelDisplay');
+            const puffDisplay = document.getElementById('puffDisplay');
+            const scrollDisplay = document.getElementById('scrollDisplay');
+            const winsDisplay = document.getElementById('winsDisplay');
+            const discountDisplay = document.getElementById('discountDisplay');
+            const progressFill = document.getElementById('progressFill');
+            const progressPercent = document.getElementById('progressPercent');
+            const puffBtn = document.getElementById('puffBtn');
+            const turboBtn = document.getElementById('turboBtn');
+            const chestBtn = document.getElementById('chestBtn');
+            const spinBtn = document.getElementById('spinBtn');
+            const reel1 = document.getElementById('reel1');
+            const reel2 = document.getElementById('reel2');
+            const reel3 = document.getElementById('reel3');
+            const gameMessage = document.getElementById('gameMessage');
+            
+            // Элементы званий
+            const rankIcon = document.getElementById('rankIcon');
+            const rankName = document.getElementById('rankName');
+            const rankProgressText = document.getElementById('rankProgressText');
+            const rankProgressFill = document.getElementById('rankProgressFill');
+            const badge100 = document.getElementById('badge100');
+            const badge500 = document.getElementById('badge500');
+            const badge1000 = document.getElementById('badge1000');
+            const badgeFirstWin = document.getElementById('badgeFirstWin');
+            const badge5Discounts = document.getElementById('badge5Discounts');
+            const badge10Wins = document.getElementById('badge10Wins');
+            const badge25Wins = document.getElementById('badge25Wins');
+            const badge50Wins = document.getElementById('badge50Wins');
+            
+            // Элементы промокодов
+            const promoBlock = document.getElementById('promoBlock');
+            const status1 = document.getElementById('status1');
+            const status2 = document.getElementById('status2');
+            const channel1 = document.getElementById('channel1');
+            const channel2 = document.getElementById('channel2');
+            const getPromoBtn = document.getElementById('getPromoBtn');
+            const promoResult = document.getElementById('promoResult');
+            const promoMessage = document.getElementById('promoMessage');
+            const promoCodeDisplay = document.getElementById('promoCodeDisplay');
+            const promoInput = document.getElementById('promoInput');
+            const applyPromoBtn = document.getElementById('applyPromoBtn');
+            const manualPromoResult = document.getElementById('manualPromoResult');
+            const manualPromoMessage = document.getElementById('manualPromoMessage');
+            const manualPromoCodeDisplay = document.getElementById('manualPromoCodeDisplay');
+
+            // Переменные для сканера
+            let canvasElement = document.createElement('canvas');
+            let canvas = canvasElement.getContext('2d');
+            let scanning = false;
+            let cameraStream = null;
+
+            // Звук
+            const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
+            spinSound.volume = 0.3;
+
+            // Звук
+            soundBtn.addEventListener('click', () => {
+                soundEnabled = !soundEnabled;
+                soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
+            });
+
+            // ========== СКАНЕР QR ==========
+            async function startCamera() {
+                try {
+                    cameraStream = await navigator.mediaDevices.getUserMedia({ 
+                        video: { facingMode: "environment" } 
+                    });
                     
-                    if (tableMatch) {
-                        const scannedTable = parseInt(tableMatch[1]);
-                        if (scannedTable >= 1 && scannedTable <= 50) {
-                            tableNumber = scannedTable;
-                            tableInput.value = `Стол ${scannedTable}`;
-                            sendBtn.disabled = false;
-                            statusDiv.textContent = '✅ Столик подтвержден! Введите сообщение';
-                            statusDiv.className = 'status success';
-                            stopScanner();
+                    qrVideo.srcObject = cameraStream;
+                    await qrVideo.play();
+                    
+                    scannerModal.classList.add('active');
+                    scanning = true;
+                    requestAnimationFrame(scanFrame);
+                    
+                } catch (error) {
+                    hookahStatus.textContent = '❌ Ошибка доступа к камере';
+                    hookahStatus.className = 'status-message status-error';
+                }
+            }
+
+            function scanFrame() {
+                if (!scanning) return;
+                
+                if (qrVideo.readyState === qrVideo.HAVE_ENOUGH_DATA) {
+                    canvasElement.height = qrVideo.videoHeight;
+                    canvasElement.width = qrVideo.videoWidth;
+                    canvas.drawImage(qrVideo, 0, 0, canvasElement.width, canvasElement.height);
+                    
+                    const imageData = canvas.getImageData(0, 0, canvasElement.width, canvasElement.height);
+                    const code = jsQR(imageData.data, canvasElement.width, canvasElement.height, {
+                        inversionAttempts: "dontInvert",
+                    });
+                    
+                    if (code) {
+                        const tableMatch = code.data.match(/Faraon[-\s]?(\d+)/i);
+                        
+                        if (tableMatch) {
+                            const scannedTable = parseInt(tableMatch[1]);
+                            
+                            if (scannedTable >= 1 && scannedTable <= 50) {
+                                tableVerified = true;
+                                tableNumber = scannedTable;
+                                tableInput.value = `Стол ${scannedTable}`;
+                                sendHookahBtn.disabled = false;
+                                hookahStatus.textContent = '✅ Столик подтвержден! Введите сообщение';
+                                hookahStatus.className = 'status-message status-success';
+                                stopScanner();
+                            }
                         }
                     }
                 }
-            }
-            
-            requestAnimationFrame(scanFrame);
-        }
-
-        // Остановка сканера
-        function stopScanner() {
-            scanning = false;
-            if (cameraStream) {
-                cameraStream.getTracks().forEach(track => track.stop());
-                cameraStream = null;
-            }
-            scannerModal.classList.remove('active');
-        }
-
-        // Отправка сообщения в Telegram
-        async function sendToTelegram() {
-            const message = messageText.value.trim();
-            
-            if (!tableNumber) {
-                statusDiv.textContent = '❌ Сначала отсканируйте QR-код';
-                statusDiv.className = 'status error';
-                return;
-            }
-
-            sendBtn.disabled = true;
-            sendBtn.textContent = '⏳ ОТПРАВКА...';
-            
-            // Формируем текст сообщения
-            const userInfo = tgUser ? 
-                `👤 Пользователь: @${tgUser.username || 'нет'} (ID: ${tgUser.id})\n` : 
-                '';
-            
-            const messageText_full = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n` +
-                `📍 Столик: ${tableNumber}\n` +
-                `${userInfo}` +
-                `💬 Сообщение: ${message || 'нет'}\n` +
-                `⏰ Время: ${new Date().toLocaleString()}`;
-            
-            try {
-                // Отправляем напрямую в Telegram
-                const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        chat_id: CHAT_ID,
-                        text: messageText_full,
-                        parse_mode: 'HTML'
-                    })
-                });
-
-                const data = await response.json();
                 
-                if (data.ok) {
-                    statusDiv.textContent = '✅ Вызов успешно отправлен!';
-                    statusDiv.className = 'status success';
-                    messageText.value = ''; // Очищаем поле
-                } else {
-                    statusDiv.textContent = `❌ Ошибка: ${data.description}`;
-                    statusDiv.className = 'status error';
-                }
-            } catch (error) {
-                statusDiv.textContent = '❌ Ошибка отправки';
-                statusDiv.className = 'status error';
+                requestAnimationFrame(scanFrame);
             }
+
+            function stopScanner() {
+                scanning = false;
+                if (cameraStream) {
+                    cameraStream.getTracks().forEach(track => track.stop());
+                    cameraStream = null;
+                }
+                scannerModal.classList.remove('active');
+            }
+
+            qrButton.addEventListener('click', startCamera);
+            closeScanner.addEventListener('click', stopScanner);
+
+            // ========== ОТПРАВКА ВЫЗОВА ==========
+            sendHookahBtn.addEventListener('click', async () => {
+                if (!tableVerified || !tableNumber) {
+                    hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
+                    hookahStatus.className = 'status-message status-error';
+                    return;
+                }
+
+                sendHookahBtn.disabled = true;
+                sendHookahBtn.textContent = '⏳ ОТПРАВКА...';
+
+                const userInfo = tgUser ? 
+                    `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
+                    'Гость (не авторизован)';
+                
+                const message = messageText.value.trim() || 'Без сообщения';
+
+                const text = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n` +
+                    `📍 Столик: ${tableNumber}\n` +
+                    `👤 Пользователь: ${userInfo}\n` +
+                    `💬 Сообщение: ${message}\n` +
+                    `⏰ Время: ${new Date().toLocaleString()}`;
+
+                try {
+                    const response = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({
+                            chat_id: HOOKAH_CHAT,
+                            text: text,
+                            parse_mode: 'HTML'
+                        })
+                    });
+
+                    const data = await response.json();
+
+                    if (data.ok) {
+                        hookahStatus.textContent = '✅ Вызов отправлен! Кальянщик скоро подойдет';
+                        hookahStatus.className = 'status-message status-success';
+                        messageText.value = '';
+                    } else {
+                        hookahStatus.textContent = `❌ Ошибка: ${data.description}`;
+                        hookahStatus.className = 'status-message status-error';
+                    }
+                } catch (error) {
+                    hookahStatus.textContent = '❌ Ошибка отправки';
+                    hookahStatus.className = 'status-message status-error';
+                }
+
+                sendHookahBtn.disabled = false;
+                sendHookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
+            });
+
+            // ========== ИГРА ==========
+            function updateUI() {
+                puffDisplay.textContent = puffs;
+                scrollDisplay.textContent = scrolls;
+                winsDisplay.textContent = wins;
+                discountDisplay.textContent = discounts;
+                progressFill.style.width = progress + '%';
+                progressPercent.textContent = progress + '%';
+                
+                updateRanksAndBadges();
+                
+                levelDisplay.textContent = Math.floor(puffs / 100) + 1;
+            }
+
+            function updateRanksAndBadges() {
+                let currentRank = rankTitles[0];
+                let nextRank = rankTitles[1];
+                
+                for (let i = 0; i < rankTitles.length; i++) {
+                    if (puffs >= rankTitles[i].requirement) {
+                        currentRank = rankTitles[i];
+                        if (i < rankTitles.length - 1) {
+                            nextRank = rankTitles[i + 1];
+                        }
+                    }
+                }
+                
+                rankIcon.textContent = currentRank.icon;
+                rankName.textContent = currentRank.name;
+                
+                if (nextRank) {
+                    const progressToNext = puffs - currentRank.requirement;
+                    const needForNext = nextRank.requirement - currentRank.requirement;
+                    const progressPercent = Math.min(100, Math.floor((progressToNext / needForNext) * 100));
+                    
+                    rankProgressText.textContent = `${progressToNext}/${needForNext}`;
+                    rankProgressFill.style.width = progressPercent + '%';
+                } else {
+                    rankProgressText.textContent = 'Максимум';
+                    rankProgressFill.style.width = '100%';
+                }
+                
+                badge100.classList.toggle('unlocked', puffs >= 100);
+                badge500.classList.toggle('unlocked', puffs >= 500);
+                badge1000.classList.toggle('unlocked', puffs >= 1000);
+                badgeFirstWin.classList.toggle('unlocked', wins >= 1);
+                badge5Discounts.classList.toggle('unlocked', discounts >= 5);
+                badge10Wins.classList.toggle('unlocked', wins >= 10);
+                badge25Wins.classList.toggle('unlocked', wins >= 25);
+                badge50Wins.classList.toggle('unlocked', wins >= 50);
+            }
+
+            function takePuff() {
+                let puffCount = turboActive ? 10 : 1;
+                let progressGain = 8 * puffCount;
+                
+                puffs += puffCount;
+                progress += progressGain;
+                
+                if (turboActive && puffCount > 1) {
+                    scrolls = Math.max(0, scrolls - 3);
+                }
+                
+                if (progress >= 100) {
+                    let earned = Math.floor(progress / 100);
+                    scrolls += earned;
+                    progress = progress % 100;
+                    gameMessage.textContent = `✨ +${earned} свитков! ✨`;
+                }
+                
+                if (progress > 100) progress = 100;
+                
+                updateUI();
+                
+                puffBtn.style.transform = 'scale(0.95)';
+                setTimeout(() => puffBtn.style.transform = '', 100);
+            }
+
+            function openChest() {
+                if (!chestAvailable) {
+                    gameMessage.textContent = '⏳ Сундук ещё закрыт! 2 часа ⏳';
+                    return;
+                }
+
+                let bonus = Math.floor(Math.random() * 8) + 3;
+                scrolls += bonus;
+                gameMessage.textContent = `🎁 +${bonus} свитков! 🎁`;
+
+                chestAvailable = false;
+                chestBtn.style.opacity = '0.5';
+                chestBtn.style.pointerEvents = 'none';
+                
+                chestTimer = setTimeout(() => {
+                    chestAvailable = true;
+                    chestBtn.style.opacity = '1';
+                    chestBtn.style.pointerEvents = 'auto';
+                    gameMessage.textContent = '🏺 Сундук снова готов! 🏺';
+                }, 7200000);
+                
+                updateUI();
+            }
+
+            turboBtn.addEventListener('click', () => {
+                if (scrolls < 8) {
+                    gameMessage.textContent = '❌ Нужно минимум 8 свитков для турбо!';
+                    return;
+                }
+                
+                turboActive = !turboActive;
+                turboBtn.style.background = turboActive ? '#b84a4a' : 'linear-gradient(135deg, #aa7b44, #8b5e2e)';
+                
+                if (turboActive) {
+                    gameMessage.textContent = '⚡ ТУРБО-РЕЖИМ АКТИВИРОВАН!';
+                }
+            });
+
+            function spinSlots() {
+                if (scrolls < 2) {
+                    gameMessage.textContent = '❌ Нужно 2 свитка! Сделай затяжку! ❌';
+                    return;
+                }
+
+                spinBtn.disabled = true;
+                
+                scrolls -= 2;
+                updateUI();
+
+                reel1.classList.add('spinning');
+                reel2.classList.add('spinning');
+                reel3.classList.add('spinning');
+                
+                if (soundEnabled) {
+                    spinSound.currentTime = 0;
+                    spinSound.play().catch(e => console.log('Ошибка воспроизведения звука:', e));
+                }
+
+                let spinCount = 0;
+                let spinInterval = setInterval(() => {
+                    reel1.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel2.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    reel3.textContent = symbols[Math.floor(Math.random() * symbols.length)];
+                    spinCount++;
+                    
+                    if (spinCount > 15) {
+                        clearInterval(spinInterval);
+                        
+                        reel1.classList.remove('spinning');
+                        reel2.classList.remove('spinning');
+                        reel3.classList.remove('spinning');
+                        
+                        if (soundEnabled) {
+                            spinSound.pause();
+                            spinSound.currentTime = 0;
+                        }
+                        
+                        finishSpin();
+                    }
+                }, 100);
+
+                function finishSpin() {
+                    const s1 = symbols[Math.floor(Math.random() * symbols.length)];
+                    const s2 = symbols[Math.floor(Math.random() * symbols.length)];
+                    const s3 = symbols[Math.floor(Math.random() * symbols.length)];
+                    
+                    reel1.textContent = s1;
+                    reel2.textContent = s2;
+                    reel3.textContent = s3;
+                    
+                    if (s1 === s2 && s2 === s3) {
+                        let winAmount = 8;
+                        scrolls += winAmount;
+                        wins++;
+                        
+                        reel1.classList.add('win');
+                        reel2.classList.add('win');
+                        reel3.classList.add('win');
+                        setTimeout(() => {
+                            reel1.classList.remove('win');
+                            reel2.classList.remove('win');
+                            reel3.classList.remove('win');
+                        }, 500);
+                        
+                        gameMessage.textContent = `👑 ДЖЕКПОТ! +${winAmount} свитков! 👑`;
+                        
+                    } else if (s1 === s2 || s2 === s3 || s1 === s3) {
+                        scrolls += 1;
+                        gameMessage.textContent = `✨ +1 свиток ✨`;
+                    } else {
+                        gameMessage.textContent = `💔 Не повезло...`;
+                    }
+                    
+                    updateUI();
+                    
+                    spinBtn.disabled = false;
+                }
+            }
+
+            puffBtn.addEventListener('click', takePuff);
+            chestBtn.addEventListener('click', openChest);
+            spinBtn.addEventListener('click', spinSlots);
+
+            // ========== ПРОМОКОДЫ ==========
+            async function checkSubscription(channelUsername) {
+                // Имитация проверки (в реальности здесь должен быть сервер)
+                return new Promise(resolve => {
+                    setTimeout(() => {
+                        // Для демо всегда true
+                        resolve(true);
+                    }, 1000);
+                });
+            }
+
+            function updateChannelStatusUI(channelElement, statusElement, isSubscribed) {
+                if (isSubscribed) {
+                    statusElement.innerHTML = '<span>✅</span> Подписан';
+                    statusElement.className = 'channel-status checked';
+                    channelElement.classList.add('verified');
+                } else {
+                    statusElement.innerHTML = '<span>❌</span> Не подписан';
+                    statusElement.className = 'channel-status error';
+                    channelElement.classList.remove('verified');
+                }
+            }
+
+            async function checkAllSubscriptions() {
+                if (!tgUser) {
+                    status1.innerHTML = '<span>❌</span> Нет данных';
+                    status2.innerHTML = '<span>❌</span> Нет данных';
+                    return false;
+                }
+
+                status1.innerHTML = '<span>⏳</span> Проверка...';
+                status2.innerHTML = '<span>⏳</span> Проверка...';
+                
+                const sub1 = await checkSubscription('faraon_loungebar');
+                const sub2 = await checkSubscription('faraon_barber_top');
+                
+                updateChannelStatusUI(channel1, status1, sub1);
+                updateChannelStatusUI(channel2, status2, sub2);
+                
+                return sub1 && sub2;
+            }
+
+            function generatePromoCode(userId) {
+                const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+                let code = 'WELCOME-';
+                for (let i = 0; i < 6; i++) {
+                    code += chars[Math.floor(Math.random() * chars.length)];
+                }
+                code += `-${userId.toString().slice(-4)}`;
+                return code;
+            }
+
+            function hidePromoBlock() {
+                if (promoBlock) {
+                    promoBlock.classList.add('hidden');
+                }
+            }
+
+            getPromoBtn.addEventListener('click', async () => {
+                if (!tgUser) {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Запустите игру через Telegram бота';
+                    promoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                if (usedPromoCodes.includes(tgUser.id.toString())) {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Вы уже активировали промокод';
+                    promoCodeDisplay.innerHTML = '';
+                    hidePromoBlock();
+                    return;
+                }
+
+                getPromoBtn.disabled = true;
+                getPromoBtn.innerHTML = '<span>⏳</span> ПРОВЕРКА...';
+                
+                const allSubscribed = await checkAllSubscriptions();
+                
+                if (allSubscribed) {
+                    const newCode = generatePromoCode(tgUser.id);
+                    
+                    usedPromoCodes.push(tgUser.id.toString());
+                    localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
+                    
+                    scrolls += 5;
+                    scrollDisplay.textContent = scrolls;
+                    
+                    promoResult.className = 'promo-result success';
+                    promoMessage.innerHTML = '✅ Промокод активирован! +5 свитков';
+                    promoCodeDisplay.innerHTML = newCode;
+                    
+                    // Отправляем в канал промокодов
+                    try {
+                        const promoText = `🎁 <b>АКТИВИРОВАН ПРОМОКОД ЗА ПОДПИСКУ!</b>\n\n` +
+                            `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
+                            `🆔 ID: ${tgUser.id}\n` +
+                            `🔑 Код: <code>${newCode}</code>\n` +
+                            `💰 Бонус: +5 свитков\n` +
+                            `⏰ Время: ${new Date().toLocaleString()}`;
+                        
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: PROMO_CHAT,
+                                text: promoText,
+                                parse_mode: 'HTML'
+                            })
+                        });
+                    } catch (e) {
+                        console.log('Ошибка отправки в канал промокодов');
+                    }
+                    
+                    hidePromoBlock();
+                    
+                } else {
+                    promoResult.className = 'promo-result error';
+                    promoMessage.innerHTML = '❌ Подпишитесь на все каналы';
+                    promoCodeDisplay.innerHTML = '';
+                }
+                
+                getPromoBtn.disabled = false;
+                getPromoBtn.innerHTML = '<span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ';
+            });
+
+            applyPromoBtn.addEventListener('click', async () => {
+                const code = promoInput.value.trim().toUpperCase();
+                
+                if (!code) {
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Введите промокод';
+                    manualPromoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                if (usedPromoCodes.includes(code)) {
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Этот промокод уже использован';
+                    manualPromoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                const validCodes = ['NEW', 'BONUS', 'GIFT', 'SUMMER', 'WELCOME'];
+                
+                if (!validCodes.includes(code)) {
+                    manualPromoResult.className = 'promo-result error';
+                    manualPromoMessage.innerHTML = '❌ Неверный промокод';
+                    manualPromoCodeDisplay.innerHTML = '';
+                    return;
+                }
+
+                usedPromoCodes.push(code);
+                localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
+                
+                let bonus = 10;
+                if (code === 'NEW') bonus = 15;
+                if (code === 'BONUS') bonus = 20;
+                if (code === 'GIFT') bonus = 25;
+                if (code === 'SUMMER') bonus = 30;
+                
+                scrolls += bonus;
+                scrollDisplay.textContent = scrolls;
+                
+                manualPromoResult.className = 'promo-result success';
+                manualPromoMessage.innerHTML = `✅ Промокод активирован! +${bonus} свитков`;
+                manualPromoCodeDisplay.innerHTML = code;
+                
+                // Отправляем в канал промокодов
+                if (tgUser) {
+                    try {
+                        const promoText = `🔑 <b>АКТИВИРОВАН РУЧНОЙ ПРОМОКОД!</b>\n\n` +
+                            `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
+                            `🆔 ID: ${tgUser.id}\n` +
+                            `🔑 Код: <code>${code}</code>\n` +
+                            `💰 Бонус: +${bonus} свитков\n` +
+                            `⏰ Время: ${new Date().toLocaleString()}`;
+                        
+                        await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                chat_id: PROMO_CHAT,
+                                text: promoText,
+                                parse_mode: 'HTML'
+                            })
+                        });
+                    } catch (e) {
+                        console.log('Ошибка отправки в канал промокодов');
+                    }
+                }
+                
+                promoInput.value = '';
+            });
+
+            // Отображение пользователя Telegram
+            if (tgUser) {
+                telegramUserDiv.style.display = 'flex';
+                userName.textContent = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
+                userId.textContent = `ID: ${tgUser.id}`;
+                
+                if (tgUser.photo_url) {
+                    userAvatar.src = tgUser.photo_url;
+                } else {
+                    userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
+                }
+                
+                if (usedPromoCodes.includes(tgUser.id.toString())) {
+                    hidePromoBlock();
+                } else {
+                    checkAllSubscriptions();
+                }
+            }
+
+            // Загрузка сохранений
+            const savedPuffs = localStorage.getItem('pharaoh_puffs');
+            const savedScrolls = localStorage.getItem('pharaoh_scrolls');
+            const savedWins = localStorage.getItem('pharaoh_wins');
+            const savedDiscounts = localStorage.getItem('pharaoh_discounts');
+            const savedProgress = localStorage.getItem('pharaoh_progress');
             
-            sendBtn.disabled = false;
-            sendBtn.textContent = '📤 ОТПРАВИТЬ ВЫЗОВ';
-        }
+            if (savedPuffs) puffs = parseInt(savedPuffs);
+            if (savedScrolls) scrolls = parseInt(savedScrolls);
+            if (savedWins) wins = parseInt(savedWins);
+            if (savedDiscounts) discounts = parseInt(savedDiscounts);
+            if (savedProgress) progress = parseInt(savedProgress);
+            
+            updateUI();
 
-        // Обработчики событий
-        scanBtn.addEventListener('click', startCamera);
-        closeScanner.addEventListener('click', stopScanner);
-        sendBtn.addEventListener('click', sendToTelegram);
-
-        // Приветствие
-        statusDiv.textContent = '👋 Отсканируйте QR-код столика';
+            window.addEventListener('beforeunload', () => {
+                localStorage.setItem('pharaoh_puffs', puffs);
+                localStorage.setItem('pharaoh_scrolls', scrolls);
+                localStorage.setItem('pharaoh_wins', wins);
+                localStorage.setItem('pharaoh_discounts', discounts);
+                localStorage.setItem('pharaoh_progress', progress);
+            });
+        })();
     </script>
 </body>
 </html>
