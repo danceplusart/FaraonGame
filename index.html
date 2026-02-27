@@ -1657,7 +1657,38 @@
             // Функция вызова кальянщика
 // === ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА (ИСПРАВЛЕННАЯ) ===
 hookahBtn.addEventListener('click', async () => {
+    // ДИАГНОСТИЧЕСКАЯ ПАНЕЛЬ
+    let debugPanel = document.getElementById('debugPanel');
+    if (!debugPanel) {
+        debugPanel = document.createElement('div');
+        debugPanel.id = 'debugPanel';
+        debugPanel.style.position = 'fixed';
+        debugPanel.style.top = '10px';
+        debugPanel.style.left = '10px';
+        debugPanel.style.right = '10px';
+        debugPanel.style.background = '#1a1a1a';
+        debugPanel.style.border = '2px solid #c9a454';
+        debugPanel.style.borderRadius = '10px';
+        debugPanel.style.padding = '10px';
+        debugPanel.style.color = '#ffd966';
+        debugPanel.style.fontSize = '12px';
+        debugPanel.style.zIndex = '10000';
+        debugPanel.style.maxHeight = '200px';
+        debugPanel.style.overflowY = 'auto';
+        debugPanel.style.fontFamily = 'monospace';
+        document.body.appendChild(debugPanel);
+    }
+    
+    function addDebug(message) {
+        const time = new Date().toLocaleTimeString();
+        debugPanel.innerHTML = `[${time}] ${message}<br>` + debugPanel.innerHTML;
+        console.log(message);
+    }
+    
+    addDebug('🔍 КНОПКА НАЖАТА');
+    
     if (!tableVerified || !tableNumber) {
+        addDebug('❌ Нет номера столика');
         gameMessage.textContent = '❌ Сначала отсканируйте QR-код столика';
         return;
     }
@@ -1669,13 +1700,15 @@ hookahBtn.addEventListener('click', async () => {
         `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
         'Гость (не авторизован)';
     
+    addDebug(`📍 Столик: ${tableNumber}`);
+    addDebug(`👤 Пользователь: ${userInfo}`);
+    addDebug(`📡 URL: http://103.231.73.178:3001/api/call`);
+    
     gameMessage.textContent = '⏳ Отправка запроса...';
     
-    console.log('📤 Отправка вызова...');
-    console.log('URL:', 'http://103.231.73.178:3001/api/call');
-    console.log('Данные:', { tableNumber, userInfo });
-    
     try {
+        addDebug('📤 Отправка fetch...');
+        
         const response = await fetch('http://103.231.73.178:3001/api/call', {
             method: 'POST',
             headers: { 
@@ -1687,22 +1720,20 @@ hookahBtn.addEventListener('click', async () => {
             })
         });
         
-        console.log('📥 Статус ответа:', response.status);
+        addDebug(`📥 Статус ответа: ${response.status}`);
         
         if (response.ok) {
             const data = await response.json();
-            console.log('✅ Успех! Ответ сервера:', data);
+            addDebug(`✅ Успех: ${JSON.stringify(data)}`);
             gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
         } else {
             const text = await response.text();
-            console.log('❌ Ошибка сервера:', response.status, text);
+            addDebug(`❌ Ошибка сервера: ${response.status} - ${text}`);
             gameMessage.textContent = '❌ Ошибка сервера';
         }
         
     } catch (error) {
-        console.error('❌ Ошибка:', error);
-        console.error('Имя ошибки:', error.name);
-        console.error('Сообщение:', error.message);
+        addDebug(`❌ Критическая ошибка: ${error.name} - ${error.message}`);
         gameMessage.textContent = '❌ Ошибка соединения с сервером';
     }
     
@@ -1713,7 +1744,6 @@ hookahBtn.addEventListener('click', async () => {
         hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
     }, 30000);
 });
-
             getPromoBtn.addEventListener('click', async () => {
                 if (!tgUser) {
                     promoResult.className = 'promo-result error';
@@ -1961,5 +1991,6 @@ hookahBtn.addEventListener('click', async () => {
     </script>
 </body>
 </html>
+
 
 
