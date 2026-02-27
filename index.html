@@ -1654,46 +1654,51 @@
                 scannerModal.classList.remove('active');
             }
 
-            hookahBtn.addEventListener('click', async () => {
-                if (!tableVerified || !tableNumber) {
-                    gameMessage.textContent = '❌ Отсканируйте QR-код';
-                    return;
-                }
-                
-                hookahBtn.disabled = true;
-                hookahBtn.textContent = '⏳ ВЫЗЫВАЕМ...';
-                
-                const userInfo = tgUser ? 
-                    `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
-                    'Не авторизован';
-                
-                try {
-                    const response = await fetch(`${SERVER_URL}/api/call`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            tableNumber: tableNumber,
-                            userInfo: userInfo,
-                            stats: { puffs, scrolls, wins }
-                        })
-                    });
-                    
-                    if (response.ok) {
-                        gameMessage.textContent = '✅ Кальянщик вызван!';
-                    } else {
-                        gameMessage.textContent = '❌ Ошибка сервера';
-                    }
-                } catch (error) {
-                    gameMessage.textContent = '❌ Ошибка соединения';
-                }
-                
-                setTimeout(() => {
-                    if (tableVerified && tableNumber) {
-                        hookahBtn.disabled = false;
-                    }
-                    hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
-                }, 30000);
-            });
+            // Функция вызова кальянщика
+hookahBtn.addEventListener('click', async () => {
+    if (!tableVerified || !tableNumber) {
+        gameMessage.textContent = '❌ Сначала отсканируйте QR-код столика';
+        return;
+    }
+    
+    hookahBtn.disabled = true;
+    hookahBtn.textContent = '⏳ ВЫЗЫВАЕМ...';
+    
+    const userInfo = tgUser ? 
+        `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
+        'Гость (не авторизован)';
+    
+    gameMessage.textContent = '⏳ Отправка запроса...';
+    
+    try {
+        const response = await fetch('http://103.231.73.178:3001/api/call', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                tableNumber: tableNumber,
+                userInfo: userInfo
+            })
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            console.log('✅ Успех:', data);
+            gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
+        } else {
+            gameMessage.textContent = '❌ Ошибка сервера';
+        }
+    } catch (error) {
+        console.error('❌ Ошибка:', error);
+        gameMessage.textContent = '❌ Ошибка соединения с сервером';
+    }
+    
+    setTimeout(() => {
+        if (tableVerified && tableNumber) {
+            hookahBtn.disabled = false;
+        }
+        hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
+    }, 30000);
+});
 
             getPromoBtn.addEventListener('click', async () => {
                 if (!tgUser) {
@@ -1942,3 +1947,4 @@
     </script>
 </body>
 </html>
+
