@@ -1746,49 +1746,49 @@
             }
 
             // Отправка вызова кальянщика
-            hookahBtn.addEventListener('click', async () => {
-                if (!tableVerified || !tableNumber) {
-                    gameMessage.textContent = '❌ Отсканируйте QR-код на столике';
-                    return;
-                }
-                
-                hookahBtn.disabled = true;
-                hookahBtn.textContent = '⏳ ВЫЗЫВАЕМ...';
-                
-                let userInfo = 'Не авторизован';
-                if (tgUser) {
-                    userInfo = `@${tgUser.username || 'нет'} (ID: ${tgUser.id})`;
-                }
-                
-                const message = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n📍 Столик: ${tableNumber}\n👤 Пользователь: ${userInfo}\n✅ Подтвержден через QR\n⏰ Время: ${new Date().toLocaleString()}\n\n📊 Статистика:\n💨 Затяжек: ${puffs}\n📜 Свитков: ${scrolls}\n🏆 Побед: ${wins}`;
-                
-                try {
-                    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            chat_id: TELEGRAM_CHAT_ID,
-                            text: message,
-                            parse_mode: 'HTML'
-                        })
-                    });
-                    
-                    gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
-                    
-                    setTimeout(() => {
-                        if (tableVerified && tableNumber) {
-                            hookahBtn.disabled = false;
-                        }
-                        hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
-                    }, 30000);
-                    
-                } catch (error) {
-                    gameMessage.textContent = '❌ Ошибка вызова';
-                    hookahBtn.disabled = false;
-                    hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
-                }
-            });
-
+           // Отправка вызова кальянщика
+hookahBtn.addEventListener('click', async () => {
+    if (!tableVerified || !tableNumber) {
+        gameMessage.textContent = '❌ Отсканируйте QR-код на столике';
+        return;
+    }
+    
+    hookahBtn.disabled = true;
+    hookahBtn.textContent = '⏳ ВЫЗЫВАЕМ...';
+    
+    let userInfo = 'Не авторизован';
+    if (tgUser) {
+        userInfo = `@${tgUser.username || 'нет'} (ID: ${tgUser.id})`;
+    }
+    
+    const message = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n📍 Столик: ${tableNumber}\n👤 Пользователь: ${userInfo}\n✅ Подтвержден через QR\n⏰ Время: ${new Date().toLocaleString()}\n\n📊 Статистика:\n💨 Затяжек: ${puffs}\n📜 Свитков: ${scrolls}\n🏆 Побед: ${wins}`;
+    
+    try {
+        await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: 'HTML'
+            })
+        });
+        
+        gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
+        
+        setTimeout(() => {
+            if (tableVerified && tableNumber) {
+                hookahBtn.disabled = false;
+            }
+            hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
+        }, 30000);
+        
+    } catch (error) {
+        gameMessage.textContent = '❌ Ошибка вызова';
+        hookahBtn.disabled = false;
+        hookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
+    }
+});
             // Функция отправки в Telegram
             async function sendToTelegram(message) {
                 try {
@@ -2199,3 +2199,4 @@
     </script>
 </body>
 </html>
+
