@@ -789,11 +789,21 @@
             background: linear-gradient(135deg, #c9a454, #b38a3a);
             border: none;
             border-radius: 12px;
-            padding: 0 20px;
+            padding: 16px 24px;
             color: #000;
             font-size: 16px;
             font-weight: 600;
             cursor: pointer;
+            white-space: nowrap;
+        }
+
+        .promo-apply-btn:active {
+            transform: scale(0.98);
+        }
+
+        .promo-apply-btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
         }
 
         .promo-result {
@@ -1000,6 +1010,10 @@
             
             .promo-input-group {
                 flex-direction: column;
+            }
+            
+            .promo-apply-btn {
+                width: 100%;
             }
         }
     </style>
@@ -1208,7 +1222,7 @@
     </div>
     <div class="promo-input-group" style="display: flex; gap: 8px; margin-bottom: 16px;">
         <input type="text" class="promo-input" id="promoInput" placeholder="Введите промокод" style="flex: 1; padding: 16px; background: rgba(0, 0, 0, 0.3); border: 1px solid rgba(201, 164, 84, 0.3); border-radius: 12px; color: #fff; font-size: 16px; outline: none;">
-        <button class="promo-apply-btn" id="applyPromoBtn" style="background: linear-gradient(135deg, #c9a454, #b38a3a); border: none; border-radius: 12px; padding: 0 20px; color: #000; font-size: 16px; font-weight: 600; cursor: pointer;">Активировать</button>
+        <button class="promo-apply-btn" id="applyPromoBtn" style="background: linear-gradient(135deg, #c9a454, #b38a3a); border: none; border-radius: 12px; padding: 16px 24px; color: #000; font-size: 16px; font-weight: 600; cursor: pointer; white-space: nowrap;">Активировать</button>
     </div>
     <div class="promo-result" id="manualPromoResult" style="background: rgba(30, 30, 30, 0.95); border-radius: 16px; padding: 20px; margin: 20px 0 0 0; text-align: center; border: 1px solid rgba(201, 164, 84, 0.2); display: none;">
         <div id="manualPromoMessage"></div>
@@ -1339,8 +1353,8 @@
             
             const symbols = ['𓆣', '𓁹', '𓋴', '𓃀', '𓊽', '𓎛', '𓂀'];
             
-            // Промокоды
-            let usedPromoCodes = JSON.parse(localStorage.getItem('used_promo_codes')) || [];
+            // Промокоды - теперь для каждого пользователя свой список
+            let userPromoCodes = JSON.parse(localStorage.getItem('user_promo_codes')) || {};
             
             // DOM элементы
             const soundBtn = document.getElementById('soundBtn');
@@ -1797,6 +1811,26 @@
                 return code;
             }
 
+            function getUserPromoCodes() {
+                if (!tgUser) return [];
+                return userPromoCodes[tgUser.id] || [];
+            }
+
+            function addUserPromoCode(code) {
+                if (!tgUser) return;
+                if (!userPromoCodes[tgUser.id]) {
+                    userPromoCodes[tgUser.id] = [];
+                }
+                userPromoCodes[tgUser.id].push(code);
+                localStorage.setItem('user_promo_codes', JSON.stringify(userPromoCodes));
+            }
+
+            function isPromoCodeUsed(code) {
+                if (!tgUser) return false;
+                const userCodes = getUserPromoCodes();
+                return userCodes.includes(code);
+            }
+
             function hidePromoBlock() {
                 if (promoBlock) {
                     promoBlock.classList.add('hidden');
@@ -1811,9 +1845,9 @@
                     return;
                 }
 
-                if (usedPromoCodes.includes(tgUser.id.toString())) {
+                if (isPromoCodeUsed('subscription_bonus')) {
                     promoResult.className = 'promo-result error';
-                    promoMessage.innerHTML = '❌ Вы уже активировали промокод';
+                    promoMessage.innerHTML = '❌ Вы уже активировали бонус за подписку';
                     promoCodeDisplay.innerHTML = '';
                     hidePromoBlock();
                     return;
@@ -1827,8 +1861,7 @@
                 if (allSubscribed) {
                     const newCode = generatePromoCode(tgUser.id);
                     
-                    usedPromoCodes.push(tgUser.id.toString());
-                    localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
+                    addUserPromoCode('subscription_bonus');
                     
                     scrolls += 5;
                     scrollDisplay.textContent = scrolls;
@@ -1881,9 +1914,9 @@
                     return;
                 }
 
-                if (usedPromoCodes.includes(code)) {
+                if (isPromoCodeUsed(code)) {
                     manualPromoResult.className = 'promo-result error';
-                    manualPromoMessage.innerHTML = '❌ Этот промокод уже использован';
+                    manualPromoMessage.innerHTML = '❌ Этот промокод уже был активирован';
                     manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
@@ -1897,8 +1930,7 @@
                     return;
                 }
 
-                usedPromoCodes.push(code);
-                localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
+                addUserPromoCode(code);
                 
                 let bonus = 10;
                 if (code === 'NEW') bonus = 15;
@@ -1952,7 +1984,7 @@
                     userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
                 }
                 
-                if (usedPromoCodes.includes(tgUser.id.toString())) {
+                if (isPromoCodeUsed('subscription_bonus')) {
                     hidePromoBlock();
                 } else {
                     checkAllSubscriptions();
