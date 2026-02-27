@@ -1655,6 +1655,7 @@
             }
 
             // Функция вызова кальянщика
+// === ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА (ИСПРАВЛЕННАЯ) ===
 hookahBtn.addEventListener('click', async () => {
     if (!tableVerified || !tableNumber) {
         gameMessage.textContent = '❌ Сначала отсканируйте QR-код столика';
@@ -1670,25 +1671,38 @@ hookahBtn.addEventListener('click', async () => {
     
     gameMessage.textContent = '⏳ Отправка запроса...';
     
+    console.log('📤 Отправка вызова...');
+    console.log('URL:', 'http://103.231.73.178:3001/api/call');
+    console.log('Данные:', { tableNumber, userInfo });
+    
     try {
         const response = await fetch('http://103.231.73.178:3001/api/call', {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 
+                'Content-Type': 'application/json',
+            },
             body: JSON.stringify({
                 tableNumber: tableNumber,
                 userInfo: userInfo
             })
         });
         
+        console.log('📥 Статус ответа:', response.status);
+        
         if (response.ok) {
             const data = await response.json();
-            console.log('✅ Успех:', data);
+            console.log('✅ Успех! Ответ сервера:', data);
             gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
         } else {
+            const text = await response.text();
+            console.log('❌ Ошибка сервера:', response.status, text);
             gameMessage.textContent = '❌ Ошибка сервера';
         }
+        
     } catch (error) {
         console.error('❌ Ошибка:', error);
+        console.error('Имя ошибки:', error.name);
+        console.error('Сообщение:', error.message);
         gameMessage.textContent = '❌ Ошибка соединения с сервером';
     }
     
@@ -1947,4 +1961,5 @@ hookahBtn.addEventListener('click', async () => {
     </script>
 </body>
 </html>
+
 
