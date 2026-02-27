@@ -144,6 +144,16 @@
             border: 1px solid rgba(201, 164, 84, 0.2);
         }
 
+        .section-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
         .qr-button {
             background: rgba(201, 164, 84, 0.2);
             border: 2px dashed #c9a454;
@@ -1662,7 +1672,7 @@
                 scannerModal.classList.remove('active');
             }
 
-            // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА (ПОРТ 3001) ===
+            // === ИСПРАВЛЕННАЯ ФУНКЦИЯ ВЫЗОВА КАЛЬЯНЩИКА ===
             hookahBtn.addEventListener('click', async () => {
                 if (!tableVerified || !tableNumber) {
                     gameMessage.textContent = '❌ Отсканируйте QR-код на столике';
@@ -1676,38 +1686,50 @@
                     `@${tgUser.username || 'нет'} (ID: ${tgUser.id})` : 
                     'Не авторизован';
                 
-                console.log('📞 Отправка вызова:', {
-                    tableNumber: tableNumber,
-                    userInfo: userInfo,
-                    stats: { puffs, scrolls, wins }
-                });
+                console.log('📞 Отправка вызова на сервер...');
+                console.log('📍 Столик:', tableNumber);
+                console.log('👤 Пользователь:', userInfo);
                 
                 try {
                     const response = await fetch('http://103.231.73.178:3001/api/call', {
                         method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
+                        headers: { 
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json'
+                        },
                         body: JSON.stringify({
                             tableNumber: tableNumber,
                             userInfo: userInfo,
                             stats: {
-                                puffs: puffs,
-                                scrolls: scrolls,
-                                wins: wins
+                                puffs: puffs || 0,
+                                scrolls: scrolls || 0,
+                                wins: wins || 0
                             }
                         })
                     });
+                    
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
                     
                     const data = await response.json();
                     console.log('✅ Ответ от сервера:', data);
                     
                     if (data.success) {
                         gameMessage.textContent = '✅ Кальянщик вызван! Скоро подойдет';
+                        
+                        if (data.telegram) {
+                            console.log('✅ Telegram: доставлено');
+                        }
+                        if (data.site) {
+                            console.log('✅ Сайт: доставлено');
+                        }
                     } else {
                         gameMessage.textContent = '❌ Ошибка вызова';
                     }
                     
                 } catch (error) {
-                    console.error('❌ Ошибка:', error);
+                    console.error('❌ Ошибка при вызове:', error);
                     gameMessage.textContent = '❌ Ошибка соединения с сервером';
                 }
                 
