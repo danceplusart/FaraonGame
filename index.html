@@ -1510,7 +1510,7 @@
             qrButton.addEventListener('click', startCamera);
             closeScanner.addEventListener('click', stopScanner);
 
-            // ========== ОТПРАВКА ВЫЗОВА ==========
+            // ========== ОТПРАВКА ВЫЗОВА (ТОЛЬКО В TELEGRAM) ==========
             sendHookahBtn.addEventListener('click', async () => {
                 if (!tableVerified || !tableNumber) {
                     hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
@@ -1526,12 +1526,6 @@
                     'Гость (не авторизован)';
                 
                 const message = messageText.value.trim() || 'Без сообщения';
-                
-                const userName = tgUser ? 
-                    `${tgUser.first_name} ${tgUser.last_name || ''}`.trim() : 
-                    'Гость';
-                
-                const username = tgUser?.username || '';
 
                 // Формируем текст для Telegram
                 const telegramText = `🔔 <b>ВЫЗОВ КАЛЬЯНЩИКА!</b>\n\n` +
@@ -1540,24 +1534,8 @@
                     `💬 Сообщение: ${message}\n` +
                     `⏰ Время: ${new Date().toLocaleString()}`;
 
-                // Данные для сайта
-                const callData = {
-                    id: Date.now().toString(36) + Math.random().toString(36).substr(2, 5),
-                    tableNumber: tableNumber,
-                    userId: tgUser?.id || 0,
-                    userName: userName,
-                    username: username,
-                    message: message,
-                    timestamp: new Date().toISOString(),
-                    status: 'new'
-                };
-
-                // Переменные для отслеживания результатов
-                let telegramSuccess = false;
-                let siteSuccess = false;
-
                 try {
-                    // Отправляем в Telegram
+                    // Отправляем только в Telegram
                     const telegramResponse = await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
                         method: 'POST',
                         headers: { 'Content-Type': 'application/json' },
@@ -1569,57 +1547,17 @@
                     });
 
                     const telegramData = await telegramResponse.json();
-                    telegramSuccess = telegramData.ok;
                     
-                    if (telegramSuccess) {
-                        console.log('✅ Telegram: успешно');
+                    if (telegramData.ok) {
+                        hookahStatus.textContent = '✅ Вызов отправлен! Кальянщик скоро подойдет';
+                        hookahStatus.className = 'status-message status-success';
+                        messageText.value = '';
                     } else {
-                        console.error('❌ Telegram ошибка:', telegramData);
+                        hookahStatus.textContent = `❌ Ошибка: ${telegramData.description || 'Неизвестная ошибка'}`;
+                        hookahStatus.className = 'status-message status-error';
                     }
-                } catch (telegramError) {
-                    console.error('❌ Telegram ошибка:', telegramError);
-                }
-
-                try {
-                    // Отправляем на сайт
-                    console.log('📤 Отправляем на сайт:', callData);
-                    
-                    const siteResponse = await fetch('https://faraon.free.nf/save_call.php', {
-                        method: 'POST',
-                        headers: { 
-                            'Content-Type': 'application/json',
-                        },
-                        body: JSON.stringify(callData)
-                    });
-                    
-                    const siteData = await siteResponse.json();
-                    console.log('📥 Ответ от сайта:', siteData);
-                    
-                    siteSuccess = siteData.success === true;
-                    
-                    if (siteSuccess) {
-                        console.log('✅ Сайт: успешно');
-                    } else {
-                        console.error('❌ Сайт ошибка:', siteData.error || 'Неизвестная ошибка');
-                    }
-                } catch (siteError) {
-                    console.error('❌ Сайт ошибка:', siteError);
-                }
-
-                // Показываем результат пользователю
-                if (telegramSuccess && siteSuccess) {
-                    hookahStatus.textContent = '✅ Вызов отправлен в Telegram и на сайт! Кальянщик скоро подойдет';
-                    hookahStatus.className = 'status-message status-success';
-                    messageText.value = '';
-                } else if (telegramSuccess) {
-                    hookahStatus.textContent = '⚠️ Вызов отправлен в Telegram, но не на сайт. Кальянщик все равно придет!';
-                    hookahStatus.className = 'status-message status-warning';
-                    messageText.value = '';
-                } else if (siteSuccess) {
-                    hookahStatus.textContent = '⚠️ Вызов отправлен на сайт, но не в Telegram. Кальянщик все равно придет!';
-                    hookahStatus.className = 'status-message status-warning';
-                    messageText.value = '';
-                } else {
+                } catch (error) {
+                    console.error('❌ Ошибка:', error);
                     hookahStatus.textContent = '❌ Ошибка отправки. Попробуйте еще раз';
                     hookahStatus.className = 'status-message status-error';
                 }
