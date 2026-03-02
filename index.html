@@ -1364,9 +1364,6 @@
             
             const symbols = ['𓆣', '𓁹', '𓋴', '𓃀', '𓊽', '𓎛', '𓂀'];
             
-            // Промокоды
-            let usedPromoCodes = JSON.parse(localStorage.getItem('used_promo_codes')) || [];
-            
             // DOM элементы
             const soundBtn = document.getElementById('soundBtn');
             const telegramUserDiv = document.getElementById('telegramUser');
@@ -1441,14 +1438,112 @@
             const spinSound = new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3');
             spinSound.volume = 0.3;
 
-            // Функция сохранения прогресса
-            function saveProgress() {
-                localStorage.setItem('pharaoh_puffs', puffs);
-                localStorage.setItem('pharaoh_scrolls', scrolls);
-                localStorage.setItem('pharaoh_wins', wins);
-                localStorage.setItem('pharaoh_discounts', discounts);
-                localStorage.setItem('pharaoh_progress', progress);
-                console.log('💾 Прогресс сохранен');
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ИНДИВИДУАЛЬНЫМИ ДАННЫМИ ==========
+            
+            // Функция получения ключа для localStorage с привязкой к пользователю
+            function getUserKey(key) {
+                if (!tgUser) return key; // Если пользователь не авторизован
+                return `user_${tgUser.id}_${key}`;
+            }
+
+            // Функция сохранения прогресса пользователя
+            function saveUserProgress() {
+                if (!tgUser) {
+                    // Если пользователь не авторизован, сохраняем во временные ключи
+                    localStorage.setItem('temp_puffs', puffs);
+                    localStorage.setItem('temp_scrolls', scrolls);
+                    localStorage.setItem('temp_wins', wins);
+                    localStorage.setItem('temp_discounts', discounts);
+                    localStorage.setItem('temp_progress', progress);
+                    return;
+                }
+                
+                const userData = {
+                    puffs: puffs,
+                    scrolls: scrolls,
+                    wins: wins,
+                    discounts: discounts,
+                    progress: progress,
+                    level: Math.floor(puffs / 100) + 1,
+                    rank: rankName.textContent,
+                    achievements: {
+                        badge100: badge100.classList.contains('unlocked'),
+                        badge500: badge500.classList.contains('unlocked'),
+                        badge1000: badge1000.classList.contains('unlocked'),
+                        badgeFirstWin: badgeFirstWin.classList.contains('unlocked'),
+                        badge5Discounts: badge5Discounts.classList.contains('unlocked'),
+                        badge10Wins: badge10Wins.classList.contains('unlocked'),
+                        badge25Wins: badge25Wins.classList.contains('unlocked'),
+                        badge50Wins: badge50Wins.classList.contains('unlocked')
+                    },
+                    lastSave: new Date().toISOString()
+                };
+                
+                localStorage.setItem(getUserKey('game_data'), JSON.stringify(userData));
+                console.log(`💾 Прогресс пользователя ${tgUser.id} сохранен`);
+            }
+
+            // Функция загрузки прогресса пользователя
+            function loadUserProgress() {
+                if (!tgUser) {
+                    // Если пользователь не авторизован, пробуем загрузить временные данные
+                    const tempPuffs = localStorage.getItem('temp_puffs');
+                    const tempScrolls = localStorage.getItem('temp_scrolls');
+                    const tempWins = localStorage.getItem('temp_wins');
+                    const tempDiscounts = localStorage.getItem('temp_discounts');
+                    const tempProgress = localStorage.getItem('temp_progress');
+                    
+                    if (tempPuffs) puffs = parseInt(tempPuffs);
+                    if (tempScrolls) scrolls = parseInt(tempScrolls);
+                    if (tempWins) wins = parseInt(tempWins);
+                    if (tempDiscounts) discounts = parseInt(tempDiscounts);
+                    if (tempProgress) progress = parseInt(tempProgress);
+                    
+                    console.log('📥 Временный прогресс загружен');
+                    return;
+                }
+                
+                const savedData = localStorage.getItem(getUserKey('game_data'));
+                if (savedData) {
+                    try {
+                        const data = JSON.parse(savedData);
+                        
+                        puffs = data.puffs || 0;
+                        scrolls = data.scrolls || 10;
+                        wins = data.wins || 0;
+                        discounts = data.discounts || 0;
+                        progress = data.progress || 0;
+                        
+                        // Восстанавливаем достижения
+                        if (data.achievements) {
+                            badge100.classList.toggle('unlocked', data.achievements.badge100);
+                            badge500.classList.toggle('unlocked', data.achievements.badge500);
+                            badge1000.classList.toggle('unlocked', data.achievements.badge1000);
+                            badgeFirstWin.classList.toggle('unlocked', data.achievements.badgeFirstWin);
+                            badge5Discounts.classList.toggle('unlocked', data.achievements.badge5Discounts);
+                            badge10Wins.classList.toggle('unlocked', data.achievements.badge10Wins);
+                            badge25Wins.classList.toggle('unlocked', data.achievements.badge25Wins);
+                            badge50Wins.classList.toggle('unlocked', data.achievements.badge50Wins);
+                        }
+                        
+                        console.log(`📥 Прогресс пользователя ${tgUser.id} загружен`);
+                    } catch (e) {
+                        console.error('Ошибка загрузки прогресса:', e);
+                    }
+                }
+                updateUI();
+            }
+
+            // Функция проверки активации промокода для пользователя
+            function hasUserPromo() {
+                if (!tgUser) return false;
+                return localStorage.getItem(getUserKey('promo_activated')) === 'true';
+            }
+
+            // Функция активации промокода для пользователя
+            function setUserPromo() {
+                if (!tgUser) return;
+                localStorage.setItem(getUserKey('promo_activated'), 'true');
             }
 
             // Звук
@@ -1674,7 +1769,7 @@
                 if (progress > 100) progress = 100;
                 
                 updateUI();
-                saveProgress();
+                saveUserProgress();
                 
                 puffBtn.style.transform = 'scale(0.95)';
                 setTimeout(() => puffBtn.style.transform = '', 100);
@@ -1702,7 +1797,7 @@
                 }, 7200000);
                 
                 updateUI();
-                saveProgress();
+                saveUserProgress();
             }
 
             turboBtn.addEventListener('click', () => {
@@ -1795,7 +1890,7 @@
                     }
                     
                     updateUI();
-                    saveProgress();
+                    saveUserProgress();
                     spinBtn.disabled = false;
                 }
             }
@@ -1868,10 +1963,7 @@
                     return;
                 }
 
-                const userPromoKey = `promo_activated_${tgUser.id}`;
-                const promoActivated = localStorage.getItem(userPromoKey);
-                
-                if (promoActivated) {
+                if (hasUserPromo()) {
                     promoResult.className = 'promo-result error';
                     promoMessage.innerHTML = '❌ Вы уже активировали промокод за подписку';
                     promoCodeDisplay.innerHTML = '';
@@ -1889,9 +1981,7 @@
                 if (allSubscribed) {
                     const newCode = generatePromoCode(tgUser.id);
                     
-                    localStorage.setItem(userPromoKey, 'true');
-                    usedPromoCodes.push(tgUser.id.toString());
-                    localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
+                    setUserPromo();
                     
                     scrolls += 5;
                     scrollDisplay.textContent = scrolls;
@@ -1921,7 +2011,7 @@
                         console.log('Ошибка отправки в канал промокодов');
                     }
                     
-                    saveProgress();
+                    saveUserProgress();
                     
                     setTimeout(() => {
                         if (promoBlock) {
@@ -2007,10 +2097,10 @@
                 }
                 
                 promoInput.value = '';
-                saveProgress();
+                saveUserProgress();
             });
 
-            // Отображение пользователя Telegram
+            // Отображение пользователя Telegram и загрузка его прогресса
             if (tgUser) {
                 telegramUserDiv.style.display = 'flex';
                 userName.textContent = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
@@ -2022,33 +2112,27 @@
                     userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
                 }
                 
-                const userPromoKey = `promo_activated_${tgUser.id}`;
-                const promoActivated = localStorage.getItem(userPromoKey);
+                // Загружаем прогресс пользователя
+                loadUserProgress();
                 
-                if (promoActivated && promoBlock) {
+                // Проверяем промокод
+                if (hasUserPromo() && promoBlock) {
                     promoBlock.classList.add('hidden');
                 }
+            } else {
+                // Если пользователь не авторизован, пробуем загрузить временные данные
+                loadUserProgress();
             }
 
-            // Загрузка сохранений
-            const savedPuffs = localStorage.getItem('pharaoh_puffs');
-            const savedScrolls = localStorage.getItem('pharaoh_scrolls');
-            const savedWins = localStorage.getItem('pharaoh_wins');
-            const savedDiscounts = localStorage.getItem('pharaoh_discounts');
-            const savedProgress = localStorage.getItem('pharaoh_progress');
-            
-            if (savedPuffs) puffs = parseInt(savedPuffs);
-            if (savedScrolls) scrolls = parseInt(savedScrolls);
-            if (savedWins) wins = parseInt(savedWins);
-            if (savedDiscounts) discounts = parseInt(savedDiscounts);
-            if (savedProgress) progress = parseInt(savedProgress);
-            
-            updateUI();
+            // Автосохранение каждые 30 секунд
+            setInterval(() => {
+                saveUserProgress();
+            }, 30000);
 
-            // Сохраняем каждые 30 секунд
-            setInterval(saveProgress, 30000);
-
-            window.addEventListener('beforeunload', saveProgress);
+            // Сохранение при закрытии
+            window.addEventListener('beforeunload', () => {
+                saveUserProgress();
+            });
         })();
     </script>
 </body>
