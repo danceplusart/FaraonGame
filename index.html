@@ -7,7 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
-        /* Все существующие стили остаются без изменений */
+        /* Все стили остаются без изменений */
         * {
             margin: 0;
             padding: 0;
@@ -314,7 +314,7 @@
             pointer-events: none;
         }
 
-        /* НОВЫЙ: Сообщение об ошибке камеры */
+        /* Сообщение об ошибке камеры */
         .camera-error {
             background: rgba(255, 59, 48, 0.2);
             border: 1px solid #ff3b30;
@@ -325,29 +325,7 @@
             margin-bottom: 20px;
         }
 
-        .camera-error button {
-            background: #ff3b30;
-            border: none;
-            color: white;
-            padding: 10px 20px;
-            border-radius: 20px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        .manual-input-btn {
-            background: rgba(201, 164, 84, 0.2);
-            border: 1px solid #c9a454;
-            border-radius: 12px;
-            padding: 12px;
-            width: 100%;
-            color: #ffd966;
-            font-size: 14px;
-            margin-top: 10px;
-            cursor: pointer;
-        }
-
-        /* НОВЫЙ: Прогресс-бар для сундука */
+        /* Прогресс-бар для сундука */
         .chest-progress-container {
             margin: 15px 0;
             padding: 15px;
@@ -378,7 +356,7 @@
             transition: width 1s linear;
         }
 
-        /* НОВЫЙ: Анимация всплывающих чисел */
+        /* Анимация всплывающих чисел */
         .floating-number {
             position: fixed;
             color: #ffd966;
@@ -401,7 +379,7 @@
             }
         }
 
-        /* НОВЫЙ: Анимация для чисел в UI */
+        /* Анимация для чисел в UI */
         .stat-value.pulse {
             animation: pulse 0.3s ease-in-out;
         }
@@ -1157,11 +1135,6 @@
                 <span>📷</span> СКАНИРОВАТЬ QR-КОД СТОЛИКА
             </button>
 
-            <!-- НОВОЕ: Ручной ввод номера столика -->
-            <button class="manual-input-btn" id="manualTableBtn">
-                Ввести номер столика вручную
-            </button>
-
             <input type="text" class="table-input" id="tableNumber" placeholder="Номер столика" readonly>
 
             <textarea class="message-input" id="messageText" placeholder="Введите сообщение для кальянщика (например: принесите угли, поменяйте чашу и т.д.)"></textarea>
@@ -1172,7 +1145,7 @@
             <div id="hookahStatus" class="status-message"></div>
         </section>
 
-        <!-- НОВЫЙ: Прогресс-бар для сундука -->
+        <!-- Прогресс-бар для сундука -->
         <div class="chest-progress-container" id="chestProgressContainer" style="display: none;">
             <div class="chest-timer">
                 <span>🏺 Сундук откроется через:</span>
@@ -1419,10 +1392,9 @@
             <button class="scanner-close" id="closeScanner">&times;</button>
         </div>
         <video id="qr-video" autoplay playsinline></video>
-        <!-- НОВОЕ: Сообщение об ошибке камеры -->
+        <!-- Сообщение об ошибке камеры -->
         <div id="cameraError" class="camera-error" style="display: none;">
             <p>❌ Не удалось получить доступ к камере</p>
-            <button onclick="showManualInput()">Ввести номер вручную</button>
         </div>
         <div class="scanner-overlay"></div>
     </div>
@@ -1449,7 +1421,7 @@
                 tgUser = tg.initDataUnsafe?.user;
             }
             
-            // ========== НОВОЕ: Массив использованных промокодов ==========
+            // Массив использованных промокодов
             let usedPromoCodes = [];
             
             // Загружаем использованные промокоды из localStorage
@@ -1465,7 +1437,7 @@
             }
             loadUsedPromoCodes();
             
-            // ========== НОВОЕ: Звуки для действий ==========
+            // Звуки для действий
             const sounds = {
                 puff: new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'),
                 chest: new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'),
@@ -1479,7 +1451,7 @@
                 sound.volume = 0.2;
             });
             
-            // ========== НОВОЕ: Функция для воспроизведения звука ==========
+            // Функция для воспроизведения звука
             function playSound(soundName) {
                 if (soundEnabled && sounds[soundName]) {
                     sounds[soundName].currentTime = 0;
@@ -1487,7 +1459,7 @@
                 }
             }
             
-            // ========== НОВОЕ: Функция для анимации чисел ==========
+            // Функция для анимации чисел
             function showFloatingNumber(number, x, y, isPositive = true) {
                 const floating = document.createElement('div');
                 floating.className = 'floating-number';
@@ -1502,7 +1474,7 @@
                 }, 1000);
             }
             
-            // ========== НОВОЕ: Функция для анимации статистики ==========
+            // Функция для анимации статистики
             function animateStat(statElement) {
                 statElement.classList.add('pulse');
                 setTimeout(() => {
@@ -1517,7 +1489,6 @@
             let discounts = 0;
             let progress = 0;
             let chestAvailable = true;
-            let chestTimer = null;
             let chestEndTime = null;
             let currentDiscount = null;
             let soundEnabled = true;
@@ -1561,9 +1532,8 @@
             const closeScanner = document.getElementById('closeScanner');
             const qrVideo = document.getElementById('qr-video');
             const cameraError = document.getElementById('cameraError');
-            const manualTableBtn = document.getElementById('manualTableBtn');
             
-            // НОВЫЕ: Элементы для прогресса сундука
+            // Элементы для прогресса сундука
             const chestProgressContainer = document.getElementById('chestProgressContainer');
             const chestTimer = document.getElementById('chestTimer');
             const chestProgressFill = document.getElementById('chestProgressFill');
@@ -1731,7 +1701,7 @@
                 localStorage.setItem(getUserKey('promo_activated'), 'true');
             }
 
-            // ========== НОВОЕ: Функция для обновления таймера сундука ==========
+            // Функция для обновления таймера сундука
             function startChestTimer() {
                 if (!chestEndTime) {
                     chestEndTime = new Date();
@@ -1787,6 +1757,7 @@
                     
                     scannerModal.classList.add('active');
                     cameraError.style.display = 'none';
+                    qrVideo.style.display = 'block';
                     scanning = true;
                     requestAnimationFrame(scanFrame);
                     
@@ -1797,36 +1768,6 @@
                     qrVideo.style.display = 'none';
                 }
             }
-            
-            // НОВОЕ: Функция для ручного ввода номера столика
-            function showManualInput() {
-                stopScanner();
-                const manualNumber = prompt('Введите номер столика (1-50 или VIP-код):');
-                if (manualNumber) {
-                    if (/^\d+$/.test(manualNumber)) {
-                        const numValue = parseInt(manualNumber);
-                        if (numValue >= 1 && numValue <= 50) {
-                            tableVerified = true;
-                            tableNumber = manualNumber;
-                            tableInput.value = `Стол ${manualNumber}`;
-                            sendHookahBtn.disabled = false;
-                            hookahStatus.textContent = '✅ Столик подтвержден! Введите сообщение';
-                            hookahStatus.className = 'status-message status-success';
-                        } else {
-                            alert('Номер столика должен быть от 1 до 50');
-                        }
-                    } else {
-                        tableVerified = true;
-                        tableNumber = manualNumber.toUpperCase();
-                        tableInput.value = `Стол ${manualNumber.toUpperCase()}`;
-                        sendHookahBtn.disabled = false;
-                        hookahStatus.textContent = '✅ VIP-столик подтвержден! Введите сообщение';
-                        hookahStatus.className = 'status-message status-success';
-                    }
-                }
-            }
-            
-            window.showManualInput = showManualInput;
 
             function scanFrame() {
                 if (!scanning) return;
@@ -1899,7 +1840,6 @@
 
             qrButton.addEventListener('click', startCamera);
             closeScanner.addEventListener('click', stopScanner);
-            manualTableBtn.addEventListener('click', showManualInput);
 
             // ========== ОТПРАВКА ВЫЗОВА ==========
             sendHookahBtn.addEventListener('click', async () => {
@@ -2006,7 +1946,6 @@
                 badge50Wins.classList.toggle('unlocked', wins >= 50);
             }
 
-            // НОВОЕ: Улучшенная функция тяги с анимациями
             function takePuff() {
                 let puffCount = turboActive ? 10 : 1;
                 let progressGain = 8 * puffCount;
@@ -2057,7 +1996,6 @@
                 setTimeout(() => puffBtn.style.transform = '', 100);
             }
 
-            // НОВОЕ: Улучшенная функция открытия сундука
             function openChest() {
                 if (!chestAvailable) {
                     gameMessage.textContent = '⏳ Сундук ещё закрыт! 2 часа ⏳';
@@ -2104,7 +2042,6 @@
                 }
             });
 
-            // НОВОЕ: Улучшенная функция вращения слотов
             function spinSlots() {
                 if (scrolls < 2) {
                     gameMessage.textContent = '❌ Нужно 2 свитка! Сделай затяжку! ❌';
@@ -2200,12 +2137,27 @@
             chestBtn.addEventListener('click', openChest);
             spinBtn.addEventListener('click', spinSlots);
 
-            // ========== ПРОМОКОДЫ ==========
+            // ========== ПРОМОКОДЫ - ИСПРАВЛЕНО ==========
+            
+            // Функция проверки подписки с таймаутом
             async function checkSubscription(channelUsername) {
-                return new Promise(resolve => {
-                    setTimeout(() => {
-                        resolve(true);
-                    }, 1000);
+                return new Promise((resolve) => {
+                    // Устанавливаем таймаут 3 секунды
+                    const timeout = setTimeout(() => {
+                        resolve(false);
+                    }, 3000);
+                    
+                    try {
+                        // В реальном приложении здесь должен быть запрос к API бота
+                        // Сейчас просто эмулируем успешную проверку
+                        setTimeout(() => {
+                            clearTimeout(timeout);
+                            resolve(true);
+                        }, 1000);
+                    } catch (error) {
+                        clearTimeout(timeout);
+                        resolve(false);
+                    }
                 });
             }
 
@@ -2231,13 +2183,20 @@
                 status1.innerHTML = '<span>⏳</span> Проверка...';
                 status2.innerHTML = '<span>⏳</span> Проверка...';
                 
-                const sub1 = await checkSubscription('faraon_loungebar');
-                const sub2 = await checkSubscription('faraon_barber_top');
-                
-                updateChannelStatusUI(channel1, status1, sub1);
-                updateChannelStatusUI(channel2, status2, sub2);
-                
-                return sub1 && sub2;
+                try {
+                    const sub1 = await checkSubscription('faraon_loungebar');
+                    const sub2 = await checkSubscription('faraon_barber_top');
+                    
+                    updateChannelStatusUI(channel1, status1, sub1);
+                    updateChannelStatusUI(channel2, status2, sub2);
+                    
+                    return sub1 && sub2;
+                } catch (error) {
+                    console.error('Ошибка проверки подписок:', error);
+                    status1.innerHTML = '<span>❌</span> Ошибка';
+                    status2.innerHTML = '<span>❌</span> Ошибка';
+                    return false;
+                }
             }
 
             function generatePromoCode(userId) {
@@ -2335,8 +2294,13 @@
                 getPromoBtn.innerHTML = '<span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ';
             });
 
-            applyPromoBtn.addEventListener('click', async () => {
+            // ========== ИСПРАВЛЕНО: Ручной ввод промокода ==========
+            applyPromoBtn.addEventListener('click', async (event) => {
+                event.preventDefault();
+                console.log('Кнопка активации нажата');
+                
                 const code = promoInput.value.trim().toUpperCase();
+                console.log('Введенный код:', code);
                 
                 if (!code) {
                     manualPromoResult.className = 'promo-result error';
@@ -2345,7 +2309,7 @@
                     return;
                 }
 
-                // ========== НОВОЕ: Проверка на дублирование промокодов ==========
+                // Проверка на дублирование промокодов
                 if (usedPromoCodes.includes(code)) {
                     manualPromoResult.className = 'promo-result error';
                     manualPromoMessage.innerHTML = '❌ Этот промокод уже использован';
@@ -2353,6 +2317,7 @@
                     return;
                 }
 
+                // Список валидных промокодов
                 const validCodes = ['NEW', 'BONUS', 'GIFT', 'SUMMER', 'WELCOME', 'VIP', 'FARAON'];
                 
                 if (!validCodes.includes(code)) {
@@ -2361,6 +2326,8 @@
                     manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
+
+                console.log('Промокод валидный, активируем...');
 
                 // Добавляем в список использованных
                 usedPromoCodes.push(code);
@@ -2376,6 +2343,11 @@
                 
                 const oldScrolls = scrolls;
                 scrolls += bonus;
+                
+                console.log('Свитки после активации:', scrolls);
+                
+                // Обновляем UI
+                updateUI();
                 
                 // Анимация
                 animateStat(scrollDisplay);
@@ -2412,6 +2384,9 @@
                 promoInput.value = '';
                 saveUserProgress();
             });
+
+            // Добавляем обработчик для отладки
+            console.log('applyPromoBtn:', applyPromoBtn);
 
             // Отображение пользователя Telegram и загрузка его прогресса
             if (tgUser) {
