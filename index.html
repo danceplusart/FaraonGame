@@ -7,7 +7,7 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
-        /* Все стили остаются без изменений */
+        /* Все существующие стили остаются */
         * {
             margin: 0;
             padding: 0;
@@ -314,7 +314,6 @@
             pointer-events: none;
         }
 
-        /* Сообщение об ошибке камеры */
         .camera-error {
             background: rgba(255, 59, 48, 0.2);
             border: 1px solid #ff3b30;
@@ -379,7 +378,6 @@
             }
         }
 
-        /* Анимация для чисел в UI */
         .stat-value.pulse {
             animation: pulse 0.3s ease-in-out;
         }
@@ -390,7 +388,7 @@
             100% { transform: scale(1); }
         }
 
-        /* Остальные существующие стили */
+        /* Игра */
         .game-wrapper {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 24px;
@@ -711,6 +709,7 @@
             margin-top: 15px;
         }
 
+        /* Промокоды */
         .promo-block {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
@@ -922,6 +921,120 @@
             transform: scale(0.95);
         }
 
+        /* НОВОЕ: Админ-панель */
+        .admin-section {
+            background: rgba(30, 30, 30, 0.95);
+            border-radius: 20px;
+            padding: 20px;
+            margin: 24px 0;
+            border: 2px solid #c9a454;
+            position: relative;
+        }
+
+        .admin-section::before {
+            content: "👑 АДМИНКА";
+            position: absolute;
+            top: -12px;
+            left: 20px;
+            background: #c9a454;
+            color: #000;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .admin-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: #ffd966;
+            margin-bottom: 20px;
+            margin-top: 10px;
+        }
+
+        .admin-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .admin-input {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(201, 164, 84, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            color: #fff;
+            font-size: 14px;
+            outline: none;
+        }
+
+        .admin-input:focus {
+            border-color: #c9a454;
+        }
+
+        .admin-button {
+            background: linear-gradient(135deg, #c9a454, #b38a3a);
+            border: none;
+            border-radius: 12px;
+            padding: 12px;
+            color: #000;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+
+        .admin-button:active {
+            transform: scale(0.95);
+        }
+
+        .admin-button.delete {
+            background: linear-gradient(135deg, #ff3b30, #ff2d55);
+            color: white;
+        }
+
+        .promo-list {
+            background: rgba(0, 0, 0, 0.3);
+            border-radius: 12px;
+            padding: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .promo-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid rgba(201, 164, 84, 0.2);
+        }
+
+        .promo-item:last-child {
+            border-bottom: none;
+        }
+
+        .promo-item-code {
+            font-family: monospace;
+            color: #ffd966;
+            font-weight: bold;
+        }
+
+        .promo-item-bonus {
+            color: #34c759;
+            font-size: 12px;
+        }
+
+        .promo-item-delete {
+            background: none;
+            border: none;
+            color: #ff3b30;
+            cursor: pointer;
+            font-size: 18px;
+            padding: 0 5px;
+        }
+
+        /* Информация */
         .info-section {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
@@ -1100,6 +1213,10 @@
             
             .promo-apply-btn {
                 padding: 12px;
+            }
+
+            .admin-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
@@ -1327,6 +1444,30 @@
             </div>
         </div>
 
+        <!-- НОВОЕ: Админ-панель для управления промокодами -->
+        <div class="admin-section" id="adminPanel" style="display: none;">
+            <div class="admin-title">👑 Управление промокодами</div>
+            
+            <div class="admin-grid">
+                <input type="text" class="admin-input" id="newPromoCode" placeholder="Код промокода (например: SUMMER2024)">
+                <input type="number" class="admin-input" id="newPromoBonus" placeholder="Бонус (свитки)" value="10" min="1" max="1000">
+            </div>
+            
+            <div class="admin-grid">
+                <button class="admin-button" id="addPromoBtn">➕ Добавить промокод</button>
+                <button class="admin-button delete" id="clearAllPromosBtn">🗑️ Очистить все</button>
+            </div>
+            
+            <div class="admin-title" style="font-size: 16px; margin: 15px 0 10px;">📋 Список активных промокодов</div>
+            <div class="promo-list" id="promoList">
+                <!-- Список будет заполняться динамически -->
+            </div>
+            
+            <div style="margin-top: 15px; font-size: 12px; color: #8e8e93; text-align: center;">
+                ⚠️ Промокоды чувствительны к регистру, используйте заглавные буквы
+            </div>
+        </div>
+
         <!-- Информация о заведении -->
         <section class="info-section">
             <div class="info-title">
@@ -1392,7 +1533,6 @@
             <button class="scanner-close" id="closeScanner">&times;</button>
         </div>
         <video id="qr-video" autoplay playsinline></video>
-        <!-- Сообщение об ошибке камеры -->
         <div id="cameraError" class="camera-error" style="display: none;">
             <p>❌ Не удалось получить доступ к камере</p>
         </div>
@@ -1421,21 +1561,105 @@
                 tgUser = tg.initDataUnsafe?.user;
             }
             
-            // Массив использованных промокодов
-            let usedPromoCodes = [];
+            // ========== НОВОЕ: Список администраторов ==========
+            const ADMINS = [1709039111, 8729627281]; // Замените на реальные ID администраторов
+            // Например: const ADMINS = [872962728, 123456789];
             
-            // Загружаем использованные промокоды из localStorage
-            function loadUsedPromoCodes() {
-                const saved = localStorage.getItem('used_promo_codes');
+            // ========== НОВОЕ: Хранилище промокодов (глобальное) ==========
+            let activePromoCodes = [];
+            
+            // Загружаем активные промокоды
+            function loadActivePromoCodes() {
+                const saved = localStorage.getItem('active_promo_codes');
                 if (saved) {
                     try {
-                        usedPromoCodes = JSON.parse(saved);
+                        activePromoCodes = JSON.parse(saved);
                     } catch (e) {
-                        usedPromoCodes = [];
+                        activePromoCodes = [];
+                    }
+                } else {
+                    // Добавляем начальные промокоды
+                    activePromoCodes = [
+                        { code: 'NEW', bonus: 15 },
+                        { code: 'BONUS', bonus: 20 },
+                        { code: 'GIFT', bonus: 25 },
+                        { code: 'SUMMER', bonus: 30 },
+                        { code: 'WELCOME', bonus: 10 },
+                        { code: 'VIP', bonus: 40 },
+                        { code: 'FARAON', bonus: 50 }
+                    ];
+                    saveActivePromoCodes();
+                }
+                updatePromoListUI();
+            }
+            
+            // Сохраняем активные промокоды
+            function saveActivePromoCodes() {
+                localStorage.setItem('active_promo_codes', JSON.stringify(activePromoCodes));
+                updatePromoListUI();
+            }
+            
+            // Обновляем отображение списка промокодов
+            function updatePromoListUI() {
+                const promoList = document.getElementById('promoList');
+                if (!promoList) return;
+                
+                if (activePromoCodes.length === 0) {
+                    promoList.innerHTML = '<div style="text-align: center; color: #8e8e93; padding: 20px;">📭 Нет активных промокодов</div>';
+                    return;
+                }
+                
+                let html = '';
+                activePromoCodes.forEach((promo, index) => {
+                    html += `
+                        <div class="promo-item">
+                            <span class="promo-item-code">${promo.code}</span>
+                            <span class="promo-item-bonus">+${promo.bonus} 🎁</span>
+                            <button class="promo-item-delete" onclick="deletePromo(${index})">✖</button>
+                        </div>
+                    `;
+                });
+                promoList.innerHTML = html;
+            }
+            
+            // Удаление промокода
+            window.deletePromo = function(index) {
+                if (confirm('Удалить промокод?')) {
+                    activePromoCodes.splice(index, 1);
+                    saveActivePromoCodes();
+                }
+            };
+            
+            // Проверка, является ли пользователь администратором
+            function isAdmin() {
+                return tgUser && ADMINS.includes(tgUser.id);
+            }
+            
+            // ========== Хранилище активированных промокодов для каждого пользователя ==========
+            function getUserPromoKey() {
+                if (!tgUser) return `temp_activated_promos`;
+                return `user_${tgUser.id}_activated_promos`;
+            }
+
+            function loadUserActivatedPromos() {
+                const key = getUserPromoKey();
+                const saved = localStorage.getItem(key);
+                if (saved) {
+                    try {
+                        return JSON.parse(saved);
+                    } catch (e) {
+                        return [];
                     }
                 }
+                return [];
             }
-            loadUsedPromoCodes();
+
+            function saveUserActivatedPromos(promos) {
+                const key = getUserPromoKey();
+                localStorage.setItem(key, JSON.stringify(promos));
+            }
+
+            let userActivatedPromos = loadUserActivatedPromos();
             
             // Звуки для действий
             const sounds = {
@@ -1446,12 +1670,10 @@
                 spin: new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3')
             };
             
-            // Настраиваем громкость
             Object.values(sounds).forEach(sound => {
                 sound.volume = 0.2;
             });
             
-            // Функция для воспроизведения звука
             function playSound(soundName) {
                 if (soundEnabled && sounds[soundName]) {
                     sounds[soundName].currentTime = 0;
@@ -1459,7 +1681,6 @@
                 }
             }
             
-            // Функция для анимации чисел
             function showFloatingNumber(number, x, y, isPositive = true) {
                 const floating = document.createElement('div');
                 floating.className = 'floating-number';
@@ -1474,7 +1695,6 @@
                 }, 1000);
             }
             
-            // Функция для анимации статистики
             function animateStat(statElement) {
                 statElement.classList.add('pulse');
                 setTimeout(() => {
@@ -1490,7 +1710,6 @@
             let progress = 0;
             let chestAvailable = true;
             let chestEndTime = null;
-            let currentDiscount = null;
             let soundEnabled = true;
             let turboActive = false;
             
@@ -1584,15 +1803,24 @@
             const manualPromoResult = document.getElementById('manualPromoResult');
             const manualPromoMessage = document.getElementById('manualPromoMessage');
             const manualPromoCodeDisplay = document.getElementById('manualPromoCodeDisplay');
-
+            
+            // НОВЫЕ: Элементы админ-панели
+            const adminPanel = document.getElementById('adminPanel');
+            const newPromoCode = document.getElementById('newPromoCode');
+            const newPromoBonus = document.getElementById('newPromoBonus');
+            const addPromoBtn = document.getElementById('addPromoBtn');
+            const clearAllPromosBtn = document.getElementById('clearAllPromosBtn');
+            
             // Переменные для сканера
             let canvasElement = document.createElement('canvas');
             let canvas = canvasElement.getContext('2d');
             let scanning = false;
             let cameraStream = null;
 
-            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ИНДИВИДУАЛЬНЫМИ ДАННЫМИ ==========
-            
+            // Загружаем активные промокоды
+            loadActivePromoCodes();
+
+            // Функции для работы с данными пользователя
             function getUserKey(key) {
                 if (!tgUser) return key;
                 return `user_${tgUser.id}_${key}`;
@@ -1662,7 +1890,6 @@
                         discounts = data.discounts || 0;
                         progress = data.progress || 0;
                         
-                        // Восстанавливаем состояние сундука
                         if (data.chestEndTime) {
                             chestEndTime = new Date(data.chestEndTime);
                             const now = new Date();
@@ -1693,15 +1920,17 @@
 
             function hasUserPromo() {
                 if (!tgUser) return false;
-                return localStorage.getItem(getUserKey('promo_activated')) === 'true';
+                return userActivatedPromos.includes('SUBSCRIPTION_BONUS');
             }
 
             function setUserPromo() {
                 if (!tgUser) return;
-                localStorage.setItem(getUserKey('promo_activated'), 'true');
+                if (!userActivatedPromos.includes('SUBSCRIPTION_BONUS')) {
+                    userActivatedPromos.push('SUBSCRIPTION_BONUS');
+                    saveUserActivatedPromos(userActivatedPromos);
+                }
             }
 
-            // Функция для обновления таймера сундука
             function startChestTimer() {
                 if (!chestEndTime) {
                     chestEndTime = new Date();
@@ -1733,19 +1962,18 @@
                     
                     chestTimer.textContent = `${hours}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
                     
-                    const totalTime = 2 * 60 * 60 * 1000; // 2 часа в миллисекундах
+                    const totalTime = 2 * 60 * 60 * 1000;
                     const progress = ((totalTime - diff) / totalTime) * 100;
                     chestProgressFill.style.width = progress + '%';
                 }, 1000);
             }
 
-            // Звук
             soundBtn.addEventListener('click', () => {
                 soundEnabled = !soundEnabled;
                 soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
             });
 
-            // ========== СКАНЕР QR С ОБРАБОТКОЙ ОШИБОК ==========
+            // Сканер QR
             async function startCamera() {
                 try {
                     cameraStream = await navigator.mediaDevices.getUserMedia({ 
@@ -1841,7 +2069,7 @@
             qrButton.addEventListener('click', startCamera);
             closeScanner.addEventListener('click', stopScanner);
 
-            // ========== ОТПРАВКА ВЫЗОВА ==========
+            // Отправка вызова
             sendHookahBtn.addEventListener('click', async () => {
                 if (!tableVerified || !tableNumber) {
                     hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
@@ -1894,7 +2122,7 @@
                 sendHookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
             });
 
-            // ========== ИГРА С НОВЫМИ АНИМАЦИЯМИ ==========
+            // Игра
             function updateUI() {
                 puffDisplay.textContent = puffs;
                 scrollDisplay.textContent = scrolls;
@@ -1969,7 +2197,6 @@
                 
                 if (progress > 100) progress = 100;
                 
-                // Анимации
                 playSound('puff');
                 
                 const rect = puffBtn.getBoundingClientRect();
@@ -2006,7 +2233,6 @@
                 const oldScrolls = scrolls;
                 scrolls += bonus;
                 
-                // Анимации
                 playSound('chest');
                 
                 const rect = chestBtn.getBoundingClientRect();
@@ -2137,19 +2363,14 @@
             chestBtn.addEventListener('click', openChest);
             spinBtn.addEventListener('click', spinSlots);
 
-            // ========== ПРОМОКОДЫ - ИСПРАВЛЕНО ==========
-            
-            // Функция проверки подписки с таймаутом
+            // Промокоды
             async function checkSubscription(channelUsername) {
                 return new Promise((resolve) => {
-                    // Устанавливаем таймаут 3 секунды
                     const timeout = setTimeout(() => {
                         resolve(false);
                     }, 3000);
                     
                     try {
-                        // В реальном приложении здесь должен быть запрос к API бота
-                        // Сейчас просто эмулируем успешную проверку
                         setTimeout(() => {
                             clearTimeout(timeout);
                             resolve(true);
@@ -2209,12 +2430,6 @@
                 return code;
             }
 
-            function hidePromoBlock() {
-                if (promoBlock) {
-                    promoBlock.classList.add('hidden');
-                }
-            }
-
             getPromoBtn.addEventListener('click', async () => {
                 if (!tgUser) {
                     promoResult.className = 'promo-result error';
@@ -2246,7 +2461,6 @@
                     const oldScrolls = scrolls;
                     scrolls += 5;
                     
-                    // Анимация
                     animateStat(scrollDisplay);
                     const rect = getPromoBtn.getBoundingClientRect();
                     showFloatingNumber('+5 🎁', rect.left + rect.width/2, rect.top);
@@ -2294,7 +2508,7 @@
                 getPromoBtn.innerHTML = '<span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ';
             });
 
-            // ========== ИСПРАВЛЕНО: Ручной ввод промокода ==========
+            // ========== ИСПРАВЛЕНО: Активация промокода с проверкой из списка активных ==========
             applyPromoBtn.addEventListener('click', async (event) => {
                 event.preventDefault();
                 console.log('Кнопка активации нажата');
@@ -2309,40 +2523,33 @@
                     return;
                 }
 
-                // Проверка на дублирование промокодов
-                if (usedPromoCodes.includes(code)) {
+                // Проверяем, активировал ли этот пользователь этот промокод
+                if (userActivatedPromos.includes(code)) {
+                    console.log('❌ Пользователь уже активировал этот промокод:', code);
                     manualPromoResult.className = 'promo-result error';
-                    manualPromoMessage.innerHTML = '❌ Этот промокод уже использован';
+                    manualPromoMessage.innerHTML = '❌ Вы уже активировали этот промокод';
                     manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
-                // Список валидных промокодов
-                const validCodes = ['NEW', 'BONUS', 'GIFT', 'SUMMER', 'WELCOME', 'VIP', 'FARAON'];
+                // Ищем промокод в списке активных
+                const promo = activePromoCodes.find(p => p.code === code);
                 
-                if (!validCodes.includes(code)) {
+                if (!promo) {
                     manualPromoResult.className = 'promo-result error';
                     manualPromoMessage.innerHTML = '❌ Неверный промокод';
                     manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
-                console.log('Промокод валидный, активируем...');
+                console.log('✅ Промокод найден, активируем для пользователя...');
 
-                // Добавляем в список использованных
-                usedPromoCodes.push(code);
-                localStorage.setItem('used_promo_codes', JSON.stringify(usedPromoCodes));
-                
-                let bonus = 10;
-                if (code === 'NEW') bonus = 15;
-                if (code === 'BONUS') bonus = 20;
-                if (code === 'GIFT') bonus = 25;
-                if (code === 'SUMMER') bonus = 30;
-                if (code === 'VIP') bonus = 40;
-                if (code === 'FARAON') bonus = 50;
+                // Добавляем в список активированных промокодов пользователя
+                userActivatedPromos.push(code);
+                saveUserActivatedPromos(userActivatedPromos);
                 
                 const oldScrolls = scrolls;
-                scrolls += bonus;
+                scrolls += promo.bonus;
                 
                 console.log('Свитки после активации:', scrolls);
                 
@@ -2352,10 +2559,10 @@
                 // Анимация
                 animateStat(scrollDisplay);
                 const rect = applyPromoBtn.getBoundingClientRect();
-                showFloatingNumber('+' + bonus + ' 🔑', rect.left + rect.width/2, rect.top);
+                showFloatingNumber('+' + promo.bonus + ' 🔑', rect.left + rect.width/2, rect.top);
                 
                 manualPromoResult.className = 'promo-result success';
-                manualPromoMessage.innerHTML = `✅ Промокод активирован! +${bonus} свитков`;
+                manualPromoMessage.innerHTML = `✅ Промокод активирован! +${promo.bonus} свитков`;
                 manualPromoCodeDisplay.innerHTML = code;
                 
                 if (tgUser) {
@@ -2364,7 +2571,7 @@
                             `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
                             `🆔 ID: ${tgUser.id}\n` +
                             `🔑 Код: <code>${code}</code>\n` +
-                            `💰 Бонус: +${bonus} свитков\n` +
+                            `💰 Бонус: +${promo.bonus} свитков\n` +
                             `⏰ Время: ${new Date().toLocaleString()}`;
                         
                         await fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
@@ -2385,8 +2592,45 @@
                 saveUserProgress();
             });
 
-            // Добавляем обработчик для отладки
-            console.log('applyPromoBtn:', applyPromoBtn);
+            // ========== НОВОЕ: Функции админ-панели ==========
+            
+            // Добавление нового промокода
+            addPromoBtn.addEventListener('click', () => {
+                const code = newPromoCode.value.trim().toUpperCase();
+                const bonus = parseInt(newPromoBonus.value);
+                
+                if (!code) {
+                    alert('Введите код промокода');
+                    return;
+                }
+                
+                if (isNaN(bonus) || bonus < 1 || bonus > 1000) {
+                    alert('Введите корректный бонус (1-1000)');
+                    return;
+                }
+                
+                // Проверяем, не существует ли уже такой код
+                if (activePromoCodes.some(p => p.code === code)) {
+                    alert('Промокод с таким кодом уже существует');
+                    return;
+                }
+                
+                activePromoCodes.push({ code, bonus });
+                saveActivePromoCodes();
+                
+                newPromoCode.value = '';
+                newPromoBonus.value = '10';
+                
+                alert(`Промокод ${code} успешно добавлен!`);
+            });
+            
+            // Очистка всех промокодов
+            clearAllPromosBtn.addEventListener('click', () => {
+                if (confirm('Вы уверены, что хотите удалить ВСЕ промокоды?')) {
+                    activePromoCodes = [];
+                    saveActivePromoCodes();
+                }
+            });
 
             // Отображение пользователя Telegram и загрузка его прогресса
             if (tgUser) {
@@ -2400,21 +2644,30 @@
                     userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
                 }
                 
+                // Загружаем активированные промокоды пользователя
+                userActivatedPromos = loadUserActivatedPromos();
+                console.log(`Загружены активированные промокоды для пользователя ${tgUser.id}:`, userActivatedPromos);
+                
                 loadUserProgress();
                 
                 if (hasUserPromo() && promoBlock) {
                     promoBlock.classList.add('hidden');
                 }
+                
+                // Показываем админ-панель, если пользователь администратор
+                if (isAdmin()) {
+                    adminPanel.style.display = 'block';
+                    console.log('👑 Админ панель активирована');
+                }
             } else {
                 loadUserProgress();
             }
 
-            // Автосохранение каждые 30 секунд
+            // Автосохранение
             setInterval(() => {
                 saveUserProgress();
             }, 30000);
 
-            // Сохранение при закрытии
             window.addEventListener('beforeunload', () => {
                 saveUserProgress();
             });
