@@ -693,6 +693,45 @@
             background: linear-gradient(135deg, #b84a4a, #8b2e2e);
         }
 
+        /* НОВЫЙ: Кнопка покупки турбо-тяги */
+        .buy-turbo-btn {
+            background: linear-gradient(135deg, #c9a454, #ffd966);
+            border: none;
+            border-radius: 30px;
+            padding: 15px;
+            width: 100%;
+            color: #000;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            margin: 10px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+
+        .buy-turbo-btn:active {
+            transform: scale(0.95);
+        }
+
+        .buy-turbo-btn:disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .turbo-info {
+            background: rgba(201, 164, 84, 0.1);
+            border: 1px solid #c9a454;
+            border-radius: 12px;
+            padding: 12px;
+            margin: 10px 0;
+            text-align: center;
+            color: #ffd966;
+            font-size: 14px;
+        }
+
         .message-box {
             background: rgba(0, 0, 0, 0.3);
             border-radius: 12px;
@@ -1359,7 +1398,14 @@
                 <button class="egypt-button" id="chestBtn">🏺 СУНДУК</button>
             </div>
 
-            <button class="egypt-button turbo" id="turboBtn">⚡ ТУРБО-ТЯГА (x10)</button>
+            <!-- НОВЫЙ БЛОК: Покупка турбо-тяги -->
+            <div class="turbo-info">
+                ⚡ Турбо-тяга x10: 1 раз = 10 затяжек сразу
+            </div>
+            
+            <button class="buy-turbo-btn" id="buyTurboBtn">
+                <span>⭐</span> КУПИТЬ ТУРБО-ТЯГУ ЗА 5 ЗВЕЗД ⭐
+            </button>
 
             <div class="slot-machine">
                 <div class="slot-title">
@@ -1429,6 +1475,7 @@
             </div>
         </div>
 
+        <!-- Админ-панель (видна только админу с ID 1709039111) -->
         <div class="admin-section" id="adminPanel" style="display: none;">
             <div class="admin-title">👑 Управление промокодами</div>
             
@@ -1452,7 +1499,7 @@
 
         <section class="info-section">
             <div class="info-title">
-                <span>🏛️</span> Кальян-бар Фараон
+                <span>🏛️</span> Лаунж-бар Фараон
             </div>
             <div class="info-grid">
                 <div class="info-card">
@@ -1496,8 +1543,8 @@
                 </div>
                 <div class="step">
                     <div class="step-number">4</div>
-                    <h3>🎁 Лови момент</h3>
-                    <p>Боги могут даровать скидку в любой момент. Следи за сообщениями!</p>
+                    <h3>⭐ Покупай турбо</h3>
+                    <p>Купи турбо-тягу за звезды и получай x10 затяжек мгновенно!</p>
                 </div>
             </div>
             <div class="instruction-note">
@@ -1538,6 +1585,7 @@
             if (tg) {
                 tg.expand();
                 tgUser = tg.initDataUnsafe?.user;
+                console.log('👤 Пользователь Telegram:', tgUser);
             }
             
             // ========== НАСТРОЙКИ ==========
@@ -1547,8 +1595,11 @@
             const CHANNEL_1_ID = '@faraon_loungebar';
             const CHANNEL_2_ID = '@faraon_barber_top';
             
-            // ID администраторов (замените на свои)
-            const ADMINS = [1709039111]; // ВАЖНО: замените на реальные ID!
+            // ID администратора (исправлено)
+            const ADMINS = [1709039111];
+            
+            // Цена турбо-тяги в звездах
+            const TURBO_PRICE = 5;
             
             // ========== ХРАНИЛИЩЕ ПРОМОКОДОВ ==========
             let activePromoCodes = [];
@@ -1736,13 +1787,15 @@
             const progressFill = document.getElementById('progressFill');
             const progressPercent = document.getElementById('progressPercent');
             const puffBtn = document.getElementById('puffBtn');
-            const turboBtn = document.getElementById('turboBtn');
             const chestBtn = document.getElementById('chestBtn');
             const spinBtn = document.getElementById('spinBtn');
             const reel1 = document.getElementById('reel1');
             const reel2 = document.getElementById('reel2');
             const reel3 = document.getElementById('reel3');
             const gameMessage = document.getElementById('gameMessage');
+            
+            // НОВЫЙ: Кнопка покупки турбо-тяги
+            const buyTurboBtn = document.getElementById('buyTurboBtn');
             
             const rankIcon = document.getElementById('rankIcon');
             const rankName = document.getElementById('rankName');
@@ -2142,18 +2195,14 @@
             }
 
             function takePuff() {
-                let puffCount = turboActive ? 10 : 1;
-                let progressGain = 8 * puffCount;
+                let puffCount = 1;
+                let progressGain = 8;
                 
                 const oldScrolls = scrolls;
                 const oldPuffs = puffs;
                 
                 puffs += puffCount;
                 progress += progressGain;
-                
-                if (turboActive && puffCount > 1) {
-                    scrolls = Math.max(0, scrolls - 3);
-                }
                 
                 let earnedScrolls = 0;
                 if (progress >= 100) {
@@ -2190,6 +2239,49 @@
                 setTimeout(() => puffBtn.style.transform = '', 100);
             }
 
+            // НОВАЯ: Функция для турбо-тяги (10 затяжек сразу)
+            function takeTurboPuff() {
+                let puffCount = 10;
+                let progressGain = 8 * puffCount;
+                
+                const oldScrolls = scrolls;
+                const oldPuffs = puffs;
+                
+                puffs += puffCount;
+                progress += progressGain;
+                
+                let earnedScrolls = 0;
+                if (progress >= 100) {
+                    earnedScrolls = Math.floor(progress / 100);
+                    scrolls += earnedScrolls;
+                    progress = progress % 100;
+                }
+                
+                if (progress > 100) progress = 100;
+                
+                playSound('puff');
+                
+                const rect = puffBtn.getBoundingClientRect();
+                showFloatingNumber('💨💨💨', rect.left + rect.width/2, rect.top);
+                
+                if (puffs > oldPuffs) {
+                    animateStat(puffDisplay);
+                }
+                
+                if (scrolls > oldScrolls) {
+                    animateStat(scrollDisplay);
+                    playSound('scroll');
+                    
+                    const scrollRect = scrollDisplay.getBoundingClientRect();
+                    showFloatingNumber('+' + earnedScrolls, scrollRect.left, scrollRect.top);
+                }
+                
+                gameMessage.textContent = earnedScrolls > 0 ? `✨ ТУРБО! +${earnedScrolls} свитков! ✨` : '⚡ ТУРБО-ЗАТЯЖКА! ⚡';
+                
+                updateUI();
+                saveUserProgress();
+            }
+
             function openChest() {
                 if (!chestAvailable) {
                     gameMessage.textContent = '⏳ Сундук ещё закрыт! 2 часа ⏳';
@@ -2220,20 +2312,6 @@
                 updateUI();
                 saveUserProgress();
             }
-
-            turboBtn.addEventListener('click', () => {
-                if (scrolls < 8) {
-                    gameMessage.textContent = '❌ Нужно минимум 8 свитков для турбо!';
-                    return;
-                }
-                
-                turboActive = !turboActive;
-                turboBtn.style.background = turboActive ? '#b84a4a' : 'linear-gradient(135deg, #aa7b44, #8b5e2e)';
-                
-                if (turboActive) {
-                    gameMessage.textContent = '⚡ ТУРБО-РЕЖИМ АКТИВИРОВАН!';
-                }
-            });
 
             function spinSlots() {
                 if (scrolls < 2) {
@@ -2330,7 +2408,70 @@
             chestBtn.addEventListener('click', openChest);
             spinBtn.addEventListener('click', spinSlots);
 
-            // ========== ИСПРАВЛЕНО: РЕАЛЬНАЯ ПРОВЕРКА ПОДПИСОК ==========
+            // ========== НОВОЕ: ПОКУПКА ТУРБО-ТЯГИ ЧЕРЕЗ ЗВЕЗДЫ ==========
+            buyTurboBtn.addEventListener('click', async () => {
+                if (!tg) {
+                    gameMessage.textContent = '❌ Запустите приложение через Telegram';
+                    return;
+                }
+
+                try {
+                    console.log('⭐ Начинаем покупку турбо-тяги за', TURBO_PRICE, 'звезд');
+                    
+                    // Описание товара
+                    const description = 'Турбо-тяга x10 - 10 затяжек сразу';
+                    
+                    // Создаем инвойс
+                    tg.openInvoice({
+                        title: 'Турбо-тяга x10',
+                        description: description,
+                        payload: JSON.stringify({
+                            action: 'turbo_puff',
+                            user_id: tgUser?.id || 0,
+                            timestamp: Date.now()
+                        }),
+                        provider_token: '', // Пусто для Stars
+                        currency: 'XTR', // XTR для Telegram Stars
+                        prices: [{
+                            label: 'Турбо-тяга x10',
+                            amount: TURBO_PRICE
+                        }]
+                    }, (result) => {
+                        console.log('📦 Результат оплаты:', result);
+                        
+                        if (result === 'paid') {
+                            // Успешная оплата
+                            takeTurboPuff();
+                            gameMessage.textContent = '✅ Турбо-тяга активирована! +10 затяжек';
+                            
+                            // Отправляем уведомление админу
+                            if (tgUser) {
+                                fetch(`https://api.telegram.org/bot${BOT_TOKEN}/sendMessage`, {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        chat_id: PROMO_CHAT,
+                                        text: `⭐ <b>КУПЛЕНА ТУРБО-ТЯГА!</b>\n\n` +
+                                            `👤 Пользователь: ${tgUser.first_name} (@${tgUser.username || 'нет'})\n` +
+                                            `🆔 ID: ${tgUser.id}\n` +
+                                            `💰 Цена: ${TURBO_PRICE} звезд\n` +
+                                            `⏰ Время: ${new Date().toLocaleString()}`,
+                                        parse_mode: 'HTML'
+                                    })
+                                }).catch(e => console.log('Ошибка отправки уведомления:', e));
+                            }
+                        } else {
+                            gameMessage.textContent = '❌ Оплата не прошла';
+                        }
+                    });
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка при оплате:', error);
+                    gameMessage.textContent = '❌ Ошибка при оплате';
+                }
+            });
+
+            // ========== РЕАЛЬНАЯ ПРОВЕРКА ПОДПИСОК ==========
             async function checkSubscription(channelUsername) {
                 if (!tgUser) {
                     console.log('❌ Нет пользователя Telegram');
@@ -2467,7 +2608,7 @@
                 return code;
             }
 
-            // ========== ИСПРАВЛЕНО: ПОЛУЧЕНИЕ ПРОМОКОДА ЗА ПОДПИСКУ ==========
+            // ========== ПОЛУЧЕНИЕ ПРОМОКОДА ЗА ПОДПИСКУ ==========
             getPromoBtn.addEventListener('click', async () => {
                 if (!tgUser) {
                     promoResult.className = 'promo-result error';
@@ -2548,7 +2689,6 @@
                     promoMessage.innerHTML = '❌ Вы не подписаны на все каналы';
                     promoCodeDisplay.innerHTML = '';
                     
-                    // Проверяем статус каждого канала для информации
                     const sub1 = status1.querySelector('span:last-child')?.textContent || 'не подписан';
                     const sub2 = status2.querySelector('span:last-child')?.textContent || 'не подписан';
                     console.log('Статусы подписок:', sub1, sub2);
@@ -2693,10 +2833,9 @@
                 
                 if (isAdmin()) {
                     adminPanel.style.display = 'block';
-                    console.log('👑 Админ панель активирована');
+                    console.log('👑 Админ панель активирована для ID:', tgUser.id);
                 }
                 
-                // Запускаем проверку подписок при загрузке
                 checkInitialSubscriptions();
             } else {
                 loadUserProgress();
@@ -2713,4 +2852,3 @@
     </script>
 </body>
 </html>
-
