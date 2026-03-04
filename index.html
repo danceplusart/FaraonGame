@@ -7,7 +7,6 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <script src="https://unpkg.com/jsqr@1.4.0/dist/jsQR.js"></script>
     <style>
-        /* Все существующие стили остаются */
         * {
             margin: 0;
             padding: 0;
@@ -137,7 +136,6 @@
             color: #8e8e93;
         }
 
-        /* Секция вызова кальянщика */
         .hookah-section {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
@@ -253,7 +251,6 @@
             pointer-events: none;
         }
 
-        /* Сканер QR */
         .scanner-modal {
             display: none;
             position: fixed;
@@ -324,7 +321,6 @@
             margin-bottom: 20px;
         }
 
-        /* Прогресс-бар для сундука */
         .chest-progress-container {
             margin: 15px 0;
             padding: 15px;
@@ -355,7 +351,6 @@
             transition: width 1s linear;
         }
 
-        /* Анимация всплывающих чисел */
         .floating-number {
             position: fixed;
             color: #ffd966;
@@ -388,7 +383,6 @@
             100% { transform: scale(1); }
         }
 
-        /* Игра */
         .game-wrapper {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 24px;
@@ -709,7 +703,6 @@
             margin-top: 15px;
         }
 
-        /* Промокоды */
         .promo-block {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
@@ -921,7 +914,6 @@
             transform: scale(0.95);
         }
 
-        /* НОВОЕ: Админ-панель */
         .admin-section {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
@@ -1034,7 +1026,6 @@
             padding: 0 5px;
         }
 
-        /* Информация */
         .info-section {
             background: rgba(30, 30, 30, 0.95);
             border-radius: 20px;
@@ -1233,7 +1224,6 @@
     </header>
 
     <main class="main-content">
-        <!-- Информация о пользователе -->
         <div class="user-card" id="telegramUser" style="display: none;">
             <img class="user-avatar" id="userAvatar" src="" alt="">
             <div class="user-info">
@@ -1242,7 +1232,6 @@
             </div>
         </div>
 
-        <!-- Вызов кальянщика -->
         <section class="hookah-section">
             <div class="section-title">
                 <span>🔔</span> Вызов кальянщика
@@ -1262,7 +1251,6 @@
             <div id="hookahStatus" class="status-message"></div>
         </section>
 
-        <!-- Прогресс-бар для сундука -->
         <div class="chest-progress-container" id="chestProgressContainer" style="display: none;">
             <div class="chest-timer">
                 <span>🏺 Сундук откроется через:</span>
@@ -1273,7 +1261,6 @@
             </div>
         </div>
 
-        <!-- Игра -->
         <section class="game-wrapper">
             <div class="game-header">
                 <div class="game-title">𓂀 Проклятие Фараона</div>
@@ -1389,7 +1376,6 @@
             </div>
         </section>
 
-        <!-- Промокоды за подписку -->
         <div class="promo-block" id="promoBlock">
             <div class="promo-title">
                 <span>🎁</span> Получи бонус за подписку
@@ -1429,7 +1415,6 @@
             </div>
         </div>
 
-        <!-- Ручной ввод промокода -->
         <div class="manual-promo-block">
             <div class="manual-promo-title">
                 <span>🔑</span> Ввести промокод
@@ -1444,7 +1429,6 @@
             </div>
         </div>
 
-        <!-- НОВОЕ: Админ-панель для управления промокодами -->
         <div class="admin-section" id="adminPanel" style="display: none;">
             <div class="admin-title">👑 Управление промокодами</div>
             
@@ -1459,16 +1443,13 @@
             </div>
             
             <div class="admin-title" style="font-size: 16px; margin: 15px 0 10px;">📋 Список активных промокодов</div>
-            <div class="promo-list" id="promoList">
-                <!-- Список будет заполняться динамически -->
-            </div>
+            <div class="promo-list" id="promoList"></div>
             
             <div style="margin-top: 15px; font-size: 12px; color: #8e8e93; text-align: center;">
                 ⚠️ Промокоды чувствительны к регистру, используйте заглавные буквы
             </div>
         </div>
 
-        <!-- Информация о заведении -->
         <section class="info-section">
             <div class="info-title">
                 <span>🏛️</span> Лаунж-бар Фараон
@@ -1493,7 +1474,6 @@
             </div>
         </section>
 
-        <!-- Инструкция -->
         <section class="instructions">
             <h2>
                 <span>🎯</span> Как получить скидку 10%
@@ -1526,7 +1506,6 @@
         </section>
     </main>
 
-    <!-- Сканер QR -->
     <div class="scanner-modal" id="scannerModal">
         <div class="scanner-header">
             <div class="scanner-title">📷 Наведите на QR-код столика</div>
@@ -1561,14 +1540,19 @@
                 tgUser = tg.initDataUnsafe?.user;
             }
             
-            // ========== НОВОЕ: Список администраторов ==========
-            const ADMINS = [1709039111, 8729627281]; // Замените на реальные ID администраторов
-            // Например: const ADMINS = [872962728, 123456789];
+            // ========== НАСТРОЙКИ ==========
+            const BOT_TOKEN = '8729627281:AAFxcCPITUhVZYO3H4nMp_dMdXOdI9weKqc';
+            const HOOKAH_CHAT = '@faraon_Stol';
+            const PROMO_CHAT = '@faraon_promo';
+            const CHANNEL_1_ID = '@faraon_loungebar';
+            const CHANNEL_2_ID = '@faraon_barber_top';
             
-            // ========== НОВОЕ: Хранилище промокодов (глобальное) ==========
+            // ID администраторов (замените на свои)
+            const ADMINS = [1709039111]; // ВАЖНО: замените на реальные ID!
+            
+            // ========== ХРАНИЛИЩЕ ПРОМОКОДОВ ==========
             let activePromoCodes = [];
             
-            // Загружаем активные промокоды
             function loadActivePromoCodes() {
                 const saved = localStorage.getItem('active_promo_codes');
                 if (saved) {
@@ -1578,7 +1562,6 @@
                         activePromoCodes = [];
                     }
                 } else {
-                    // Добавляем начальные промокоды
                     activePromoCodes = [
                         { code: 'NEW', bonus: 15 },
                         { code: 'BONUS', bonus: 20 },
@@ -1593,13 +1576,11 @@
                 updatePromoListUI();
             }
             
-            // Сохраняем активные промокоды
             function saveActivePromoCodes() {
                 localStorage.setItem('active_promo_codes', JSON.stringify(activePromoCodes));
                 updatePromoListUI();
             }
             
-            // Обновляем отображение списка промокодов
             function updatePromoListUI() {
                 const promoList = document.getElementById('promoList');
                 if (!promoList) return;
@@ -1622,7 +1603,6 @@
                 promoList.innerHTML = html;
             }
             
-            // Удаление промокода
             window.deletePromo = function(index) {
                 if (confirm('Удалить промокод?')) {
                     activePromoCodes.splice(index, 1);
@@ -1630,12 +1610,11 @@
                 }
             };
             
-            // Проверка, является ли пользователь администратором
             function isAdmin() {
                 return tgUser && ADMINS.includes(tgUser.id);
             }
             
-            // ========== Хранилище активированных промокодов для каждого пользователя ==========
+            // ========== ХРАНИЛИЩЕ АКТИВИРОВАННЫХ ПРОМОКОДОВ ПОЛЬЗОВАТЕЛЯ ==========
             function getUserPromoKey() {
                 if (!tgUser) return `temp_activated_promos`;
                 return `user_${tgUser.id}_activated_promos`;
@@ -1661,7 +1640,7 @@
 
             let userActivatedPromos = loadUserActivatedPromos();
             
-            // Звуки для действий
+            // ========== ЗВУКИ ==========
             const sounds = {
                 puff: new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'),
                 chest: new Audio('https://www.soundjay.com/misc/sounds/bell-ringing-05.mp3'),
@@ -1681,6 +1660,7 @@
                 }
             }
             
+            // ========== АНИМАЦИИ ==========
             function showFloatingNumber(number, x, y, isPositive = true) {
                 const floating = document.createElement('div');
                 floating.className = 'floating-number';
@@ -1702,7 +1682,7 @@
                 }, 300);
             }
             
-            // Переменные игры
+            // ========== ИГРОВЫЕ ПЕРЕМЕННЫЕ ==========
             let puffs = 0;
             let scrolls = 10;
             let wins = 0;
@@ -1713,16 +1693,9 @@
             let soundEnabled = true;
             let turboActive = false;
             
-            // Переменные для столика
             let tableVerified = false;
             let tableNumber = '';
             
-            // Токен бота и каналы
-            const BOT_TOKEN = '8729627281:AAFxcCPITUhVZYO3H4nMp_dMdXOdI9weKqc';
-            const HOOKAH_CHAT = '@faraon_Stol';
-            const PROMO_CHAT = '@faraon_promo';
-            
-            // Звания
             const rankTitles = [
                 { name: '👤 Раб', icon: '👤', requirement: 0 },
                 { name: '⚱️ Носильщик', icon: '⚱️', requirement: 500 },
@@ -1734,14 +1707,13 @@
             
             const symbols = ['𓆣', '𓁹', '𓋴', '𓃀', '𓊽', '𓎛', '𓂀'];
             
-            // DOM элементы
+            // ========== DOM ЭЛЕМЕНТЫ ==========
             const soundBtn = document.getElementById('soundBtn');
             const telegramUserDiv = document.getElementById('telegramUser');
             const userAvatar = document.getElementById('userAvatar');
             const userName = document.getElementById('userName');
             const userId = document.getElementById('userId');
             
-            // Элементы для вызова
             const qrButton = document.getElementById('qrButton');
             const tableInput = document.getElementById('tableNumber');
             const messageText = document.getElementById('messageText');
@@ -1752,12 +1724,10 @@
             const qrVideo = document.getElementById('qr-video');
             const cameraError = document.getElementById('cameraError');
             
-            // Элементы для прогресса сундука
             const chestProgressContainer = document.getElementById('chestProgressContainer');
             const chestTimer = document.getElementById('chestTimer');
             const chestProgressFill = document.getElementById('chestProgressFill');
             
-            // Элементы игры
             const levelDisplay = document.getElementById('levelDisplay');
             const puffDisplay = document.getElementById('puffDisplay');
             const scrollDisplay = document.getElementById('scrollDisplay');
@@ -1774,7 +1744,6 @@
             const reel3 = document.getElementById('reel3');
             const gameMessage = document.getElementById('gameMessage');
             
-            // Элементы званий
             const rankIcon = document.getElementById('rankIcon');
             const rankName = document.getElementById('rankName');
             const rankProgressText = document.getElementById('rankProgressText');
@@ -1788,7 +1757,6 @@
             const badge25Wins = document.getElementById('badge25Wins');
             const badge50Wins = document.getElementById('badge50Wins');
             
-            // Элементы промокодов
             const promoBlock = document.getElementById('promoBlock');
             const status1 = document.getElementById('status1');
             const status2 = document.getElementById('status2');
@@ -1804,23 +1772,21 @@
             const manualPromoMessage = document.getElementById('manualPromoMessage');
             const manualPromoCodeDisplay = document.getElementById('manualPromoCodeDisplay');
             
-            // НОВЫЕ: Элементы админ-панели
             const adminPanel = document.getElementById('adminPanel');
             const newPromoCode = document.getElementById('newPromoCode');
             const newPromoBonus = document.getElementById('newPromoBonus');
             const addPromoBtn = document.getElementById('addPromoBtn');
             const clearAllPromosBtn = document.getElementById('clearAllPromosBtn');
             
-            // Переменные для сканера
+            // ========== СКАНЕР ==========
             let canvasElement = document.createElement('canvas');
             let canvas = canvasElement.getContext('2d');
             let scanning = false;
             let cameraStream = null;
 
-            // Загружаем активные промокоды
             loadActivePromoCodes();
 
-            // Функции для работы с данными пользователя
+            // ========== ФУНКЦИИ ДЛЯ РАБОТЫ С ДАННЫМИ ПОЛЬЗОВАТЕЛЯ ==========
             function getUserKey(key) {
                 if (!tgUser) return key;
                 return `user_${tgUser.id}_${key}`;
@@ -1931,6 +1897,7 @@
                 }
             }
 
+            // ========== ТАЙМЕР СУНДУКА ==========
             function startChestTimer() {
                 if (!chestEndTime) {
                     chestEndTime = new Date();
@@ -1973,7 +1940,7 @@
                 soundBtn.textContent = soundEnabled ? '🔊' : '🔇';
             });
 
-            // Сканер QR
+            // ========== СКАНЕР QR ==========
             async function startCamera() {
                 try {
                     cameraStream = await navigator.mediaDevices.getUserMedia({ 
@@ -2069,7 +2036,7 @@
             qrButton.addEventListener('click', startCamera);
             closeScanner.addEventListener('click', stopScanner);
 
-            // Отправка вызова
+            // ========== ОТПРАВКА ВЫЗОВА ==========
             sendHookahBtn.addEventListener('click', async () => {
                 if (!tableVerified || !tableNumber) {
                     hookahStatus.textContent = '❌ Сначала отсканируйте QR-код столика';
@@ -2122,7 +2089,7 @@
                 sendHookahBtn.textContent = '🔔 ВЫЗВАТЬ КАЛЬЯНЩИКА';
             });
 
-            // Игра
+            // ========== ИГРА ==========
             function updateUI() {
                 puffDisplay.textContent = puffs;
                 scrollDisplay.textContent = scrolls;
@@ -2363,23 +2330,40 @@
             chestBtn.addEventListener('click', openChest);
             spinBtn.addEventListener('click', spinSlots);
 
-            // Промокоды
+            // ========== ИСПРАВЛЕНО: РЕАЛЬНАЯ ПРОВЕРКА ПОДПИСОК ==========
             async function checkSubscription(channelUsername) {
-                return new Promise((resolve) => {
-                    const timeout = setTimeout(() => {
-                        resolve(false);
-                    }, 3000);
+                if (!tgUser) {
+                    console.log('❌ Нет пользователя Telegram');
+                    return false;
+                }
+
+                try {
+                    console.log(`🔍 Проверяем подписку на ${channelUsername} для пользователя ${tgUser.id}`);
                     
-                    try {
-                        setTimeout(() => {
-                            clearTimeout(timeout);
-                            resolve(true);
-                        }, 1000);
-                    } catch (error) {
-                        clearTimeout(timeout);
-                        resolve(false);
+                    const url = `https://api.telegram.org/bot${BOT_TOKEN}/getChatMember?chat_id=${channelUsername}&user_id=${tgUser.id}`;
+                    
+                    const response = await fetch(url);
+                    const data = await response.json();
+                    
+                    console.log('📦 Ответ от Telegram:', data);
+                    
+                    if (data.ok) {
+                        const status = data.result.status;
+                        console.log(`📊 Статус пользователя в канале ${channelUsername}: ${status}`);
+                        
+                        const subscribedStatuses = ['member', 'administrator', 'creator'];
+                        const isSubscribed = subscribedStatuses.includes(status);
+                        
+                        console.log(isSubscribed ? '✅ Подписан' : '❌ Не подписан');
+                        return isSubscribed;
+                    } else {
+                        console.error('❌ Ошибка от Telegram API:', data.description);
+                        return false;
                     }
-                });
+                } catch (error) {
+                    console.error('❌ Ошибка при проверке подписки:', error);
+                    return false;
+                }
             }
 
             function updateChannelStatusUI(channelElement, statusElement, isSubscribed) {
@@ -2396,27 +2380,80 @@
 
             async function checkAllSubscriptions() {
                 if (!tgUser) {
-                    status1.innerHTML = '<span>❌</span> Нет данных';
-                    status2.innerHTML = '<span>❌</span> Нет данных';
+                    updateChannelStatusUI(channel1, status1, false);
+                    updateChannelStatusUI(channel2, status2, false);
                     return false;
                 }
 
                 status1.innerHTML = '<span>⏳</span> Проверка...';
                 status2.innerHTML = '<span>⏳</span> Проверка...';
                 
+                channel1.classList.remove('verified');
+                channel2.classList.remove('verified');
+                
                 try {
-                    const sub1 = await checkSubscription('faraon_loungebar');
-                    const sub2 = await checkSubscription('faraon_barber_top');
+                    const timeoutPromise = new Promise((resolve) => {
+                        setTimeout(() => {
+                            console.log('⏰ Таймаут проверки подписок');
+                            resolve({
+                                sub1: false,
+                                sub2: false,
+                                timeout: true
+                            });
+                        }, 5000);
+                    });
+                    
+                    const checkPromise = Promise.all([
+                        checkSubscription(CHANNEL_1_ID).catch(e => false),
+                        checkSubscription(CHANNEL_2_ID).catch(e => false)
+                    ]).then(([sub1, sub2]) => ({
+                        sub1,
+                        sub2,
+                        timeout: false
+                    }));
+                    
+                    const result = await Promise.race([checkPromise, timeoutPromise]);
+                    
+                    console.log('🏁 Результат проверки:', result);
+                    
+                    if (result.timeout) {
+                        updateChannelStatusUI(channel1, status1, false);
+                        updateChannelStatusUI(channel2, status2, false);
+                        return false;
+                    }
+                    
+                    updateChannelStatusUI(channel1, status1, result.sub1);
+                    updateChannelStatusUI(channel2, status2, result.sub2);
+                    
+                    return result.sub1 && result.sub2;
+                    
+                } catch (error) {
+                    console.error('❌ Ошибка при проверке подписок:', error);
+                    updateChannelStatusUI(channel1, status1, false);
+                    updateChannelStatusUI(channel2, status2, false);
+                    return false;
+                }
+            }
+
+            async function checkInitialSubscriptions() {
+                if (!tgUser) return;
+                
+                status1.innerHTML = '<span>⏳</span> Проверка...';
+                status2.innerHTML = '<span>⏳</span> Проверка...';
+                
+                try {
+                    const [sub1, sub2] = await Promise.all([
+                        checkSubscription(CHANNEL_1_ID).catch(e => false),
+                        checkSubscription(CHANNEL_2_ID).catch(e => false)
+                    ]);
                     
                     updateChannelStatusUI(channel1, status1, sub1);
                     updateChannelStatusUI(channel2, status2, sub2);
                     
-                    return sub1 && sub2;
                 } catch (error) {
-                    console.error('Ошибка проверки подписок:', error);
-                    status1.innerHTML = '<span>❌</span> Ошибка';
-                    status2.innerHTML = '<span>❌</span> Ошибка';
-                    return false;
+                    console.error('❌ Ошибка при начальной проверке:', error);
+                    updateChannelStatusUI(channel1, status1, false);
+                    updateChannelStatusUI(channel2, status2, false);
                 }
             }
 
@@ -2430,9 +2467,11 @@
                 return code;
             }
 
+            // ========== ИСПРАВЛЕНО: ПОЛУЧЕНИЕ ПРОМОКОДА ЗА ПОДПИСКУ ==========
             getPromoBtn.addEventListener('click', async () => {
                 if (!tgUser) {
                     promoResult.className = 'promo-result error';
+                    promoResult.style.display = 'block';
                     promoMessage.innerHTML = '❌ Запустите игру через Telegram бота';
                     promoCodeDisplay.innerHTML = '';
                     return;
@@ -2440,6 +2479,7 @@
 
                 if (hasUserPromo()) {
                     promoResult.className = 'promo-result error';
+                    promoResult.style.display = 'block';
                     promoMessage.innerHTML = '❌ Вы уже активировали промокод за подписку';
                     promoCodeDisplay.innerHTML = '';
                     if (promoBlock) {
@@ -2449,7 +2489,10 @@
                 }
 
                 getPromoBtn.disabled = true;
-                getPromoBtn.innerHTML = '<span>⏳</span> ПРОВЕРКА...';
+                getPromoBtn.innerHTML = '<span>⏳</span> ПРОВЕРКА ПОДПИСОК...';
+                
+                promoResult.className = 'promo-result';
+                promoResult.style.display = 'none';
                 
                 const allSubscribed = await checkAllSubscriptions();
                 
@@ -2466,6 +2509,7 @@
                     showFloatingNumber('+5 🎁', rect.left + rect.width/2, rect.top);
                     
                     promoResult.className = 'promo-result success';
+                    promoResult.style.display = 'block';
                     promoMessage.innerHTML = '✅ Промокод активирован! +5 свитков';
                     promoCodeDisplay.innerHTML = newCode;
                     
@@ -2500,68 +2544,66 @@
                     
                 } else {
                     promoResult.className = 'promo-result error';
-                    promoMessage.innerHTML = '❌ Подпишитесь на все каналы';
+                    promoResult.style.display = 'block';
+                    promoMessage.innerHTML = '❌ Вы не подписаны на все каналы';
                     promoCodeDisplay.innerHTML = '';
+                    
+                    // Проверяем статус каждого канала для информации
+                    const sub1 = status1.querySelector('span:last-child')?.textContent || 'не подписан';
+                    const sub2 = status2.querySelector('span:last-child')?.textContent || 'не подписан';
+                    console.log('Статусы подписок:', sub1, sub2);
                 }
                 
                 getPromoBtn.disabled = false;
                 getPromoBtn.innerHTML = '<span>🎁</span> ПОЛУЧИТЬ ПРОМОКОД ЗА ПОДПИСКУ';
             });
 
-            // ========== ИСПРАВЛЕНО: Активация промокода с проверкой из списка активных ==========
+            // ========== АКТИВАЦИЯ РУЧНОГО ПРОМОКОДА ==========
             applyPromoBtn.addEventListener('click', async (event) => {
                 event.preventDefault();
-                console.log('Кнопка активации нажата');
                 
                 const code = promoInput.value.trim().toUpperCase();
-                console.log('Введенный код:', code);
                 
                 if (!code) {
                     manualPromoResult.className = 'promo-result error';
+                    manualPromoResult.style.display = 'block';
                     manualPromoMessage.innerHTML = '❌ Введите промокод';
                     manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
-                // Проверяем, активировал ли этот пользователь этот промокод
                 if (userActivatedPromos.includes(code)) {
-                    console.log('❌ Пользователь уже активировал этот промокод:', code);
                     manualPromoResult.className = 'promo-result error';
+                    manualPromoResult.style.display = 'block';
                     manualPromoMessage.innerHTML = '❌ Вы уже активировали этот промокод';
                     manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
-                // Ищем промокод в списке активных
                 const promo = activePromoCodes.find(p => p.code === code);
                 
                 if (!promo) {
                     manualPromoResult.className = 'promo-result error';
+                    manualPromoResult.style.display = 'block';
                     manualPromoMessage.innerHTML = '❌ Неверный промокод';
                     manualPromoCodeDisplay.innerHTML = '';
                     return;
                 }
 
-                console.log('✅ Промокод найден, активируем для пользователя...');
-
-                // Добавляем в список активированных промокодов пользователя
                 userActivatedPromos.push(code);
                 saveUserActivatedPromos(userActivatedPromos);
                 
                 const oldScrolls = scrolls;
                 scrolls += promo.bonus;
                 
-                console.log('Свитки после активации:', scrolls);
-                
-                // Обновляем UI
                 updateUI();
                 
-                // Анимация
                 animateStat(scrollDisplay);
                 const rect = applyPromoBtn.getBoundingClientRect();
                 showFloatingNumber('+' + promo.bonus + ' 🔑', rect.left + rect.width/2, rect.top);
                 
                 manualPromoResult.className = 'promo-result success';
+                manualPromoResult.style.display = 'block';
                 manualPromoMessage.innerHTML = `✅ Промокод активирован! +${promo.bonus} свитков`;
                 manualPromoCodeDisplay.innerHTML = code;
                 
@@ -2592,9 +2634,7 @@
                 saveUserProgress();
             });
 
-            // ========== НОВОЕ: Функции админ-панели ==========
-            
-            // Добавление нового промокода
+            // ========== АДМИН-ПАНЕЛЬ ==========
             addPromoBtn.addEventListener('click', () => {
                 const code = newPromoCode.value.trim().toUpperCase();
                 const bonus = parseInt(newPromoBonus.value);
@@ -2609,7 +2649,6 @@
                     return;
                 }
                 
-                // Проверяем, не существует ли уже такой код
                 if (activePromoCodes.some(p => p.code === code)) {
                     alert('Промокод с таким кодом уже существует');
                     return;
@@ -2624,7 +2663,6 @@
                 alert(`Промокод ${code} успешно добавлен!`);
             });
             
-            // Очистка всех промокодов
             clearAllPromosBtn.addEventListener('click', () => {
                 if (confirm('Вы уверены, что хотите удалить ВСЕ промокоды?')) {
                     activePromoCodes = [];
@@ -2632,7 +2670,7 @@
                 }
             });
 
-            // Отображение пользователя Telegram и загрузка его прогресса
+            // ========== ИНИЦИАЛИЗАЦИЯ ==========
             if (tgUser) {
                 telegramUserDiv.style.display = 'flex';
                 userName.textContent = tgUser.first_name + (tgUser.last_name ? ' ' + tgUser.last_name : '');
@@ -2644,9 +2682,8 @@
                     userAvatar.src = 'data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMDAiIGhlaWdodD0iMTAwIiB2aWV3Qm94PSIwIDAgMTAwIDEwMCI+PHJlY3Qgd2lkdGg9IjEwMCIgaGVpZ2h0PSIxMDAiIGZpbGw9IiMyMjEyMDciLz48dGV4dCB4PSI1MCIgeT0iNjAiIGZvbnQtc2l6ZT0iNTAiIHRleHQtYW5jaG9yPSJtaWRkbGUiIGZpbGw9IiNmZmQ5NjYiPkA8L3RleHQ+PC9zdmc+';
                 }
                 
-                // Загружаем активированные промокоды пользователя
                 userActivatedPromos = loadUserActivatedPromos();
-                console.log(`Загружены активированные промокоды для пользователя ${tgUser.id}:`, userActivatedPromos);
+                console.log(`📋 Загружены активированные промокоды для пользователя ${tgUser.id}:`, userActivatedPromos);
                 
                 loadUserProgress();
                 
@@ -2654,16 +2691,17 @@
                     promoBlock.classList.add('hidden');
                 }
                 
-                // Показываем админ-панель, если пользователь администратор
                 if (isAdmin()) {
                     adminPanel.style.display = 'block';
                     console.log('👑 Админ панель активирована');
                 }
+                
+                // Запускаем проверку подписок при загрузке
+                checkInitialSubscriptions();
             } else {
                 loadUserProgress();
             }
 
-            // Автосохранение
             setInterval(() => {
                 saveUserProgress();
             }, 30000);
